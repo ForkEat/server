@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForkEat.Core", "ForkEat.Core\ForkEat.Core.csproj", "{130E758C-EB85-4EDA-B8C6-76AE4662499B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForkEat.Web", "ForkEat.Web\ForkEat.Web.csproj", "{19187D45-5AA3-45E4-9A8D-F3246DC0AA96}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForkEat.Core.Tests", "ForkEat.Core.Tests\ForkEat.Core.Tests.csproj", "{5CD5C3E9-4936-4B66-AAF4-7C84491D2B00}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ForkEat.Web.Tests", "ForkEat.Web.Tests\ForkEat.Web.Tests.csproj", "{389217FF-4B56-4127-A070-817904E82780}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{130E758C-EB85-4EDA-B8C6-76AE4662499B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{130E758C-EB85-4EDA-B8C6-76AE4662499B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{130E758C-EB85-4EDA-B8C6-76AE4662499B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{130E758C-EB85-4EDA-B8C6-76AE4662499B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19187D45-5AA3-45E4-9A8D-F3246DC0AA96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19187D45-5AA3-45E4-9A8D-F3246DC0AA96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19187D45-5AA3-45E4-9A8D-F3246DC0AA96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19187D45-5AA3-45E4-9A8D-F3246DC0AA96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CD5C3E9-4936-4B66-AAF4-7C84491D2B00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CD5C3E9-4936-4B66-AAF4-7C84491D2B00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CD5C3E9-4936-4B66-AAF4-7C84491D2B00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CD5C3E9-4936-4B66-AAF4-7C84491D2B00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{389217FF-4B56-4127-A070-817904E82780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{389217FF-4B56-4127-A070-817904E82780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{389217FF-4B56-4127-A070-817904E82780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{389217FF-4B56-4127-A070-817904E82780}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
