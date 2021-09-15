@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using ForkEat.Web.Database;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Npgsql;
 
@@ -32,12 +35,17 @@ namespace ForkEat.Web
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(GetPostgresConnectionString()));
             
+            
+            ConfigureAuth(services);
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ForkEat.Web", Version = "v1" });
             });
         }
+
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -52,11 +60,20 @@ namespace ForkEat.Web
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseCors(cors =>
+            {
+                cors.AllowAnyOrigin();
+                cors.AllowAnyMethod();
+                cors.AllowAnyHeader();
+            });
+            
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
+        
+        
         
         private string GetPostgresConnectionString()
         {
@@ -79,6 +96,31 @@ namespace ForkEat.Web
             };
 
             return builder.ToString();
+        }
+        
+        private static void ConfigureAuth(IServiceCollection services)
+        {
+            var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ??
+                            throw new ArgumentException("JWT_SECRET Env variable is not set");
+            var key = Encoding.ASCII.GetBytes(jwtSecret);
+
+            services.AddAuthentication(auth =>
+                {
+                    auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(auth =>
+                {
+                    auth.SaveToken = true;
+                    auth.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                })
+                ;
         }
     }
 }
