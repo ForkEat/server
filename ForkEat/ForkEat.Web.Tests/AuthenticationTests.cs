@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
@@ -22,6 +23,7 @@ namespace ForkEat.Web.Tests
         [Fact]
         public async Task RegisterAndLogin()
         {
+            /*REGISTER*/
             // Given
             var client = factory.CreateClient();
             var registerUserRequest = new RegisterUserRequest()
@@ -39,7 +41,27 @@ namespace ForkEat.Web.Tests
             
             response.StatusCode.Should().Be(HttpStatusCode.Created);
             result.Id.Should().NotBe(null);
-            result.UserName = "";
+            result.UserName.Should().Be("toto");
+            result.Email.Should().Be("toto@gmail.com");
+            
+            
+            /*LOGIN*/
+            //Given
+            var loginUser = new LoginUserRequest()
+            {
+                Email = "toto@gmail.com",
+                Password = "bonjour"
+            };
+            
+            //When
+            var loginResponse = await client.PostAsJsonAsync("/api/auth/login", loginUser);
+
+            //Then
+            loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var loginResult = await loginResponse.Content.ReadAsAsync<LoginUserResponse>();
+            loginResult.Token.Should().NotBe(String.Empty);
+            loginResult.UserName.Should().Be("toto");
+            loginResult.Email.Should().Be("toto@gmail.com");
         }
 
         public void Dispose()

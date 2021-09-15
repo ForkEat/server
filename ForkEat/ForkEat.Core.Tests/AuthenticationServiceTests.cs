@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
-using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -47,7 +45,6 @@ namespace ForkEat.Core.Tests
             // Then
             user.Email.Should().Be("toto@email.fr");
             user.UserName.Should().Be("Toto");
-            user.Password.Should().Be("bonjour");
 
             insertedUser.Id.Should().NotBe(Guid.Empty);
             insertedUser.Email.Should().Be("toto@email.fr");
