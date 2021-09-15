@@ -30,8 +30,9 @@ namespace ForkEat.Core.Services
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new ArgumentException("JWT_SECRET Env variable is not set"));
-            
+            var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ??
+                                              throw new ArgumentException("JWT_SECRET Env variable is not set"));
+
             var tokenDescriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(new Claim[]
@@ -56,7 +57,7 @@ namespace ForkEat.Core.Services
             return response;
         }
 
-        public Task<User> Register(RegisterUserRequest request)
+        public async Task<RegisterUserResponse> Register(RegisterUserRequest request)
         {
             var user = new User()
             {
@@ -64,8 +65,14 @@ namespace ForkEat.Core.Services
                 Email = request.Email,
                 Password = request.Password
             };
-            
-            return repository.InsertUser(user);
+
+            user = await repository.InsertUser(user);
+            return new RegisterUserResponse()
+            {
+                Id = user.Id,
+                Email = user.Email,
+                UserName = user.UserName
+            };
         }
     }
 }
