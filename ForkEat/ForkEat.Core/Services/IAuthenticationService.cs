@@ -6,7 +6,7 @@ namespace ForkEat.Core.Services
 {
     public interface IAuthenticationService
     {
-        Task<User> Login(string email, string password);
+        Task<LoginUserResponse> Login(LoginUserRequest request);
         Task<User> Register(RegisterUserRequest request);
     }
 }
