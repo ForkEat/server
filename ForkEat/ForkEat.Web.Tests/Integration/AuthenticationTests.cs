@@ -22,6 +22,7 @@ namespace ForkEat.Web.Tests
         [Fact]
         public async Task RegisterAndLogin()
         {
+            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
             /*REGISTER*/
             // Given
             var client = factory.CreateClient();
