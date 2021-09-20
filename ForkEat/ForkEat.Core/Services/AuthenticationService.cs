@@ -76,6 +76,8 @@ namespace ForkEat.Core.Services
                 throw new PasswordValidationException();
             }
 
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            
             user = await repository.InsertUser(user);
             return new RegisterUserResponse()
             {
