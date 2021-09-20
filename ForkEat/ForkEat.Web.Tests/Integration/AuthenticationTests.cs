@@ -40,7 +40,7 @@ namespace ForkEat.Web.Tests
             var result = await response.Content.ReadAsAsync<User>();
             
             response.StatusCode.Should().Be(HttpStatusCode.Created);
-            result.Id.Should().NotBe(null);
+            result.Id.Should().NotBe(Guid.Empty);
             result.UserName.Should().Be("toto");
             result.Email.Should().Be("toto@gmail.com");
             
