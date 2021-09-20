@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentValidation.Results;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
@@ -24,10 +25,12 @@ namespace ForkEat.Core.Tests
             {
                 UserName = "Toto",
                 Email = "toto@email.fr",
-                Password = "bonjour"
+                Password = "Bonj@ur42"
             };
 
             var repoMock = new Mock<IUserRepository>();
+            var validatorMock = new Mock<IPasswordValidator>();
+
             User insertedUser = null;
             repoMock.Setup(mock => mock.InsertUser(It.IsAny<User>()))
                 .Returns<User>(user =>
@@ -37,7 +40,10 @@ namespace ForkEat.Core.Tests
                     return Task.FromResult(insertedUser);
                 });
 
-            var service = new AuthenticationService(repoMock.Object);
+            validatorMock.Setup(mock => mock.Validate(It.IsAny<User>()))
+                .Returns(new ValidationResult());
+
+            var service = new AuthenticationService(repoMock.Object, validatorMock.Object);
             
             // When
             var user = await service.Register(registerUserRequest);
@@ -49,7 +55,7 @@ namespace ForkEat.Core.Tests
             insertedUser.Id.Should().NotBe(Guid.Empty);
             insertedUser.Email.Should().Be("toto@email.fr");
             insertedUser.UserName.Should().Be("Toto");
-            insertedUser.Password.Should().Be("bonjour");
+            insertedUser.Password.Should().Be("Bonj@ur42");
         }
 
         [Fact]
@@ -58,7 +64,7 @@ namespace ForkEat.Core.Tests
             var loginUserRequest = new LoginUserRequest()
             {
                 Email = "toto@email.fr",
-                Password = "bonjour"
+                Password = "Bonj@ur42"
             };
 
             var secret = "bonjourlemondecestvraimentchouetteajd";
@@ -67,15 +73,16 @@ namespace ForkEat.Core.Tests
             var userId = Guid.NewGuid();
             
             var repoMock = new Mock<IUserRepository>();
+            var validatorMock = new Mock<IPasswordValidator>();
             repoMock.Setup(x => x.FindUserByEmail("toto@email.fr"))
                 .Returns(() => Task.FromResult(new User()
                 {
                     Id = userId,
                     Email = "toto@email.fr",
                     UserName = "Toto",
-                    Password = BCrypt.Net.BCrypt.HashPassword("bonjour")
+                    Password = BCrypt.Net.BCrypt.HashPassword("Bonj@ur42")
                 }));
-            var service = new AuthenticationService(repoMock.Object);
+            var service = new AuthenticationService(repoMock.Object, validatorMock.Object);
             var user = await service.Login(loginUserRequest);
             
             user.Token.Should().NotBe(String.Empty);
@@ -97,6 +104,10 @@ namespace ForkEat.Core.Tests
             
             var principal = tokenHandler.ValidateToken(user.Token, validationParameters, out _);
 
-            principal.Claims.ToList()[0].Subject.Name.Should().Be( userId.ToString());}
+            principal.Claims.ToList()[0].Subject.Name.Should().Be( userId.ToString());
+            
+        }
+
     }
+
 }
