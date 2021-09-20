@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
@@ -29,7 +28,7 @@ namespace ForkEat.Web.Tests
             var registerUserRequest = new RegisterUserRequest()
             {
                 Email = "toto@gmail.com",
-                Password = "bonjour",
+                Password = "Bonj@ur42",
                 UserName = "toto"
             };
 
