@@ -11,6 +11,7 @@ steps:
 - name: test
   image: mcr.microsoft.com/dotnet/sdk:5.0
   commands:
+    - cd ForkEat
     - dotnet test
 
 - name: publish to Dockerhub image
