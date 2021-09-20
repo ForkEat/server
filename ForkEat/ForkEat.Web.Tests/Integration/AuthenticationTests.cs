@@ -49,7 +49,7 @@ namespace ForkEat.Web.Tests
             var loginUser = new LoginUserRequest()
             {
                 Email = "toto@gmail.com",
-                Password = "bonjour"
+                Password = "Bonj@ur42"
             };
             
             //When
