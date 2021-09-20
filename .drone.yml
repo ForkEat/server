@@ -15,6 +15,8 @@ steps:
   environment:
     JWT_SECRET:
       from_secret: JWT_SECRET
+    TEST_DATABASE_URL:
+      from_secret: JWT_SECRET
 
 - name: publish image
   image: plugins/docker
@@ -50,6 +52,8 @@ steps:
     - dotnet test
   environment:
     JWT_SECRET:
+      from_secret: JWT_SECRET
+    TEST_DATABASE_URL:
       from_secret: JWT_SECRET
     
 - name: publish image
