@@ -6,11 +6,6 @@ platform:
   arch: amd64
   os: linux
 
-environment:
-  JWT_SECRET:
-    from_secret: jwt_secret
-  TEST_DATABASE_URL:
-    from_secret: test_database_url
 
 steps:
 - name: test
@@ -18,6 +13,11 @@ steps:
   commands:
     - cd ForkEat
     - dotnet test
+  environment:
+    JWT_SECRET:
+      from_secret: jwt_secret
+    TEST_DATABASE_URL:
+      from_secret: test_database_url
 
 - name: publish image
   image: plugins/docker
@@ -45,18 +45,17 @@ platform:
   arch: arm64
   os: linux
 
-environment:
-  JWT_SECRET:
-    from_secret: jwt_secret
-  TEST_DATABASE_URL:
-    from_secret: test_database_url
-
 steps:
 - name: test
   image: mcr.microsoft.com/dotnet/sdk:5.0
   commands:
     - cd ForkEat
     - dotnet test
+  environment:
+    JWT_SECRET:
+      from_secret: jwt_secret
+    TEST_DATABASE_URL:
+      from_secret: test_database_url
 
 - name: publish image
   image: plugins/docker
