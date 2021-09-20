@@ -51,9 +51,6 @@ steps:
   environment:
     JWT_SECRET:
       from_secret: JWT_SECRET
-  when:
-    event:
-    - tag
     
 - name: publish image
   image: plugins/docker
@@ -65,9 +62,11 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
-  when:
-    event:
-    - tag
+
+
+trigger:
+  event:
+  - tag
 ---
 kind: pipeline
 type: docker
