@@ -53,11 +53,7 @@ steps:
       from_secret: JWT_SECRET
   when:
     event:
-    - push
     - tag
-    branch:
-    - master
-    - main
     
 - name: publish image
   image: plugins/docker
@@ -71,11 +67,7 @@ steps:
       from_secret: docker_password
   when:
     event:
-    - push
     - tag
-    branch:
-    - master
-    - main
 ---
 kind: pipeline
 type: docker
