@@ -62,13 +62,11 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
-  when:
-    event:
-    - push
-    - tag
-    branch:
-    - master
-    - main
+
+
+trigger:
+  event:
+  - tag
 ---
 kind: pipeline
 type: docker
