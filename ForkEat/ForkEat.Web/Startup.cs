@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ForkEat.Core.Services;
 using ForkEat.Web.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -34,7 +35,9 @@ namespace ForkEat.Web
         {
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(GetPostgresConnectionString()));
-            
+
+
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
             
             ConfigureAuth(services);
 
