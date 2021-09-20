@@ -1,0 +1,95 @@
+kind: pipeline
+type: docker
+name: linux-amd64
+
+platform:
+  arch: amd64
+  os: linux
+
+steps:
+- name: test
+  image: mcr.microsoft.com/dotnet/sdk:5.0
+  commands:
+    - cd ForkEat
+    - dotnet test
+  environment:
+    JWT_SECRET:
+      from_secret: JWT_SECRET
+
+- name: publish image
+  image: plugins/docker
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-amd64
+    repo: thomaslacaze/forkeat
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  when:
+    event:
+    - push
+    - tag
+    branch:
+    - master
+    - main
+---
+kind: pipeline
+type: docker
+name: linux-arm64
+
+platform:
+  arch: arm64
+  os: linux
+
+steps:
+- name: test
+  image: mcr.microsoft.com/dotnet/sdk:5.0
+  commands:
+    - cd ForkEat
+    - dotnet test
+  environment:
+    JWT_SECRET:
+      from_secret: JWT_SECRET
+    
+- name: publish image
+  image: plugins/docker
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-arm64
+    repo: thomaslacaze/forkeat
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+  when:
+    event:
+    - push
+    - tag
+    branch:
+    - master
+    - main
+---
+kind: pipeline
+type: docker
+name: deploy readme
+
+platform:
+  arch: amd64
+  os: linux
+
+steps:
+- name: publish readme to Dockerhub
+  image: thomaslacaze/dockerhub-description:2.4.1
+  pull: always
+  settings:
+    repository: thomaslacaze/forkeat
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    readme: /drone/src/README.md
+  when:
+    branch:
+    - master
+    - main
