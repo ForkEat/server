@@ -51,6 +51,13 @@ steps:
   environment:
     JWT_SECRET:
       from_secret: JWT_SECRET
+  when:
+    event:
+    - push
+    - tag
+    branch:
+    - master
+    - main
     
 - name: publish image
   image: plugins/docker
