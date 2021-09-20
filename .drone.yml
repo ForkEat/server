@@ -9,7 +9,7 @@ platform:
 steps:
 
 - name: test
-  image: microsoft/dotnet:sdk
+  image: mcr.microsoft.com/dotnet/sdk:5.0
   commands:
     - dotnet test
 
