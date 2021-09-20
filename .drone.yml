@@ -30,8 +30,7 @@ steps:
     branch:
     - master
     - main
-##
-
+---
 kind: pipeline
 type: docker
 name: linux-arm64
@@ -64,8 +63,7 @@ steps:
     branch:
     - master
     - main
-##
-
+---
 kind: pipeline
 type: docker
 name: deploy readme
