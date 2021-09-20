@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
 using ForkEat.Core.Services;
 using ForkEat.Web.Database;
@@ -40,6 +41,7 @@ namespace ForkEat.Web
 
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPasswordValidator, PasswordValidator>();
             
             ConfigureAuth(services);
 

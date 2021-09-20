@@ -55,7 +55,7 @@ namespace ForkEat.Core.Tests
             insertedUser.Id.Should().NotBe(Guid.Empty);
             insertedUser.Email.Should().Be("toto@email.fr");
             insertedUser.UserName.Should().Be("Toto");
-            insertedUser.Password.Should().Be(BCrypt.Net.BCrypt.HashPassword("Bonj@ur42"));
+            BCrypt.Net.BCrypt.Verify("Bonj@ur42", insertedUser.Password);
         }
 
         [Fact]
