@@ -15,9 +15,12 @@ namespace ForkEat.Core.Services
     {
         private readonly IUserRepository repository;
 
-        public AuthenticationService(IUserRepository repository)
+        private readonly IPasswordValidator passwordValidator;
+
+        public AuthenticationService(IUserRepository repository, IPasswordValidator passwordValidator)
         {
             this.repository = repository;
+            this.passwordValidator = passwordValidator;
         }
 
         public async Task<LoginUserResponse> Login(LoginUserRequest request)
@@ -66,6 +69,15 @@ namespace ForkEat.Core.Services
                 Password = request.Password
             };
 
+            var validationResult = passwordValidator.Validate(user);
+
+            if (!validationResult.IsValid)
+            {
+                throw new PasswordValidationException();
+            }
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            
             user = await repository.InsertUser(user);
             return new RegisterUserResponse()
             {

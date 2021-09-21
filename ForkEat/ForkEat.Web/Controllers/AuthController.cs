@@ -19,11 +19,18 @@ namespace ForkEat.Web.Controllers
         }
 
 
-        [HttpPost("/register")]
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [HttpPost("register")]
         public async Task<ActionResult<RegisterUserResponse>> Register([FromBody] RegisterUserRequest request)
         {
-            return await authenticationService.Register(request);
+            var registerUserResponse = await authenticationService.Register(request);
+            return Created("",registerUserResponse);
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<LoginUserResponse>> Login([FromBody] LoginUserRequest request)
+        {
+            var result = await authenticationService.Login(request);
+            return result;
         }
     }
 }
