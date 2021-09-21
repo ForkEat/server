@@ -10,6 +10,8 @@ namespace ForkEat.Web.Database
         }
 
         public DbSet<User> Users { get; set; }
+        
+        public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -17,6 +19,9 @@ namespace ForkEat.Web.Database
             modelBuilder.Entity<User>().Property(user => user.Email);
             modelBuilder.Entity<User>().Property(user => user.Password);
             modelBuilder.Entity<User>().Property(user => user.UserName);
+
+            modelBuilder.Entity<Product>().HasKey(product => product.Id);
+            modelBuilder.Entity<Product>().Property(product => product.Name);
         }
     }
 }

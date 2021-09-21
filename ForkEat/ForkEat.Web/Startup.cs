@@ -40,9 +40,11 @@ namespace ForkEat.Web
 
 
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordValidator, PasswordValidator>();
-
+            services.AddScoped<IProductRepository, ProductRepository>();
+            
             ConfigureAuth(services);
 
             services.AddControllers();

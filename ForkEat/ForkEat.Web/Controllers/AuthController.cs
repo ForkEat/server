@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForkEat.Web.Controllers
