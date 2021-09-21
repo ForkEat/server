@@ -40,5 +40,54 @@ namespace ForkEat.Web.Tests.Repositories
             productInDb.Id.Should().Be(result.Id);
             productInDb.Name.Should().Be(productName);
         }
+        
+        [Fact]
+        public async Task FindProductById_ExistingProduct_ReturnsProduct()
+        {
+            // Given
+            var productName = "carrott";
+            var productId = Guid.NewGuid();
+            
+            var product = new Product()
+            {
+                Id = productId,
+                Name = productName
+            };
+            var repository = new ProductRepository(context);
+            
+            await context.Products.AddAsync(product);
+            await context.SaveChangesAsync();
+
+            // When
+            var result = await repository.FindProductById(productId);
+            
+            // Then
+            result.Id.Should().Be(result.Id);
+            result.Name.Should().Be(productName);
+        }
+        
+        [Fact]
+        public async Task FindProductById_NonExistingProduct_ReturnsNull()
+        {
+            // Given
+            var productName = "carrott";
+            var productId = Guid.NewGuid();
+            
+            var product = new Product()
+            {
+                Id = productId,
+                Name = productName
+            };
+            var repository = new ProductRepository(context);
+            
+            await context.Products.AddAsync(product);
+            await context.SaveChangesAsync();
+
+            // When
+            var result = await repository.FindProductById(Guid.NewGuid());
+            
+            // Then
+            result.Should().BeNull();
+        }
     }
 }
