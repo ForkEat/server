@@ -5,15 +5,19 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Web.Database;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace ForkEat.Web.Tests
 {
-    public class AuthenticationTests : IClassFixture<WebApplicationFactory<Startup>>, IDisposable
+    public class AuthenticationTests : IClassFixture<WebApplicationFactory<Startup>>, IAsyncLifetime
     {
         private readonly WebApplicationFactory<Startup> factory;
-
+        private ApplicationDbContext context;
+        
         public AuthenticationTests(WebApplicationFactory<Startup> factory)
         {
             this.factory = factory;
@@ -64,8 +68,14 @@ namespace ForkEat.Web.Tests
             loginResult.Email.Should().Be("toto@gmail.com");
         }
 
-        public void Dispose()
+        public Task InitializeAsync() => Task.CompletedTask;
+
+        public async Task DisposeAsync()
         {
+            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
+            using var scope = scopeFactory.CreateScope();
+            context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+            await context.Database.ExecuteSqlRawAsync("DELETE FROM \"Users\"");
         }
     }
 }
