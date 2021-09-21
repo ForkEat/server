@@ -88,7 +88,7 @@ steps:
   image: thomaslacaze/dockerhub-description:2.4.1
   pull: always
   settings:
-    repository: thomaslacaze/forkeat
+    repository: thomaslacaze/forkeat-server
     username:
       from_secret: docker_username
     password:
