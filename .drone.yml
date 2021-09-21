@@ -29,7 +29,7 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
-    dockerfile: server/ForkEat/ForkEat.Web/Dockerfile
+    dockerfile: ForkEat/ForkEat.Web/Dockerfile
   when:
     event:
     - push
@@ -68,7 +68,7 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
-    dockerfile: server/ForkEat/ForkEat.Web/Dockerfile
+    dockerfile: ForkEat/ForkEat.Web/Dockerfile
 
 
 trigger:
