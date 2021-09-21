@@ -109,12 +109,14 @@ namespace ForkEat.Web.Tests.Repositories
             var result = await repository.InsertUser(user);
 
             // Then
+            context.Users.Should().ContainSingle();
+            
             result.Id.Should().NotBe(Guid.Empty);
             result.Email.Should().Be("john.shepard@sr2-normandy.com");
             result.UserName.Should().Be("John Shepard");
             result.Password.Should().Be(hashedPassword);
 
-            var userInDb = await this.context.Users.FirstAsync();
+            var userInDb = await this.context.Users.FirstAsync(user => user.Id == result.Id);
             userInDb.Id.Should().Be(result.Id);
             userInDb.Email.Should().Be("john.shepard@sr2-normandy.com");
             userInDb.UserName.Should().Be("John Shepard");
