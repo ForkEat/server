@@ -42,7 +42,7 @@ namespace ForkEat.Web
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordValidator, PasswordValidator>();
-            
+
             ConfigureAuth(services);
 
             services.AddControllers();
@@ -53,17 +53,14 @@ namespace ForkEat.Web
         }
 
 
-
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,  ApplicationDbContext db)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext db)
         {
             db.Database.Migrate();
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ForkEat.Web v1"));
-            }
+
+            app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ForkEat.Web v1"));
 
             app.UseHttpsRedirection();
 
@@ -74,15 +71,14 @@ namespace ForkEat.Web
                 cors.AllowAnyMethod();
                 cors.AllowAnyHeader();
             });
-            
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
-        
-        
-        
+
+
         private string GetPostgresConnectionString()
         {
             var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -105,7 +101,7 @@ namespace ForkEat.Web
 
             return builder.ToString();
         }
-        
+
         private static void ConfigureAuth(IServiceCollection services)
         {
             var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ??
