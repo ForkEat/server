@@ -68,7 +68,7 @@ namespace ForkEat.Web.Tests
         }
 
         [Fact]
-        public async Task RegisterAndLogin_LoginWithGoodCredentials_RegistersUsersAndReturns401()
+        public async Task RegisterAndLogin_LoginWithWrongCredentials_RegistersUsersAndReturns401()
         {
             /*REGISTER*/
             // Given
