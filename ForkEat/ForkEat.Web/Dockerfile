@@ -5,7 +5,7 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["ForkEat.Web/ForkEat.Web.csproj", "ForkEat.Web/"]
+COPY ["ForkEat/ForkEat.Web/ForkEat.Web.csproj", "ForkEat.Web/"]
 RUN dotnet restore "ForkEat.Web/ForkEat.Web.csproj"
 COPY . .
 WORKDIR "/src/ForkEat.Web"
