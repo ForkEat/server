@@ -3,20 +3,22 @@ using System;
 using ForkEat.Web.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ForkEat.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210921112212_files")]
+    partial class files
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.7")
+                .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("ForkEat.Core.Domain.Product", b =>
@@ -53,7 +55,7 @@ namespace ForkEat.Web.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ForkEat.Web.Adapters.Files.DbFile", b =>
+            modelBuilder.Entity("ForkEat.Web.Database.DbFile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -61,9 +63,6 @@ namespace ForkEat.Web.Migrations
 
                     b.Property<byte[]>("Data")
                         .HasColumnType("bytea");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
 
                     b.Property<string>("Type")
                         .HasColumnType("text");
