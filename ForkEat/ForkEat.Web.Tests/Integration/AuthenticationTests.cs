@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
@@ -23,13 +22,14 @@ namespace ForkEat.Web.Tests
         [Fact]
         public async Task RegisterAndLogin()
         {
+            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
             /*REGISTER*/
             // Given
             var client = factory.CreateClient();
             var registerUserRequest = new RegisterUserRequest()
             {
                 Email = "toto@gmail.com",
-                Password = "bonjour",
+                Password = "Bonj@ur42",
                 UserName = "toto"
             };
 
@@ -40,7 +40,7 @@ namespace ForkEat.Web.Tests
             var result = await response.Content.ReadAsAsync<User>();
             
             response.StatusCode.Should().Be(HttpStatusCode.Created);
-            result.Id.Should().NotBe(null);
+            result.Id.Should().NotBe(Guid.Empty);
             result.UserName.Should().Be("toto");
             result.Email.Should().Be("toto@gmail.com");
             
@@ -50,7 +50,7 @@ namespace ForkEat.Web.Tests
             var loginUser = new LoginUserRequest()
             {
                 Email = "toto@gmail.com",
-                Password = "bonjour"
+                Password = "Bonj@ur42"
             };
             
             //When
