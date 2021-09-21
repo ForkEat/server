@@ -1,0 +1,12 @@
+version: '2.1'
+services:
+
+ wakapistats:
+  image: thomaslacaze/forkeat-server:linux-amd64
+  container_name: forkeat-server
+  environment: 
+    - DATABASE_URL=postgres://****:****@****:5432/****
+    - JWT_SECRET=<RANDOM_STRING>
+  ports: 
+    - "80:80"
+    - "443:443"
