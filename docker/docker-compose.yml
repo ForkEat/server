@@ -1,7 +1,7 @@
 version: '2.1'
 services:
 
- wakapistats:
+ forkeat-server:
   image: thomaslacaze/forkeat-server:linux-amd64
   container_name: forkeat-server
   environment: 
