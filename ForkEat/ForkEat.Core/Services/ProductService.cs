@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
@@ -37,6 +38,11 @@ namespace ForkEat.Core.Services
             }
 
             return product;
+        }
+
+        public async Task<IList<Product>> GetAllProducts()
+        {
+            return await productRepository.FindAllProducts();
         }
     }
 }

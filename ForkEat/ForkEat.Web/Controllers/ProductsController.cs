@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
@@ -26,7 +27,7 @@ namespace ForkEat.Web.Controllers
         }
         
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> CreateProduct(Guid id)
+        public async Task<ActionResult<Product>> GetProductById(Guid id)
         {
             Product product = null;
             
@@ -40,6 +41,12 @@ namespace ForkEat.Web.Controllers
             }
 
             return product;
+        }
+        
+        [HttpGet]
+        public async Task<IList<Product>> GetAllProducts()
+        {
+            return await productService.GetAllProducts();
         }
     }
 }

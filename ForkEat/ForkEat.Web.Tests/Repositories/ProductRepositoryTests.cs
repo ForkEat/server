@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Domain;
@@ -88,6 +89,38 @@ namespace ForkEat.Web.Tests.Repositories
             
             // Then
             result.Should().BeNull();
+        }
+        
+        [Fact]
+        public async Task FindAllProducts_ReturnsList()
+        {
+            // Given
+            var repository = new ProductRepository(context);
+
+            var product = CreateProduct();
+            var product2 = CreateProduct();
+
+            await context.Products.AddAsync(product);
+            await context.Products.AddAsync(product2);
+            await context.SaveChangesAsync();
+
+            // When
+            var result = await repository.FindAllProducts();
+            
+            // Then
+            result.Should().HaveCount(2);
+        }
+
+        private Product CreateProduct()
+        {
+            var productName = "carrott";
+            var productId = Guid.NewGuid();
+            
+            return new Product
+            {
+                Id = productId,
+                Name = productName + " " +productId
+            };
         }
     }
 }
