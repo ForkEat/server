@@ -20,8 +20,9 @@ namespace ForkEat.Web.Tests
         [Fact]
         public async Task CreateProduct_withValidParams_Returns201()
         {
-            var productName = "carrott";
-
+            var productName = "carrot";
+            
+            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
 
             // Given
             var client = factory.CreateClient();
@@ -43,7 +44,7 @@ namespace ForkEat.Web.Tests
         [Fact]
         public async Task GetProductById_WithExistingProduct_Returns200()
         {
-            var productName = "carrott";
+            var productName = "carrot";
             var createProductRequest = new CreateProductRequest()
             {
                 Name = productName
@@ -72,7 +73,7 @@ namespace ForkEat.Web.Tests
         {
             var createProductRequest = new CreateProductRequest()
             {
-                Name = "carrott"
+                Name = "carrot"
             };
             
             Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
@@ -93,7 +94,7 @@ namespace ForkEat.Web.Tests
         {
             var createProductRequest = new CreateProductRequest()
             {
-                Name = "carrott"
+                Name = "carrot"
             };
             
             var createProductRequest2 = new CreateProductRequest()
@@ -115,6 +116,53 @@ namespace ForkEat.Web.Tests
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = await response.Content.ReadAsAsync<IEnumerable<Product>>();
             result.Should().HaveCount(2);
+        }
+        
+        [Fact]
+        public async Task DeleteProduct_WithExistingProduct_Returns200()
+        {
+            var productName = "carrot";
+            var createProductRequest = new CreateProductRequest()
+            {
+                Name = productName
+            };
+            
+            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
+
+            // Given
+            var client = factory.CreateClient();
+            var createdProductResponse = await client.PostAsJsonAsync("/api/products", createProductRequest);
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var productId = createdProductResult.Id;
+            
+            // When
+            var response = await client.DeleteAsync("/api/products/" + productId);
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var getResponse = await client.GetAsync("/api/products/" + productId);
+            getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+        
+        [Fact]
+        public async Task DeleteProduct_WithNonExistingProduct_Returns404()
+        {
+            var createProductRequest = new CreateProductRequest()
+            {
+                Name = "carrot"
+            };
+            
+            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
+
+            // Given
+            var client = factory.CreateClient();
+            await client.PostAsJsonAsync("/api/products", createProductRequest);
+            
+            // When
+            var response = await client.DeleteAsync("/api/products/" + Guid.NewGuid());
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }

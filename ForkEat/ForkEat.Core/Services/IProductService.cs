@@ -11,5 +11,6 @@ namespace ForkEat.Core.Services
         Task<Product> CreateProduct(CreateProductRequest createProductRequest);
         Task<Product> GetProductById(Guid id);
         Task<IList<Product>> GetAllProducts();
+        Task DeleteProduct(Guid id);
     }
 }
