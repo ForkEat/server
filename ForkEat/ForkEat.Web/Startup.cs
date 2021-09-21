@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
 using ForkEat.Core.Services;
+using ForkEat.Web.Adapters.Files;
 using ForkEat.Web.Database;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -44,6 +45,7 @@ namespace ForkEat.Web
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordValidator, PasswordValidator>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IFilesRepository, FilesRepository>();
             
             ConfigureAuth(services);
 

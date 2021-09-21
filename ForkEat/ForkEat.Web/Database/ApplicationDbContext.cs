@@ -1,4 +1,5 @@
 ﻿using ForkEat.Core.Domain;
+using ForkEat.Web.Adapters.Files;
 using Microsoft.EntityFrameworkCore;
 
 namespace ForkEat.Web.Database
@@ -12,6 +13,7 @@ namespace ForkEat.Web.Database
         public DbSet<User> Users { get; set; }
         
         public DbSet<Product> Products { get; set; }
+        public DbSet<DbFile> Files { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,6 +24,11 @@ namespace ForkEat.Web.Database
 
             modelBuilder.Entity<Product>().HasKey(product => product.Id);
             modelBuilder.Entity<Product>().Property(product => product.Name);
+
+            modelBuilder.Entity<DbFile>().HasKey(file => file.Id);
+            modelBuilder.Entity<DbFile>().Property(file => file.Type);
+            modelBuilder.Entity<DbFile>().Property(file => file.Data);
+            modelBuilder.Entity<DbFile>().Property(file => file.Name);
         }
     }
 }
