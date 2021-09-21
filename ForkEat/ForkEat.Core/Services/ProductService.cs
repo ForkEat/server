@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Core.Exceptions;
 using ForkEat.Core.Repositories;
 
 namespace ForkEat.Core.Services
@@ -24,6 +25,18 @@ namespace ForkEat.Core.Services
             };
 
             return await productRepository.InsertProduct(product);
+        }
+
+        public async Task<Product> GetProductById(Guid id)
+        {
+            var product = await productRepository.FindProductById(id);
+
+            if (product is null)
+            {
+                throw new ProductNotFoundException();
+            }
+
+            return product;
         }
     }
 }

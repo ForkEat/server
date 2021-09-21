@@ -1,6 +1,8 @@
+using System;
 using System.Threading.Tasks;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace ForkEat.Web.Database
 {
@@ -18,6 +20,13 @@ namespace ForkEat.Web.Database
             await dbContext.Products.AddAsync(product);
             await dbContext.SaveChangesAsync();
             return product;
+        }
+
+        public Task<Product> FindProductById(Guid id)
+        {
+            return dbContext
+                .Products
+                .FirstOrDefaultAsync(product => product.Id == id);
         }
     }
 }
