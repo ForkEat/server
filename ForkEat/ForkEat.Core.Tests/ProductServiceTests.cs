@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
@@ -72,7 +73,6 @@ namespace ForkEat.Core.Tests
         {
             var mockRepository = new Mock<IProductRepository>();
 
-
             mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
                 .Returns<Guid>(_ => Task.FromResult<Product>(null));
 
@@ -80,6 +80,41 @@ namespace ForkEat.Core.Tests
 
             await service.Invoking(productService => productService.GetProductById(Guid.NewGuid()))
                 .Should().ThrowAsync<ProductNotFoundException>();
+        }
+        
+        [Fact]
+        public async Task GetAllProducts_ReturnsList()
+        {
+            var product = CreateProduct();
+            var product2 = CreateProduct();
+
+            var products = new List<Product>
+            {
+                product,
+                product2
+            };
+
+            var mockRepository = new Mock<IProductRepository>();
+            
+            mockRepository.Setup(mock => mock.FindAllProducts())
+                .Returns(() => Task.FromResult<List<Product>>(products));
+
+            var service = new ProductService(mockRepository.Object);
+
+            var result = await service.GetAllProducts();
+            result.Should().HaveCount(2);
+        }
+        
+        private Product CreateProduct()
+        {
+            var productName = "carrott";
+            var productId = Guid.NewGuid();
+            
+            return new Product
+            {
+                Id = productId,
+                Name = productName + " " +productId
+            };
         }
     }
 }

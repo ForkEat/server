@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -85,6 +86,35 @@ namespace ForkEat.Web.Tests
             
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+        
+        [Fact]
+        public async Task GetAllProducts_Returns200()
+        {
+            var createProductRequest = new CreateProductRequest()
+            {
+                Name = "carrott"
+            };
+            
+            var createProductRequest2 = new CreateProductRequest()
+            {
+                Name = "tomato"
+            };
+            
+            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
+
+            // Given
+            var client = factory.CreateClient();
+            await client.PostAsJsonAsync("/api/products", createProductRequest);
+            await client.PostAsJsonAsync("/api/products", createProductRequest2);
+            
+            // When
+            var response = await client.GetAsync("/api/products");
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadAsAsync<IEnumerable<Product>>();
+            result.Should().HaveCount(2);
         }
     }
 }

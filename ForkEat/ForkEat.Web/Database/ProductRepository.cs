@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
@@ -27,6 +28,11 @@ namespace ForkEat.Web.Database
             return dbContext
                 .Products
                 .FirstOrDefaultAsync(product => product.Id == id);
+        }
+
+        public Task<List<Product>> FindAllProducts()
+        {
+            return dbContext.Products.ToListAsync();
         }
     }
 }
