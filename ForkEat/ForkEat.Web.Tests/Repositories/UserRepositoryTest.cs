@@ -109,6 +109,8 @@ namespace ForkEat.Web.Tests.Repositories
             var result = await repository.InsertUser(user);
 
             // Then
+            context.Users.Should().ContainSingle();
+            
             result.Id.Should().NotBe(Guid.Empty);
             result.Email.Should().Be("john.shepard@sr2-normandy.com");
             result.UserName.Should().Be("John Shepard");
