@@ -24,7 +24,7 @@ steps:
   settings:
     auto_tag: true
     auto_tag_suffix: linux-amd64
-    repo: thomaslacaze/forkeat
+    repo: thomaslacaze/forkeat-server
     username:
       from_secret: docker_username
     password:
@@ -63,7 +63,7 @@ steps:
   settings:
     auto_tag: true
     auto_tag_suffix: linux-arm64
-    repo: thomaslacaze/forkeat
+    repo: thomaslacaze/forkeat-server
     username:
       from_secret: docker_username
     password:
@@ -88,7 +88,7 @@ steps:
   image: thomaslacaze/dockerhub-description:2.4.1
   pull: always
   settings:
-    repository: thomaslacaze/forkeat
+    repository: thomaslacaze/forkeat-server
     username:
       from_secret: docker_username
     password:

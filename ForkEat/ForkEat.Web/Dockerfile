@@ -7,7 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 COPY ["ForkEat/ForkEat.Web/ForkEat.Web.csproj", "ForkEat.Web/"]
 RUN dotnet restore "ForkEat.Web/ForkEat.Web.csproj"
-COPY . .
+COPY ForkEat/ .
 WORKDIR "/src/ForkEat.Web"
 RUN dotnet build "ForkEat.Web.csproj" -c Release -o /app/build
 
