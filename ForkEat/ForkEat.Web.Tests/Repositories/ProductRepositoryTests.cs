@@ -20,7 +20,7 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task InsertProduct_InsertRecordInDatabase()
         {
             // Given
-            var productName = "carrott";
+            var productName = "carrot";
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
@@ -46,7 +46,7 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task FindProductById_ExistingProduct_ReturnsProduct()
         {
             // Given
-            var productName = "carrott";
+            var productName = "carrot";
             var productId = Guid.NewGuid();
             
             var product = new Product()
@@ -71,7 +71,7 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task FindProductById_NonExistingProduct_ReturnsNull()
         {
             // Given
-            var productName = "carrott";
+            var productName = "carrot";
             var productId = Guid.NewGuid();
             
             var product = new Product()
@@ -110,10 +110,32 @@ namespace ForkEat.Web.Tests.Repositories
             // Then
             result.Should().HaveCount(2);
         }
+        
+        [Fact]
+        public async Task DeleteProduct_WithExistingProduct_ReturnsVoid()
+        {
+            // Given
+            var productName = "carrot";
+            var productId = Guid.NewGuid();
+            
+            var product = new Product()
+            {
+                Id = productId,
+                Name = productName
+            };
+            var repository = new ProductRepository(context);
+            
+            await context.Products.AddAsync(product);
+            await context.SaveChangesAsync();
+
+            // Then
+            await repository.Invoking(productRepository => productRepository.DeleteProduct(product))
+                .Should().NotThrowAsync<Exception>();
+        }
 
         private Product CreateProduct()
         {
-            var productName = "carrott";
+            var productName = "carrot";
             var productId = Guid.NewGuid();
             
             return new Product

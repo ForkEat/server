@@ -17,7 +17,7 @@ namespace ForkEat.Core.Tests
         [Fact]
         public async Task CreateProduct_WithValidParams_ReturnsProduct()
         {
-            var productName = "carrott";
+            var productName = "carrot";
 
             var mockRepository = new Mock<IProductRepository>();
 
@@ -47,7 +47,7 @@ namespace ForkEat.Core.Tests
         [Fact]
         public async Task GetProductById_WithExistingProduct_ReturnsProduct()
         {
-            var productName = "carrott";
+            var productName = "carrot";
             var productId = Guid.NewGuid();
 
             var mockRepository = new Mock<IProductRepository>();
@@ -105,9 +105,44 @@ namespace ForkEat.Core.Tests
             result.Should().HaveCount(2);
         }
         
+        [Fact]
+        public async Task DeleteProduct_WithExistingProduct_ReturnsVoid()
+        {
+            var productName = "carrot";
+            var productId = Guid.NewGuid();
+
+            var mockRepository = new Mock<IProductRepository>();
+
+            mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
+                .Returns<Guid>(_ => Task.FromResult(new Product
+                {
+                    Id = productId,
+                    Name = productName
+                }));
+
+            var service = new ProductService(mockRepository.Object);
+
+            await service.Invoking(productService => productService.DeleteProduct(productId))
+                .Should().NotThrowAsync<Exception>();
+        }
+
+        [Fact]
+        public async Task DeleteProduct_WithNonExistingProduct_ThrowsException()
+        {
+            var mockRepository = new Mock<IProductRepository>();
+
+            mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
+                .Returns<Guid>(_ => Task.FromResult<Product>(null));
+
+            var service = new ProductService(mockRepository.Object);
+
+            await service.Invoking(productService => productService.DeleteProduct(Guid.NewGuid()))
+                .Should().ThrowAsync<ProductNotFoundException>();
+        }
+        
         private Product CreateProduct()
         {
-            var productName = "carrott";
+            var productName = "carrot";
             var productId = Guid.NewGuid();
             
             return new Product

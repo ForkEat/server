@@ -44,5 +44,11 @@ namespace ForkEat.Core.Services
         {
             return await productRepository.FindAllProducts();
         }
+
+        public async Task DeleteProduct(Guid id)
+        {
+            var product = await GetProductById(id);
+            await productRepository.DeleteProduct(product);
+        }
     }
 }

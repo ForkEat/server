@@ -26,6 +26,21 @@ namespace ForkEat.Web.Controllers
             return Created("", await productService.CreateProduct(createProductRequest));
         }
         
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Product>> DeleteProduct(Guid id)
+        {
+            try
+            {
+                await productService.DeleteProduct(id);
+            }
+            catch (ProductNotFoundException)
+            {
+                return NotFound("Product with id: " + id + " was not found");
+            }
+
+            return Ok();
+        }
+        
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProductById(Guid id)
         {

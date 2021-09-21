@@ -34,5 +34,11 @@ namespace ForkEat.Web.Database
         {
             return dbContext.Products.ToListAsync();
         }
+
+        public async Task DeleteProduct(Product product)
+        {
+            dbContext.Products.Remove(product);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }
