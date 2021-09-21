@@ -61,6 +61,7 @@ namespace ForkEat.Core.Tests
         [Fact]
         public async Task Login_ExistingUserValidCredentials_ReturnsToken()
         {
+            // Given
             var loginUserRequest = new LoginUserRequest()
             {
                 Email = "toto@email.fr",
@@ -83,8 +84,11 @@ namespace ForkEat.Core.Tests
                     Password = BCrypt.Net.BCrypt.HashPassword("Bonj@ur42")
                 }));
             var service = new AuthenticationService(repoMock.Object, validatorMock.Object);
+            
+            // When
             var user = await service.Login(loginUserRequest);
             
+            // Then
             user.Token.Should().NotBe(String.Empty);
             user.Email.Should().Be("toto@email.fr");
             user.UserName.Should().Be("Toto");
@@ -106,6 +110,42 @@ namespace ForkEat.Core.Tests
 
             principal.Claims.ToList()[0].Subject.Name.Should().Be( userId.ToString());
             
+        }
+
+        [Fact]
+        public async Task Login_ExistingUserInvalidCredentials_ThrowsException()
+        {
+            // Given
+            var loginUserRequest = new LoginUserRequest()
+            {
+                Email = "toto@email.fr",
+                Password = "wrong password"
+            };
+
+            var secret = "bonjourlemondecestvraimentchouetteajd";
+            Environment.SetEnvironmentVariable("JWT_SECRET", secret);
+            
+            
+            var userId = Guid.NewGuid();
+            
+            var repoMock = new Mock<IUserRepository>();
+            var validatorMock = new Mock<IPasswordValidator>();
+            repoMock.Setup(x => x.FindUserByEmail("toto@email.fr"))
+                .Returns(() => Task.FromResult(new User()
+                {
+                    Id = userId,
+                    Email = "toto@email.fr",
+                    UserName = "Toto",
+                    Password = BCrypt.Net.BCrypt.HashPassword("Bonj@ur42")
+                }));
+            var service = new AuthenticationService(repoMock.Object, validatorMock.Object);
+            
+            // When
+            service.Invoking(s => s.Login(loginUserRequest))
+                
+            // Then
+            .Should()
+            .ThrowAsync<InvalidCastException>();
         }
 
     }

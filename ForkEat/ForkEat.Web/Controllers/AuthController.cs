@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
+using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -29,8 +30,16 @@ namespace ForkEat.Web.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<LoginUserResponse>> Login([FromBody] LoginUserRequest request)
         {
-            var result = await authenticationService.Login(request);
-            return result;
+            try
+            {
+                var result = await authenticationService.Login(request);
+                return result;
+            }
+            catch (InvalidCredentialsException exception)
+            {
+                return Unauthorized();
+            }
+
         }
     }
 }
