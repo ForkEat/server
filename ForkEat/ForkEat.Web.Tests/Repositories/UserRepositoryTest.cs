@@ -22,6 +22,7 @@ namespace ForkEat.Web.Tests.Repositories
             this.context = new ApplicationDbContext(options);
 
             await this.context.Database.MigrateAsync();
+            await context.Database.ExecuteSqlRawAsync("DELETE FROM \"Users\"");
         }
 
         public async Task DisposeAsync()
