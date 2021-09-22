@@ -17,7 +17,11 @@ steps:
       from_secret: test_database_url
   commands:
     - cd ForkEat
+    - dotnet tool install --global dotnet-sonarscanner
+    - dotnet sonarscanner begin /k:"ForkEat_server" /d:sonar.host.url="https://sonarqube.thomaslacaze.fr"  /d:sonar.login="$${sonarqube_login}"
+    - dotnet build
     - dotnet test
+    - dotnet sonarscanner end /d:sonar.login="$${sonarqube_login}"
 
 - name: publish image
   image: plugins/docker
