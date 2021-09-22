@@ -1,6 +1,6 @@
 namespace ForkEat.Core.Contracts
 {
-    public class CreateProductRequest
+    public class CreateUpdateProductRequest
     {
         public string Name { get; set; }
     }
