@@ -5,23 +5,15 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
-using ForkEat.Web.Database;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace ForkEat.Web.Tests
 {
-    public class AuthenticationTests : IClassFixture<WebApplicationFactory<Startup>>, IAsyncLifetime
+    public class AuthenticationTests : IntegrationTest
     {
-        private readonly WebApplicationFactory<Startup> factory;
-        private ApplicationDbContext context;
-        private HttpClient client;
-
-        public AuthenticationTests(WebApplicationFactory<Startup> factory)
+        public AuthenticationTests(WebApplicationFactory<Startup> factory) : base(factory, "Users")
         {
-            this.factory = factory;
         }
 
         [Fact]
@@ -104,23 +96,6 @@ namespace ForkEat.Web.Tests
 
             // Then
             loginResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        }
-
-        public Task InitializeAsync()
-        {
-            Environment.SetEnvironmentVariable("DATABASE_URL",
-                Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ??
-                throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
-            client = factory.CreateClient();
-            return Task.CompletedTask;
-        }
-
-        public async Task DisposeAsync()
-        {
-            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
-            using var scope = scopeFactory.CreateScope();
-            context = scope.ServiceProvider.GetService<ApplicationDbContext>();
-            await context.Database.ExecuteSqlRawAsync("DELETE FROM \"Users\"");
         }
     }
 }
