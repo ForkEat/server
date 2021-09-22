@@ -52,7 +52,7 @@ namespace ForkEat.Core.Tests
 
             var mockRepository = new Mock<IProductRepository>();
 
-            mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
+            mockRepository.Setup(mock => mock.FindProductById(productId))
                 .Returns<Guid>(_ => Task.FromResult(new Product
                 {
                     Id = productId,
@@ -113,7 +113,7 @@ namespace ForkEat.Core.Tests
 
             var mockRepository = new Mock<IProductRepository>();
 
-            mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
+            mockRepository.Setup(mock => mock.FindProductById(productId))
                 .Returns<Guid>(_ => Task.FromResult(new Product
                 {
                     Id = productId,
@@ -150,7 +150,7 @@ namespace ForkEat.Core.Tests
 
             Product updatedProduct = null;
             
-            mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
+            mockRepository.Setup(mock => mock.FindProductById(productId))
                 .Returns<Guid>(_ => Task.FromResult(new Product
                 {
                     Id = productId,
