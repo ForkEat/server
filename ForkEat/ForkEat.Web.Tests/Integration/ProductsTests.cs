@@ -26,7 +26,7 @@ namespace ForkEat.Web.Tests
 
             // Given
             var client = factory.CreateClient();
-            var createProductRequest = new CreateProductRequest()
+            var createProductRequest = new CreateUpdateProductRequest()
             {
                 Name = productName
             };
@@ -45,7 +45,7 @@ namespace ForkEat.Web.Tests
         public async Task GetProductById_WithExistingProduct_Returns200()
         {
             var productName = "carrot";
-            var createProductRequest = new CreateProductRequest()
+            var createProductRequest = new CreateUpdateProductRequest()
             {
                 Name = productName
             };
@@ -71,7 +71,7 @@ namespace ForkEat.Web.Tests
         [Fact]
         public async Task GetProductById_WithNonExistingProduct_Returns404()
         {
-            var createProductRequest = new CreateProductRequest()
+            var createProductRequest = new CreateUpdateProductRequest()
             {
                 Name = "carrot"
             };
@@ -92,12 +92,12 @@ namespace ForkEat.Web.Tests
         [Fact]
         public async Task GetAllProducts_Returns200()
         {
-            var createProductRequest = new CreateProductRequest()
+            var createProductRequest = new CreateUpdateProductRequest()
             {
                 Name = "carrot"
             };
             
-            var createProductRequest2 = new CreateProductRequest()
+            var createProductRequest2 = new CreateUpdateProductRequest()
             {
                 Name = "tomato"
             };
@@ -122,7 +122,7 @@ namespace ForkEat.Web.Tests
         public async Task DeleteProduct_WithExistingProduct_Returns200()
         {
             var productName = "carrot";
-            var createProductRequest = new CreateProductRequest()
+            var createProductRequest = new CreateUpdateProductRequest()
             {
                 Name = productName
             };
@@ -147,7 +147,7 @@ namespace ForkEat.Web.Tests
         [Fact]
         public async Task DeleteProduct_WithNonExistingProduct_Returns404()
         {
-            var createProductRequest = new CreateProductRequest()
+            var createProductRequest = new CreateUpdateProductRequest()
             {
                 Name = "carrot"
             };
@@ -160,6 +160,64 @@ namespace ForkEat.Web.Tests
             
             // When
             var response = await client.DeleteAsync("/api/products/" + Guid.NewGuid());
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+        
+        [Fact]
+        public async Task UpdateProduct_WithExistingProduct_Returns200()
+        {
+            var productName = "carrot";
+            var createUpdateProductRequest = new CreateUpdateProductRequest()
+            {
+                Name = productName
+            };
+            
+            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
+
+            // Given
+            var client = factory.CreateClient();
+            var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var productId = createdProductResult.Id;
+            
+            // When
+            var createUpdateProductRequestUpdated = new CreateUpdateProductRequest()
+            {
+                Name = productName + " updated"
+            };
+            var response = await client.PutAsJsonAsync("/api/products/" + productId, createUpdateProductRequestUpdated);
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var getResponse = await client.GetAsync("/api/products/" + productId);
+            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var getResult = await getResponse.Content.ReadAsAsync<Product>();
+            getResult.Id.Should().Be(productId);
+            getResult.Name.Should().Be(productName + " updated");
+        }
+        
+        [Fact]
+        public async Task UpdateProduct_WithNonExistingProduct_Returns404()
+        {
+            var createProductRequest = new CreateUpdateProductRequest()
+            {
+                Name = "carrot"
+            };
+            
+            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
+
+            // Given
+            var client = factory.CreateClient();
+            await client.PostAsJsonAsync("/api/products", createProductRequest);
+            
+            // When
+            var createUpdateProductRequestUpdated = new CreateUpdateProductRequest()
+            {
+                Name = "carrot updated"
+            };
+            var response = await client.PutAsJsonAsync("/api/products/" + Guid.NewGuid(), createUpdateProductRequestUpdated);
             
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);

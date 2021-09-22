@@ -21,9 +21,9 @@ namespace ForkEat.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct([FromBody] CreateProductRequest createProductRequest)
+        public async Task<ActionResult<Product>> CreateProduct([FromBody] CreateUpdateProductRequest createUpdateProductRequest)
         {
-            return Created("", await productService.CreateProduct(createProductRequest));
+            return Created("", await productService.CreateProduct(createUpdateProductRequest));
         }
         
         [HttpDelete("{id}")]
@@ -39,6 +39,23 @@ namespace ForkEat.Web.Controllers
             }
 
             return Ok();
+        }
+        
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Product>> UpdateProduct(Guid id, [FromBody] CreateUpdateProductRequest product)
+        {
+            Product updatedProduct = null;
+            
+            try
+            {
+                updatedProduct = await productService.UpdateProduct(id, product);
+            }
+            catch (ProductNotFoundException)
+            {
+                return NotFound("Product with id: " + id + " was not found");
+            }
+
+            return updatedProduct;
         }
         
         [HttpGet("{id}")]

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,13 @@ namespace ForkEat.Web.Database
         {
             dbContext.Products.Remove(product);
             await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<Product> UpdateProduct(Product newProduct)
+        {
+            dbContext.Products.Update(newProduct);
+            await dbContext.SaveChangesAsync();
+            return await FindProductById(newProduct.Id);
         }
     }
 }
