@@ -18,6 +18,7 @@ steps:
   commands:
     - cd ForkEat
     - dotnet tool install --global dotnet-sonarscanner
+    - export PATH="$PATH:/root/.dotnet/tools"
     - dotnet sonarscanner begin /k:"ForkEat_server" /d:sonar.host.url="https://sonarqube.thomaslacaze.fr"  /d:sonar.login="$${sonarqube_login}"
     - dotnet build
     - dotnet test
