@@ -9,49 +9,12 @@ using Xunit;
 
 namespace ForkEat.Web.Tests.Repositories
 {
-    public class UserRepositoryTest : IAsyncLifetime
+    public class UserRepositoryTest : RepositoryTest
     {
-        private ApplicationDbContext context;
-
-        public async Task InitializeAsync()
+        public UserRepositoryTest() : base("Users")
         {
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseNpgsql(GetPostgresConnectionString())
-                .Options;
-            
-            this.context = new ApplicationDbContext(options);
-
-            await this.context.Database.MigrateAsync();
-        }
-
-        public async Task DisposeAsync()
-        {
-            await context.Database.ExecuteSqlRawAsync("DELETE FROM \"Users\"");
         }
         
-        private string GetPostgresConnectionString()
-        {
-            var databaseUrl = Environment.GetEnvironmentVariable("TEST_DATABASE_URL");
-            if (databaseUrl is null)
-            {
-                throw new ArgumentException("Please populate the TEST_DATABASE_URL env variable");
-            }
-
-            var databaseUri = new Uri(databaseUrl);
-            var userInfo = databaseUri.UserInfo.Split(':');
-
-            var builder = new NpgsqlConnectionStringBuilder
-            {
-                Host = databaseUri.Host,
-                Port = databaseUri.Port,
-                Username = userInfo[0],
-                Password = userInfo[1],
-                Database = databaseUri.LocalPath.TrimStart('/')
-            };
-
-            return builder.ToString();
-        }
-
         [Fact]
         public async Task FindUserByEmail_ExistingUser_ReturnsUser()
         {
@@ -71,7 +34,7 @@ namespace ForkEat.Web.Tests.Repositories
 
             // When
             var result = await repository.FindUserByEmail("john.shepard@sr2-normandy.com");
-            
+
             // Then
             result.Id.Should().Be(user.Id);
             result.Email.Should().Be("john.shepard@sr2-normandy.com");
@@ -87,7 +50,7 @@ namespace ForkEat.Web.Tests.Repositories
 
             // When
             var result = await repository.FindUserByEmail("john.shepard@sr2-normandy.com");
-            
+
             // Then
             result.Should().Be(null);
         }
@@ -104,13 +67,13 @@ namespace ForkEat.Web.Tests.Repositories
                 Password = hashedPassword
             };
             var repository = new UserRepository(this.context);
-            
+
             // When
             var result = await repository.InsertUser(user);
 
             // Then
             context.Users.Should().ContainSingle();
-            
+
             result.Id.Should().NotBe(Guid.Empty);
             result.Email.Should().Be("john.shepard@sr2-normandy.com");
             result.UserName.Should().Be("John Shepard");
