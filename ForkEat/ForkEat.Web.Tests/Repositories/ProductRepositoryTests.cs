@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
+using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Web.Database;
 using Microsoft.EntityFrameworkCore;
@@ -131,6 +132,33 @@ namespace ForkEat.Web.Tests.Repositories
             // Then
             await repository.Invoking(productRepository => productRepository.DeleteProduct(product))
                 .Should().NotThrowAsync<Exception>();
+        }
+        
+        [Fact]
+        public async Task UpdateProduct_WithExistingProduct_ReturnsProduct()
+        {
+            // Given
+            var productName = "carrot";
+            var productId = Guid.NewGuid();
+            
+            var product = new Product()
+            {
+                Id = productId,
+                Name = productName
+            };
+
+            var repository = new ProductRepository(context);
+            
+            await context.Products.AddAsync(product);
+            await context.SaveChangesAsync();
+            
+            //When
+            product.Name = "carrot updated";
+            var result = await repository.UpdateProduct(product);
+
+            // Then
+            result.Id.Should().Be(productId);
+            result.Name.Should().Be(productName + " updated");
         }
 
         private Product CreateProduct()
