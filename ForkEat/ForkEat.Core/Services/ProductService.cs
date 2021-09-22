@@ -31,13 +31,7 @@ namespace ForkEat.Core.Services
         public async Task<Product> GetProductById(Guid id)
         {
             var product = await productRepository.FindProductById(id);
-
-            if (product is null)
-            {
-                throw new ProductNotFoundException();
-            }
-
-            return product;
+            return product ?? throw new ProductNotFoundException();
         }
 
         public async Task<IList<Product>> GetAllProducts()

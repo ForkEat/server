@@ -43,13 +43,15 @@ namespace ForkEat.Web
 
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IUnitService, UnitService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordValidator, PasswordValidator>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IFilesRepository, FilesRepository>();
             services.AddScoped<IRecipeService, RecipeService>();
             services.AddScoped<IRecipeRepository, RecipeRepository>();
-            
+            services.AddScoped<IUnitRepository, UnitRepository>();
+
             ConfigureAuth(services);
 
             services.AddControllers().AddNewtonsoftJson();
