@@ -21,6 +21,7 @@ steps:
     - apt-get update
     - apt-get install software-properties-common gpg -y
     - add-apt-repository ppa:linuxuprising/java
+    - apt-get update
     - apt-get install openjdk-17-jdk -y
     - cd ForkEat
     - dotnet tool install --global dotnet-sonarscanner
