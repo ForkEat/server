@@ -18,6 +18,7 @@ steps:
     sonarqube_login:
       from_secret: sonarqube_login
   commands:
+    - apt-get install software-properties-common
     - add-apt-repository ppa:webupd8team/java
     - apt-get update && apt-get install openjdk-8-jdk
     - cd ForkEat
