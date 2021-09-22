@@ -19,7 +19,7 @@ steps:
       from_secret: sonarqube_login
   commands:
     - apt-get update
-    - apt-get install software-properties-common -y
+    - apt-get install software-properties-common gpg -y
     - add-apt-repository ppa:linuxuprising/java
     - apt-get install openjdk-17-jdk -y
     - cd ForkEat
