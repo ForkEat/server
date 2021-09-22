@@ -22,8 +22,6 @@ namespace ForkEat.Web.Tests
         {
             var productName = "carrot";
             
-            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
-
             // Given
             var client = factory.CreateClient();
             var createProductRequest = new CreateUpdateProductRequest()
@@ -50,8 +48,6 @@ namespace ForkEat.Web.Tests
                 Name = productName
             };
             
-            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
-
             // Given
             var client = factory.CreateClient();
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createProductRequest);
@@ -76,8 +72,6 @@ namespace ForkEat.Web.Tests
                 Name = "carrot"
             };
             
-            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
-
             // Given
             var client = factory.CreateClient();
             await client.PostAsJsonAsync("/api/products", createProductRequest);
@@ -102,8 +96,6 @@ namespace ForkEat.Web.Tests
                 Name = "tomato"
             };
             
-            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
-
             // Given
             var client = factory.CreateClient();
             await client.PostAsJsonAsync("/api/products", createProductRequest);
@@ -127,8 +119,6 @@ namespace ForkEat.Web.Tests
                 Name = productName
             };
             
-            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
-
             // Given
             var client = factory.CreateClient();
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createProductRequest);
@@ -152,8 +142,6 @@ namespace ForkEat.Web.Tests
                 Name = "carrot"
             };
             
-            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
-
             // Given
             var client = factory.CreateClient();
             await client.PostAsJsonAsync("/api/products", createProductRequest);
@@ -174,8 +162,6 @@ namespace ForkEat.Web.Tests
                 Name = productName
             };
             
-            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
-
             // Given
             var client = factory.CreateClient();
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
@@ -206,8 +192,6 @@ namespace ForkEat.Web.Tests
                 Name = "carrot"
             };
             
-            Environment.SetEnvironmentVariable("DATABASE_URL", Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ?? throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
-
             // Given
             var client = factory.CreateClient();
             await client.PostAsJsonAsync("/api/products", createProductRequest);
