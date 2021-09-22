@@ -20,7 +20,7 @@ steps:
   commands:
     - apt-get update
     - apt-get install software-properties-common -y
-    - add-apt-repository ppa:webupd8team/java
+    - add-apt-repository ppa:linuxuprising/java
     - apt-get install openjdk-17-jdk -y
     - cd ForkEat
     - dotnet tool install --global dotnet-sonarscanner
