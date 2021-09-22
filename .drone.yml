@@ -25,7 +25,7 @@ steps:
     - apt-get update
     - echo "openjdk-17-jdk shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
     - echo "openjdk-17-jdk shared/accepted-oracle-license-v1-1 seen true" | debconf-set-selections
-    - apt-get install openjdk-17-jdk -y
+    - apt install openjdk-8-jdk
     - cd ForkEat
     - dotnet tool install --global dotnet-sonarscanner
     - export PATH="$PATH:/root/.dotnet/tools"
