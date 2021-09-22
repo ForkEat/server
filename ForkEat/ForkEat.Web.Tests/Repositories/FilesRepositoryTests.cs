@@ -5,38 +5,24 @@ using FluentAssertions;
 using ForkEat.Web.Adapters.Files;
 using ForkEat.Web.Database;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
 using Xunit;
 
 namespace ForkEat.Web.Tests.Repositories
 {
-    public class FilesRepositoryTests : IAsyncLifetime
+    public class FilesRepositoryTests : RepositoryTest
     {
-        private ApplicationDbContext context;
-
-        public async Task InitializeAsync()
+        public FilesRepositoryTests() : base("Files")
         {
-            var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseNpgsql(GetPostgresConnectionString())
-                .Options;
-            
-            this.context = new ApplicationDbContext(options);
-
-            await this.context.Database.MigrateAsync();
         }
 
-        public async Task DisposeAsync()
-        {
-            await this.context.Database.ExecuteSqlRawAsync("DELETE FROM \"Files\"");
-        }
 
         [Fact]
         public async Task GetFile_ExistingFile_ReturnsFile()
         {
             // Given
             var file = await File.ReadAllBytesAsync("TestAssets/test-file.gif");
-            var dbFile = new DbFile(){Data = file, Type = "gif", Name = "test-file"};
-            
+            var dbFile = new DbFile() { Data = file, Type = "gif", Name = "test-file" };
+
             await this.context.Files.AddAsync(dbFile);
             await this.context.SaveChangesAsync();
 
@@ -51,7 +37,7 @@ namespace ForkEat.Web.Tests.Repositories
             result.Id.Should().Be(dbFile.Id);
             result.Name.Should().Be("test-file");
         }
-        
+
         [Fact]
         public async Task GetFile_NonExistingFile_ReturnsFile()
         {
@@ -68,13 +54,13 @@ namespace ForkEat.Web.Tests.Repositories
         {
             // Given
             var file = await File.ReadAllBytesAsync("TestAssets/test-file.gif");
-            var dbFile = new DbFile(){Data = file, Type = "gif", Name = "test-file"};
-            
+            var dbFile = new DbFile() { Data = file, Type = "gif", Name = "test-file" };
+
             IFilesRepository repository = new FilesRepository(this.context);
 
             // When
             DbFile result = await repository.InsertFile(dbFile);
-            
+
             // When
             result.Data.Should().BeEquivalentTo(file);
             result.Type.Should().Be("gif");
@@ -87,29 +73,5 @@ namespace ForkEat.Web.Tests.Repositories
             fileInDb.Id.Should().Be(result.Id);
             fileInDb.Name.Should().Be("test-file");
         }
-        
-        private string GetPostgresConnectionString()
-        {
-            var databaseUrl = Environment.GetEnvironmentVariable("TEST_DATABASE_URL");
-            if (databaseUrl is null)
-            {
-                throw new ArgumentException("Please populate the TEST_DATABASE_URL env variable");
-            }
-
-            var databaseUri = new Uri(databaseUrl);
-            var userInfo = databaseUri.UserInfo.Split(':');
-
-            var builder = new NpgsqlConnectionStringBuilder()
-            {
-                Host = databaseUri.Host,
-                Port = databaseUri.Port,
-                Username = userInfo[0],
-                Password = userInfo[1],
-                Database = databaseUri.LocalPath.TrimStart('/')
-            };
-
-            return builder.ToString();
-        }
-
     }
 }
