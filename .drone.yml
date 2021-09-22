@@ -18,21 +18,15 @@ steps:
     sonarqube_login:
       from_secret: sonarqube_login
   commands:
-    - apt-get update
-    - apt-get install software-properties-common gpg -y
-    - add-apt-repository ppa:linuxuprising/java
-    - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EA8CACC073C3DB2A
-    - apt-get update
-    - echo "openjdk-17-jdk shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections
-    - echo "openjdk-17-jdk shared/accepted-oracle-license-v1-1 seen true" | debconf-set-selections
-    - apt install openjdk-8-jdk
-    - cd ForkEat
-    - dotnet tool install --global dotnet-sonarscanner
-    - export PATH="$PATH:/root/.dotnet/tools"
-    - dotnet sonarscanner begin /k:"ForkEat_server" /d:sonar.host.url="https://sonarqube.thomaslacaze.fr"  /d:sonar.login="$${sonarqube_login}"
-    - dotnet build
     - dotnet test
-    - dotnet sonarscanner end /d:sonar.login="$${sonarqube_login}"
+
+- name: code-analysis
+  image: aosapps/drone-sonar-plugin
+  settings:
+    sonar_host:
+      from_secret: sonarqube_host
+    sonar_token:
+      from_secret: sonarqube_login
 
 - name: publish image
   image: plugins/docker
