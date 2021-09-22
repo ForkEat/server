@@ -18,10 +18,10 @@ steps:
     sonarqube_login:
       from_secret: sonarqube_login
   commands:
+    - echo "deb http://ppa.launchpad.net/linuxuprising/java/ubuntu focal main" | tee /etc/apt/sources.list.d/linuxuprising-java.list
+    - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 73C3DB2A
     - apt-get update
-    - apt-get install software-properties-common -y
-    - add-apt-repository ppa:webupd8team/java
-    - apt-get install openjdk-8-jdk -y
+    - apt install oracle-java17-installer --install-recommends
     - cd ForkEat
     - dotnet tool install --global dotnet-sonarscanner
     - export PATH="$PATH:/root/.dotnet/tools"
