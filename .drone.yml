@@ -22,7 +22,7 @@ steps:
     - echo "deb http://ppa.launchpad.net/linuxuprising/java/ubuntu focal main" | tee /etc/apt/sources.list.d/linuxuprising-java.list
     - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 73C3DB2A
     - apt-get update
-    - apt install oracle-java17-installer --install-recommends
+    - apt install -y oracle-java17-installer --install-recommends
     - cd ForkEat
     - dotnet tool install --global dotnet-sonarscanner
     - export PATH="$PATH:/root/.dotnet/tools"
