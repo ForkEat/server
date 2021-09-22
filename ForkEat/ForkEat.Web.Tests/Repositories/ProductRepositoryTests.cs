@@ -10,7 +10,6 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public class ProductRepositoryTests : RepositoryTest
     {
-        private ApplicationDbContext context;
 
         public ProductRepositoryTests() : base("Products")
         {
