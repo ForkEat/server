@@ -29,14 +29,6 @@ steps:
     - dotnet test
     - dotnet sonarscanner end /d:sonar.login="$${sonarqube_login}"
 
-- name: code-analysis
-  image: aosapps/drone-sonar-plugin
-  settings:
-    sonar_host:
-      from_secret: sonarqube_host
-    sonar_token:
-      from_secret: sonarqube_login
-
 - name: publish image
   image: plugins/docker
   settings:
