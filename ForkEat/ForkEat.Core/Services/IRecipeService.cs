@@ -7,5 +7,6 @@ namespace ForkEat.Core.Services
     public interface IRecipeService
     {
         Task<GetRecipeWithStepsAndIngredientsResponse> CreateRecipe(CreateRecipeRequest request);
+        Task<GetRecipesReponse> GetRecipes();
     }
 }
