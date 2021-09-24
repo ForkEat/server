@@ -12,7 +12,7 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public class RecipeRepositoryTests : RepositoryTest
     {
-        public RecipeRepositoryTests() : base(new string[] { "Recipes", "Steps", "Ingredients" })
+        public RecipeRepositoryTests() : base(new string[] { "Recipes", "StepEntity", "IngredientEntity" })
         {
         }
 
@@ -46,8 +46,7 @@ namespace ForkEat.Web.Tests.Repositories
             var recipeInDb = await this.context.Recipes.FirstAsync(r => r.Id == recipe.Id);
             recipeInDb.Id.Should().Be(recipe.Id);
             recipeInDb.Difficulty.Should().Be(3);
-            recipeInDb.Should().Be("Test Name");
-            recipeInDb.TotalEstimatedTime.Should().Be(new TimeSpan(0,1,0));
+            recipeInDb.Name.Should().Be("Test Name");
             recipeInDb.Steps.Should().HaveCount(1);
             recipeInDb.Ingredients.Should().HaveCount(1);
 
@@ -62,7 +61,7 @@ namespace ForkEat.Web.Tests.Repositories
             
             result.Id.Should().Be(recipe.Id);
             result.Difficulty.Should().Be(3);
-            result.Should().Be("Test Name");
+            result.Name.Should().Be("Test Name");
             result.TotalEstimatedTime.Should().Be(new TimeSpan(0,1,0));
             result.Steps.Should().HaveCount(1);
             result.Ingredients.Should().HaveCount(1);

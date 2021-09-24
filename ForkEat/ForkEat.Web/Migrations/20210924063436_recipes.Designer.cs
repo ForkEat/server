@@ -3,15 +3,17 @@ using System;
 using ForkEat.Web.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ForkEat.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210924063436_recipes")]
+    partial class recipes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,17 +84,27 @@ namespace ForkEat.Web.Migrations
                     b.Property<Guid?>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ProductId1")
+                        .HasColumnType("uuid");
+
                     b.Property<long>("Quantity")
                         .HasColumnType("bigint");
 
                     b.Property<Guid?>("RecipeEntityId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("RecipeEntityId1")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
 
+                    b.HasIndex("ProductId1");
+
                     b.HasIndex("RecipeEntityId");
+
+                    b.HasIndex("RecipeEntityId1");
 
                     b.ToTable("IngredientEntity");
                 });
@@ -108,6 +120,9 @@ namespace ForkEat.Web.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
+
+                    b.Property<TimeSpan>("TotalEstimatedTime")
+                        .HasColumnType("interval");
 
                     b.HasKey("Id");
 
@@ -132,9 +147,14 @@ namespace ForkEat.Web.Migrations
                     b.Property<Guid?>("RecipeEntityId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("RecipeEntityId1")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("RecipeEntityId");
+
+                    b.HasIndex("RecipeEntityId1");
 
                     b.ToTable("StepEntity");
                 });
@@ -145,9 +165,17 @@ namespace ForkEat.Web.Migrations
                         .WithMany()
                         .HasForeignKey("ProductId");
 
+                    b.HasOne("ForkEat.Core.Domain.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId1");
+
                     b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", null)
                         .WithMany("Ingredients")
-                        .HasForeignKey("RecipeEntityId")
+                        .HasForeignKey("RecipeEntityId");
+
+                    b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", null)
+                        .WithMany()
+                        .HasForeignKey("RecipeEntityId1")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Product");
@@ -157,7 +185,11 @@ namespace ForkEat.Web.Migrations
                 {
                     b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", null)
                         .WithMany("Steps")
-                        .HasForeignKey("RecipeEntityId")
+                        .HasForeignKey("RecipeEntityId");
+
+                    b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", null)
+                        .WithMany()
+                        .HasForeignKey("RecipeEntityId1")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
