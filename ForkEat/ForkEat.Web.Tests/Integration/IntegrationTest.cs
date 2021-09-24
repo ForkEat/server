@@ -15,7 +15,7 @@ namespace ForkEat.Web.Tests
         protected readonly WebApplicationFactory<Startup> factory;
 
 
-        protected IntegrationTest(WebApplicationFactory<Startup> factory, string tableToClear) : base(tableToClear)
+        protected IntegrationTest(WebApplicationFactory<Startup> factory, string[] tableToClear) : base(tableToClear)
         {
             this.factory = factory;
         }

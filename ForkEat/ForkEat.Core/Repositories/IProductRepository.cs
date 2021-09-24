@@ -13,5 +13,6 @@ namespace ForkEat.Core.Repositories
         Task<List<Product>> FindAllProducts();
         Task DeleteProduct(Product product);
         Task<Product> UpdateProduct(Product newProduct);
+        Task<Dictionary<Guid,Product>> FindProductsByIds(List<Guid> productIds);
     }
 }

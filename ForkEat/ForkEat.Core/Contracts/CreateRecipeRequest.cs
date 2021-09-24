@@ -7,5 +7,6 @@ namespace ForkEat.Core.Contracts
         public string Name { get; set; }
         public uint Difficulty { get; set; }
         public List<CreateStepRequest> Steps { get; set; }
+        public List<CreateIngredientRequest> Ingredients { get; set; }
     }
 }
