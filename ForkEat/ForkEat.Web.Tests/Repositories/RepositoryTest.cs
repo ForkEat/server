@@ -8,7 +8,7 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public abstract class RepositoryTest : DatabaseTest
     {
-        protected RepositoryTest(string tableToClear) : base(tableToClear)
+        protected RepositoryTest(string[] tableToClear) : base(tableToClear)
         {
         }
 

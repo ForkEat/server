@@ -11,7 +11,7 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public class FilesRepositoryTests : RepositoryTest
     {
-        public FilesRepositoryTests() : base("Files")
+        public FilesRepositoryTests() : base(new string[]{"Files"})
         {
         }
 
