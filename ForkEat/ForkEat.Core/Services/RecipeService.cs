@@ -19,14 +19,14 @@ namespace ForkEat.Core.Services
             this.productRepository = productRepository;
         }
 
-        public async Task<GetRecipeWithStepsResponse> CreateRecipe(CreateRecipeRequest request)
+        public async Task<GetRecipeWithStepsAndIngredientsResponse> CreateRecipe(CreateRecipeRequest request)
         {
             var products = await productRepository.FindProductsByIds(ExtractProductIds(request));
             var recipe = BuildRecipeFromRequest(request, products);
 
             recipe = await this.recipeRepository.InsertRecipe(recipe);
 
-            return new GetRecipeWithStepsResponse(recipe);
+            return new GetRecipeWithStepsAndIngredientsResponse(recipe);
         }
 
         private static Recipe BuildRecipeFromRequest(CreateRecipeRequest request, Dictionary<Guid, Product> products)

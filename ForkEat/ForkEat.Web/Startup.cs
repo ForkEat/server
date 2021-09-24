@@ -8,6 +8,7 @@ using ForkEat.Core.Repositories;
 using ForkEat.Core.Services;
 using ForkEat.Web.Adapters.Files;
 using ForkEat.Web.Database;
+using ForkEat.Web.Database.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -46,10 +47,12 @@ namespace ForkEat.Web
             services.AddScoped<IPasswordValidator, PasswordValidator>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IFilesRepository, FilesRepository>();
+            services.AddScoped<IRecipeService, RecipeService>();
+            services.AddScoped<IRecipeRepository, RecipeRepository>();
             
             ConfigureAuth(services);
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ForkEat.Web", Version = "v1" });

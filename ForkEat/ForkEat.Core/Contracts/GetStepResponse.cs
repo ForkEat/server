@@ -5,6 +5,8 @@ namespace ForkEat.Core.Contracts
 {
     public class GetStepResponse
     {
+        public GetStepResponse(){}
+        
         public GetStepResponse(Step step)
         {
             Id = step.Id;

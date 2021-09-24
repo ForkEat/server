@@ -5,6 +5,10 @@ namespace ForkEat.Core.Contracts
 {
     public class GetIngredientResponse
     {
+        public GetIngredientResponse()
+        {
+        }
+
         public GetIngredientResponse(Ingredient ingredient)
         {
             Name = ingredient.Product.Name;
