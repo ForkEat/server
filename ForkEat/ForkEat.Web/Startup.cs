@@ -44,6 +44,7 @@ namespace ForkEat.Web
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IUnitService, UnitService>();
+            services.AddScoped<IStockService, StockService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordValidator, PasswordValidator>();
             services.AddScoped<IProductRepository, ProductRepository>();
@@ -51,6 +52,8 @@ namespace ForkEat.Web
             services.AddScoped<IRecipeService, RecipeService>();
             services.AddScoped<IRecipeRepository, RecipeRepository>();
             services.AddScoped<IUnitRepository, UnitRepository>();
+            services.AddScoped<IStockRepository, StockRepository>();
+
 
             ConfigureAuth(services);
 

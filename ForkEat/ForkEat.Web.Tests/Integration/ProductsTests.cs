@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -103,7 +104,7 @@ namespace ForkEat.Web.Tests
             
             // When
             var response = await client.GetAsync("/api/products");
-            
+
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = await response.Content.ReadAsAsync<IEnumerable<Product>>();
@@ -205,6 +206,207 @@ namespace ForkEat.Web.Tests
             
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+        
+        [Fact]
+        public async Task UpdateStock_WithExistingStock_Returns200()
+        {
+            var productName = "carrot";
+            var createUpdateProductRequest = new CreateUpdateProductRequest()
+            {
+                Name = productName
+            };
+            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
+            {
+                Name = "kilogram",
+                Symbol = "kg"
+            };
+            
+            // Given
+            var client = factory.CreateClient();
+            var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
+            var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
+            var productId = createdProductResult.Id;
+            var unitId = createdUnitResult.Id;
+
+            var stock = new CreateUpdateStockRequest
+            {
+                Quantity = 7,
+                UnitId = unitId
+            };
+            var response = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", stock);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadAsAsync<Stock>();
+            var stockId = result.Id;
+
+            // When
+            var updatedStock = new CreateUpdateStockRequest
+            {
+                Id = stockId,
+                Quantity = 5,
+                UnitId = unitId
+            };
+            var updateResponse = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", updatedStock);
+            
+            // Then
+            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var getResponse = await client.GetAsync("/api/products/" + productId + "/stock");
+            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var getResult = await getResponse.Content.ReadAsAsync<IEnumerable<Stock>>();
+            getResult.First().Quantity.Should().Be(5);;
+        }
+        
+        [Fact]
+        public async Task UpdateStock_WithNonExistingStock_Returns200()
+        {
+            var productName = "carrot";
+            var createUpdateProductRequest = new CreateUpdateProductRequest()
+            {
+                Name = productName
+            };
+            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
+            {
+                Name = "kilogram",
+                Symbol = "kg"
+            };
+
+            // Given
+            var client = factory.CreateClient();
+            var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
+            var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
+            var productId = createdProductResult.Id;
+            var unitId = createdUnitResult.Id;
+
+            // When
+            var stock = new CreateUpdateStockRequest
+            {
+                Quantity = 7,
+                UnitId = unitId
+            };
+            var response = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", stock);
+
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var getResponse = await client.GetAsync("/api/products/" + productId + "/stock");
+            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var getResult = await getResponse.Content.ReadAsAsync<IEnumerable<Stock>>();
+            getResult.First().Id.Should().NotBe(Guid.Empty);
+            getResult.First().Quantity.Should().Be(7);
+        }
+
+        [Fact]
+        public async Task UpdateStock_With0Quantity_Returns200()
+        {
+            var productName = "carrot";
+            var createUpdateProductRequest = new CreateUpdateProductRequest()
+            {
+                Name = productName
+            };
+
+            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
+            {
+                Name = "kilogram",
+                Symbol = "kg"
+            };
+
+            // Given
+            var client = factory.CreateClient();
+            var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var productId = createdProductResult.Id;
+            var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+            var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
+            var unitId = createdUnitResult.Id;
+
+            // When
+            var stock = new Stock
+            {
+                Quantity = 7,
+                UnitId = unitId
+            };
+            var response = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", stock);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var createdStockResult = await response.Content.ReadAsAsync<Stock>();
+            var stockId = createdStockResult.Id;
+            var getResponse = await client.GetAsync("/api/products/" + productId + "/stock" );
+            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            //Then
+            var updatedStock = new Stock
+            {
+                Id = stockId,
+                Quantity = 0,
+                UnitId = unitId
+            };
+            var updateResponse = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", updatedStock);
+            updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            var getUpdateResponse = await client.GetAsync("/api/products/" + productId + "/stock" );
+            getUpdateResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Fact]
+        public async Task GetStocks_Returns200()
+        {
+            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
+            {
+                Name = "kilogram",
+                Symbol = "kg"
+            };
+
+            var createUpdateProductRequest = new CreateUpdateProductRequest()
+            {
+                Name = "carott"
+            };
+
+            var createUpdateProductRequest2 = new CreateUpdateProductRequest()
+            {
+                Name = "carott"
+            };
+
+            // Given
+            var client = factory.CreateClient();
+            var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+            var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
+            var unitId = createdUnitResult.Id;
+            var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var productId = createdProductResult.Id;
+            var createdProductResponse2 = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest2);
+            var createdProductResult2 = await createdProductResponse2.Content.ReadAsAsync<Product>();
+            var productId2 = createdProductResult2.Id;
+
+            var stock = new Stock
+            {
+                Quantity = 7,
+                UnitId = unitId
+            };
+
+            var stock2 = new Stock
+            {
+                Quantity = 7,
+                UnitId = unitId
+            };
+
+            var responsePutStock = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", stock);
+            responsePutStock.StatusCode.Should().Be(HttpStatusCode.OK);
+            var createdStockResult = await responsePutStock.Content.ReadAsAsync<Stock>();
+            var stockId = createdStockResult.Id;
+
+            var responsePutStock2 = await client.PutAsJsonAsync("/api/products/" + productId2 + "/stock", stock2);
+            responsePutStock2.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            // When
+            var response = await client.GetAsync("/api/products/" + productId + "/stock");
+
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadAsAsync<IEnumerable<StockResponse>>();
+            result.Should().HaveCount(1);
+            result.First().Id.Should().Be(stockId);
         }
     }
 }

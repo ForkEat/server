@@ -10,7 +10,7 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public class UnitRepositoryTests : RepositoryTest
     {
-        public UnitRepositoryTests() : base("Units")
+        public UnitRepositoryTests() : base(new string[]{"Units"})
         {
         }
         
