@@ -20,7 +20,10 @@ namespace ForkEat.Web.Tests
 
         public async Task DisposeAsync()
         {
-            await Task.WhenAll(tableToClear.Select(table => context.Database.ExecuteSqlRawAsync($"DELETE FROM \"{table}\"")));
+            foreach (var table in tableToClear)
+            {
+                await context.Database.ExecuteSqlRawAsync($"DELETE FROM \"{table}\"");
+            }
         }
     }
 }
