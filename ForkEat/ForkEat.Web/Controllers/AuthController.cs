@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Exceptions;
@@ -22,8 +23,15 @@ namespace ForkEat.Web.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<RegisterUserResponse>> Register([FromBody] RegisterUserRequest request)
         {
-            var registerUserResponse = await authenticationService.Register(request);
-            return Created("",registerUserResponse);
+            try
+            {
+                var registerUserResponse = await authenticationService.Register(request);
+                return Created("", registerUserResponse);
+            }
+            catch (ArgumentException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("login")]

@@ -7,5 +7,6 @@ namespace ForkEat.Core.Repositories
     {
         Task<User> FindUserByEmail(string email);
         Task<User> InsertUser(User user);
+        Task<bool> UserExistsByEmail(string userEmail);
     }
 }

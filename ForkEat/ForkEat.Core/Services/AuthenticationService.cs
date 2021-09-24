@@ -25,18 +25,29 @@ namespace ForkEat.Core.Services
 
         public async Task<LoginUserResponse> Login(LoginUserRequest request)
         {
-            var user = await repository.FindUserByEmail(request.Email);
+            User user = await repository.FindUserByEmail(request.Email);
 
-            if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-            {
-                throw new InvalidCredentialsException();
-            }
+            EnsureUserFoundAndPasswordMatch(request, user);
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ??
-                                              throw new ArgumentException("JWT_SECRET Env variable is not set"));
+            var key = GetJwtSecretFromEnv();
 
-            var tokenDescriptor = new SecurityTokenDescriptor()
+            SecurityTokenDescriptor tokenDescriptor = BuildTokenDescriptor(user, key);
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+
+            var response = new LoginUserResponse()
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Token = tokenHandler.WriteToken(token)
+            };
+
+            return response;
+        }
+
+        private static SecurityTokenDescriptor BuildTokenDescriptor(User user, byte[] key)
+        {
+            return new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
@@ -46,22 +57,26 @@ namespace ForkEat.Core.Services
                 SigningCredentials =
                     new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             };
+        }
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            string tokenString = tokenHandler.WriteToken(token);
+        private static byte[] GetJwtSecretFromEnv()
+        {
+            return Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ??
+                                           throw new ArgumentException("JWT_SECRET Env variable is not set"));
+        }
 
-            var response = new LoginUserResponse()
+        private static void EnsureUserFoundAndPasswordMatch(LoginUserRequest request, User user)
+        {
+            if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
             {
-                UserName = user.UserName,
-                Email = user.Email,
-                Token = tokenString
-            };
-
-            return response;
+                throw new InvalidCredentialsException();
+            }
         }
 
         public async Task<RegisterUserResponse> Register(RegisterUserRequest request)
         {
+            await EnsureUserDoesntExists(request);
+            
             var user = new User()
             {
                 UserName = request.UserName,
@@ -69,22 +84,32 @@ namespace ForkEat.Core.Services
                 Password = request.Password
             };
 
+            EnsurePasswordIsValid(user);
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            
+            user = await repository.InsertUser(user);
+            
+            return new RegisterUserResponse(user);
+        }
+
+        private void EnsurePasswordIsValid(User user)
+        {
             var validationResult = passwordValidator.Validate(user);
 
             if (!validationResult.IsValid)
             {
                 throw new PasswordValidationException();
             }
+        }
 
-            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            
-            user = await repository.InsertUser(user);
-            return new RegisterUserResponse()
+        private async Task EnsureUserDoesntExists(RegisterUserRequest request)
+        {
+            bool userExists = await this.repository.UserExistsByEmail(request.Email);
+            if (userExists)
             {
-                Id = user.Id,
-                Email = user.Email,
-                UserName = user.UserName
-            };
+                throw new ArgumentException($"A user with email \"{request.Email}r\" already exists");
+            }
         }
     }
 }

@@ -14,6 +14,43 @@ namespace ForkEat.Web.Tests.Repositories
         public UserRepositoryTest() : base(new string[]{"Users"})
         {
         }
+
+        [Fact]
+        public async Task UserExistsByEmail_ExistingUser_ReturnsTrue()
+        {
+            // Given
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword("test");
+            var user = new User()
+            {
+                Id = Guid.NewGuid(),
+                Email = "john.shepard@sr2-normandy.com",
+                UserName = "John Shepard",
+                Password = hashedPassword
+            };
+            
+            await this.context.Users.AddAsync(user);
+            await this.context.SaveChangesAsync();
+            var repository = new UserRepository(this.context);
+            
+            // When
+            bool exists = await repository.UserExistsByEmail("john.shepard@sr2-normandy.com");
+            
+            // Then
+            exists.Should().BeTrue();
+        }
+        
+        [Fact]
+        public async Task UserExistsByEmail_NonExistingUser_ReturnsFalse()
+        {
+            // Given
+            var repository = new UserRepository(this.context);
+            
+            // When
+            bool exists = await repository.UserExistsByEmail("john.shepard@sr2-normandy.com");
+            
+            // Then
+            exists.Should().BeFalse();
+        }
         
         [Fact]
         public async Task FindUserByEmail_ExistingUser_ReturnsUser()

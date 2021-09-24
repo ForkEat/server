@@ -8,7 +8,7 @@ using ForkEat.Core.Domain;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace ForkEat.Web.Tests
+namespace ForkEat.Web.Tests.Integration
 {
     public class AuthenticationTests : IntegrationTest
     {
@@ -17,7 +17,38 @@ namespace ForkEat.Web.Tests
         }
 
         [Fact]
-        public async Task RegisterAndLogin_WithGoodCredentials_RegistersUsersAndGetToken()
+        public async Task Register_DuplicateEmail_Returns400()
+        {
+            // Given
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword("test");
+            var user = new User()
+            {
+                Id = Guid.NewGuid(),
+                Email = "john.shepard@sr2-normandy.com",
+                UserName = "John Shepard",
+                Password = hashedPassword
+            };
+
+            await this.context.Users.AddAsync(user);
+            await this.context.SaveChangesAsync();
+            
+            var registerUserRequest = new RegisterUserRequest()
+            {
+                Email = "john.shepard@sr2-normandy.com",
+                Password = "test",
+                UserName = "John Shepard"
+            };
+
+            // When
+            var response = await client.PostAsJsonAsync("/api/auth/register", registerUserRequest);
+
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            this.context.Users.Should().ContainSingle();
+        }
+        
+        [Fact]
+        public async Task<string> RegisterAndLogin_WithGoodCredentials_RegistersUsersAndGetToken()
         {
             /*REGISTER*/
             // Given
@@ -57,6 +88,8 @@ namespace ForkEat.Web.Tests
             loginResult.Token.Should().NotBe(String.Empty);
             loginResult.UserName.Should().Be("toto");
             loginResult.Email.Should().Be("toto@gmail.com");
+
+            return loginResult.Token;
         }
 
         [Fact]
