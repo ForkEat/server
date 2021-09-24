@@ -12,7 +12,7 @@ namespace ForkEat.Web.Tests
 {
     public class AuthenticationTests : IntegrationTest
     {
-        public AuthenticationTests(WebApplicationFactory<Startup> factory) : base(factory, "Users")
+        public AuthenticationTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Users"})
         {
         }
 
