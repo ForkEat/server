@@ -18,6 +18,7 @@ namespace ForkEat.Web.Database
         public DbSet<DbFile> Files { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<RecipeEntity> Recipes { get; set; }
+        public DbSet<Stock> Stocks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,6 +53,15 @@ namespace ForkEat.Web.Database
             modelBuilder.Entity<IngredientEntity>().HasKey(ingredient => ingredient.Id);
             modelBuilder.Entity<IngredientEntity>().Property(ingredient => ingredient.Quantity);
             modelBuilder.Entity<IngredientEntity>().HasOne<Product>(ingredient => ingredient.Product).WithMany();
+
+            modelBuilder.Entity<Stock>().HasKey(stock => stock.Id);
+            modelBuilder.Entity<Stock>().Property(stock => stock.Quantity);
+            modelBuilder.Entity<Stock>().Property(stock => stock.UnitId);
+            modelBuilder.Entity<Stock>().Property(stock => stock.ProductId);
+            modelBuilder.Entity<Stock>().HasOne(stock => stock.Unit);
+            modelBuilder.Entity<Stock>().HasOne(stock => stock.Product);
+            modelBuilder.Entity<Stock>().Property(stock => stock.BestBeforeDate);
+            modelBuilder.Entity<Stock>().Property(stock => stock.PurchaseDate);
         }
     }
 }

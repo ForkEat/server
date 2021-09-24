@@ -12,7 +12,7 @@ namespace ForkEat.Web.Tests
 {
     public class UnitTests : IntegrationTest
     {
-        public UnitTests(WebApplicationFactory<Startup> factory) : base(factory, "Units")
+        public UnitTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Units"})
         {
         }
         
