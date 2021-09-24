@@ -21,7 +21,7 @@ namespace ForkEat.Core.Tests.Domain
                     new Step(Guid.NewGuid(),"Test Step 1 Name","Test Step 1 Instructions", new TimeSpan(0, 1, 30)),
                     new Step(Guid.NewGuid(),"Test Step 1 Name","Test Step 1 Instructions", new TimeSpan(0, 1, 0) ),
                     new Step(Guid.NewGuid(),"Test Step 1 Name","Test Step 1 Instructions", new TimeSpan(0, 3, 0) )
-                }
+                },new List<Ingredient>()
             );
 
             // When
@@ -36,7 +36,7 @@ namespace ForkEat.Core.Tests.Domain
         {
             // Given
             var recipe = new Recipe(Guid.NewGuid(),
-                "Test Recipe", 3, new List<Step>());
+                "Test Recipe", 3, new List<Step>(),new List<Ingredient>());
 
             // When
             recipe.Invoking(r => r.Difficulty = 3)
@@ -50,7 +50,7 @@ namespace ForkEat.Core.Tests.Domain
         {
             // Given
             var recipe = new Recipe(Guid.NewGuid(),
-                "Test Recipe", 3, new List<Step>());
+                "Test Recipe", 3, new List<Step>(),new List<Ingredient>());
 
             // When
             recipe.Invoking(r => r.Difficulty = 6)
@@ -65,7 +65,7 @@ namespace ForkEat.Core.Tests.Domain
         {
             // Given
             var recipe = new Recipe(Guid.NewGuid(),
-                "Test Recipe", 3, new List<Step>());
+                "Test Recipe", 3, new List<Step>(), new List<Ingredient>());
 
             // When
             recipe.Invoking(r => r.Name = null)
@@ -80,7 +80,7 @@ namespace ForkEat.Core.Tests.Domain
         {
             // Given
             var recipe = new Recipe(Guid.NewGuid(),
-                "Test Recipe", 3, new List<Step>());
+                "Test Recipe", 3, new List<Step>(), new List<Ingredient>());
 
             // When
             recipe.Invoking(r => r.Name = "")

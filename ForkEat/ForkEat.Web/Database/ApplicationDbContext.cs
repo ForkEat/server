@@ -1,5 +1,6 @@
 ﻿using ForkEat.Core.Domain;
 using ForkEat.Web.Adapters.Files;
+using ForkEat.Web.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ForkEat.Web.Database
@@ -14,6 +15,7 @@ namespace ForkEat.Web.Database
         
         public DbSet<Product> Products { get; set; }
         public DbSet<DbFile> Files { get; set; }
+        public DbSet<RecipeEntity> Recipes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

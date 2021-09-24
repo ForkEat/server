@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using ForkEat.Web.Database;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -8,9 +9,9 @@ namespace ForkEat.Web.Tests
     public abstract class DatabaseTest : IAsyncLifetime
     {
         protected ApplicationDbContext context;
-        private readonly string tableToClear;
+        private readonly string[] tableToClear;
 
-        protected DatabaseTest(string tableToClear)
+        protected DatabaseTest(string[] tableToClear)
         {
             this.tableToClear = tableToClear;
         }
@@ -19,7 +20,7 @@ namespace ForkEat.Web.Tests
 
         public async Task DisposeAsync()
         {
-            await context.Database.ExecuteSqlRawAsync($"DELETE FROM \"{tableToClear}\"");
+            await Task.WhenAll(tableToClear.Select(table => context.Database.ExecuteSqlRawAsync($"DELETE FROM \"{table}\"")));
         }
     }
 }

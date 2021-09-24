@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
@@ -9,16 +10,28 @@ namespace ForkEat.Core.Services
 {
     public class RecipeService : IRecipeService
     {
-        private readonly IRecipeRepository repository;
+        private readonly IRecipeRepository recipeRepository;
+        private readonly IProductRepository productRepository;
 
-        public RecipeService(IRecipeRepository repository)
+        public RecipeService(IRecipeRepository recipeRepository, IProductRepository productRepository)
         {
-            this.repository = repository;
+            this.recipeRepository = recipeRepository;
+            this.productRepository = productRepository;
         }
 
         public async Task<GetRecipeWithStepsResponse> CreateRecipe(CreateRecipeRequest request)
         {
-            var recipe = new Recipe(
+            var products = await productRepository.FindProductsByIds(ExtractProductIds(request));
+            var recipe = BuildRecipeFromRequest(request, products);
+
+            recipe = await this.recipeRepository.InsertRecipe(recipe);
+
+            return new GetRecipeWithStepsResponse(recipe);
+        }
+
+        private static Recipe BuildRecipeFromRequest(CreateRecipeRequest request, Dictionary<Guid, Product> products)
+        {
+            return new Recipe(
                 Guid.NewGuid(),
                 request.Name,
                 request.Difficulty,
@@ -27,24 +40,13 @@ namespace ForkEat.Core.Services
                     stepRequest.Name,
                     stepRequest.Instructions,
                     stepRequest.EstimatedTime)
-                ).ToList());
+                ).ToList(),
+                request.Ingredients.Select(i => new Ingredient(products[i.ProductId], i.Quantity)).ToList());
+        }
 
-            recipe = await this.repository.InsertRecipe(recipe);
-
-            return new GetRecipeWithStepsResponse()
-            {
-                Id = recipe.Id,
-                Name = recipe.Name,
-                Difficulty = recipe.Difficulty,
-                TotalEstimatedTime = recipe.TotalEstimatedTime,
-                Steps = recipe.Steps.Select(step => new GetStepResponse()
-                {
-                    Id = step.Id,
-                    Name = step.Name,
-                    EstimatedTime = step.EstimatedTime,
-                    Instructions = step.Instructions
-                }).ToList()
-            };
+        private static List<Guid> ExtractProductIds(CreateRecipeRequest request)
+        {
+            return request.Ingredients.Select(i => i.ProductId).ToList();
         }
     }
 }

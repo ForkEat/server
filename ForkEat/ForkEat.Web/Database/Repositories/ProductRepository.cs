@@ -48,5 +48,10 @@ namespace ForkEat.Web.Database
             await dbContext.SaveChangesAsync();
             return await FindProductById(newProduct.Id);
         }
+
+        public Task<Dictionary<Guid, Product>> FindProductsByIds(List<Guid> productIds)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
