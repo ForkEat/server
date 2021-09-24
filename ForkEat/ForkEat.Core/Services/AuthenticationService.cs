@@ -108,7 +108,7 @@ namespace ForkEat.Core.Services
             bool userExists = await this.repository.UserExistsByEmail(request.Email);
             if (userExists)
             {
-                throw new ArgumentException($"A user with email \"{request.Email}r\" already exists");
+                throw new ArgumentException($"A user with email \"{request.Email}\" already exists");
             }
         }
     }
