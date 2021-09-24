@@ -7,6 +7,7 @@ using FluentAssertions;
 using FluentValidation.Results;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Core.Exceptions;
 using ForkEat.Core.Repositories;
 using ForkEat.Core.Services;
 using Microsoft.IdentityModel.Tokens;
@@ -44,10 +45,10 @@ namespace ForkEat.Core.Tests.Services
                 .Returns(new ValidationResult());
 
             var service = new AuthenticationService(repoMock.Object, validatorMock.Object);
-            
+
             // When
             var user = await service.Register(registerUserRequest);
-            
+
             // Then
             user.Email.Should().Be("toto@email.fr");
             user.UserName.Should().Be("Toto");
@@ -56,6 +57,33 @@ namespace ForkEat.Core.Tests.Services
             insertedUser.Email.Should().Be("toto@email.fr");
             insertedUser.UserName.Should().Be("Toto");
             BCrypt.Net.BCrypt.Verify("Bonj@ur42", insertedUser.Password);
+        }
+
+        [Fact]
+        public async Task Register_ExistingUser_ThrowsException()
+        {
+            // Given
+            var registerUserRequest = new RegisterUserRequest()
+            {
+                UserName = "Toto",
+                Email = "toto@email.fr",
+                Password = "Bonj@ur42"
+            };
+
+            var repoMock = new Mock<IUserRepository>();
+            var validatorMock = new Mock<IPasswordValidator>();
+
+            repoMock.Setup(mock => mock.UserExistsByEmail(It.IsAny<string>()))
+                .Returns(() => Task.FromResult(true));
+            
+            var service = new AuthenticationService(repoMock.Object, validatorMock.Object);
+            
+            // When & Then
+
+            await service.Invoking(async s => await s.Register(registerUserRequest))
+                .Should()
+                .ThrowAsync<ArgumentException>()
+                .WithMessage($"A user with email \"toto@email.fr\" already exists");
         }
 
         [Fact]
@@ -72,7 +100,7 @@ namespace ForkEat.Core.Tests.Services
             Environment.SetEnvironmentVariable("JWT_SECRET", secret);
 
             var userId = Guid.NewGuid();
-            
+
             var repoMock = new Mock<IUserRepository>();
             var validatorMock = new Mock<IPasswordValidator>();
             repoMock.Setup(x => x.FindUserByEmail("toto@email.fr"))
@@ -84,15 +112,15 @@ namespace ForkEat.Core.Tests.Services
                     Password = BCrypt.Net.BCrypt.HashPassword("Bonj@ur42")
                 }));
             var service = new AuthenticationService(repoMock.Object, validatorMock.Object);
-            
+
             // When
             var user = await service.Login(loginUserRequest);
-            
+
             // Then
             user.Token.Should().NotBe(String.Empty);
             user.Email.Should().Be("toto@email.fr");
             user.UserName.Should().Be("Toto");
-            
+
             var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ??
                             throw new ArgumentException("JWT_SECRET Env variable is not set");
             var key = Encoding.ASCII.GetBytes(jwtSecret);
@@ -105,11 +133,10 @@ namespace ForkEat.Core.Tests.Services
                 ValidateIssuer = false,
                 ValidateAudience = false
             };
-            
+
             var principal = tokenHandler.ValidateToken(user.Token, validationParameters, out _);
 
-            principal.Claims.ToList()[0].Subject.Name.Should().Be( userId.ToString());
-            
+            principal.Claims.ToList()[0].Subject.Name.Should().Be(userId.ToString());
         }
 
         [Fact]
@@ -124,10 +151,10 @@ namespace ForkEat.Core.Tests.Services
 
             var secret = "bonjourlemondecestvraimentchouetteajd";
             Environment.SetEnvironmentVariable("JWT_SECRET", secret);
-            
-            
+
+
             var userId = Guid.NewGuid();
-            
+
             var repoMock = new Mock<IUserRepository>();
             var validatorMock = new Mock<IPasswordValidator>();
             repoMock.Setup(x => x.FindUserByEmail("toto@email.fr"))
@@ -139,15 +166,13 @@ namespace ForkEat.Core.Tests.Services
                     Password = BCrypt.Net.BCrypt.HashPassword("Bonj@ur42")
                 }));
             var service = new AuthenticationService(repoMock.Object, validatorMock.Object);
-            
+
             // When
-            service.Invoking(s => s.Login(loginUserRequest))
-                
-            // Then
-            .Should()
-            .ThrowAsync<InvalidCastException>();
+            await service.Invoking(async s => await s.Login(loginUserRequest))
+
+                // Then
+                .Should()
+                .ThrowAsync<InvalidCredentialsException>();
         }
-
     }
-
 }
