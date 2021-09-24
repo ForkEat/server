@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace ForkEat.Web.Database
+namespace ForkEat.Web.Database.Repositories
 {
     public class ProductRepository : IProductRepository
     {
@@ -16,7 +17,7 @@ namespace ForkEat.Web.Database
         {
             this.dbContext = dbContext;
         }
-        
+
         public async Task<Product> InsertProduct(Product product)
         {
             await dbContext.Products.AddAsync(product);
@@ -51,7 +52,9 @@ namespace ForkEat.Web.Database
 
         public Task<Dictionary<Guid, Product>> FindProductsByIds(List<Guid> productIds)
         {
-            throw new NotImplementedException();
+            return this.dbContext.Products
+                .Where(product => productIds.Contains(product.Id))
+                .ToDictionaryAsync(p => p.Id, p => p);
         }
     }
 }

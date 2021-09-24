@@ -5,9 +5,13 @@ using ForkEat.Core.Domain;
 
 namespace ForkEat.Core.Contracts
 {
-    public class GetRecipeWithStepsResponse
+    public class GetRecipeWithStepsAndIngredientsResponse
     {
-        public GetRecipeWithStepsResponse(Recipe recipe)
+        public GetRecipeWithStepsAndIngredientsResponse()
+        {
+        }
+
+        public GetRecipeWithStepsAndIngredientsResponse(Recipe recipe)
         {
             Id = recipe.Id;
             Name = recipe.Name;
