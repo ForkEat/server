@@ -18,6 +18,7 @@ steps:
       from_secret: test_database_url
   commands:
     - cd ForkEat
+    - dotnet add package coverlet.msbuild --version 3.1.0
     - dotnet test --logger "console;verbosity=detailed" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
     - ls -lhtr
 
