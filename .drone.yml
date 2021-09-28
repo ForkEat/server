@@ -25,8 +25,7 @@ steps:
   settings:
     token:
       from_secret: codecov-token
-    files:
-      - *.xml
+    required: true
 
 - name: publish image
   image: plugins/docker
