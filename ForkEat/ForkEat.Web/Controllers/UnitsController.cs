@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForkEat.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UnitsController : ControllerBase
     {
         private readonly IUnitService unitService;

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Web.Database;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,9 @@ namespace ForkEat.Web.Tests
     public abstract class DatabaseTest : IAsyncLifetime
     {
         protected ApplicationDbContext context;
-        private readonly string[] tableToClear;
+        private readonly IList<string> tableToClear;
 
-        protected DatabaseTest(string[] tableToClear)
+        protected DatabaseTest(IList<string> tableToClear)
         {
             this.tableToClear = tableToClear;
         }

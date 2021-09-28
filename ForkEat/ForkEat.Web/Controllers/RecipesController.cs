@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,7 @@ namespace ForkEat.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RecipesController : ControllerBase
     {
         private readonly IRecipeService service;
