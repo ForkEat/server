@@ -29,10 +29,14 @@ namespace ForkEat.Core.Services
             return new GetRecipeWithStepsAndIngredientsResponse(recipe);
         }
 
-        public Task<GetRecipesReponse> GetRecipes()
+        public async Task<List<GetRecipesResponse>> GetRecipes()
         {
-            throw new NotImplementedException();
-        }
+            var recipes = await recipeRepository.GetAllRecipes();
+            
+            return recipes
+                    .Select(recipe => new GetRecipesResponse(recipe))
+                    .ToList()
+;        }
 
         private static Recipe BuildRecipeFromRequest(CreateRecipeRequest request, Dictionary<Guid, Product> products)
         {

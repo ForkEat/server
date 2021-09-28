@@ -134,5 +134,62 @@ namespace ForkEat.Core.Tests.Services
             ingredient2Response.Quantity.Should().Be(2);
             ingredient2Response.Name.Should().Be("Product 2");
         }
+
+        [Fact]
+        public async Task GetRecipes_ReturnsAllRecipesInDb()
+        {
+            // Given
+            var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
+            var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
+
+
+            var recipe1 = new Recipe(Guid.NewGuid(), "Test Recipe 1", 1, new List<Step>()
+            {
+                new Step(Guid.NewGuid(), "Test Step 1", "Test Step 1 Instructions", new TimeSpan(0, 1, 30)),
+                new Step(Guid.NewGuid(), "Test Step 2", "Test Step 2 Instructions", new TimeSpan(0, 1, 0)),
+                new Step(Guid.NewGuid(), "Test Step 3", "Test Step 3 Instructions", new TimeSpan(0, 1, 30))
+            }, new List<Ingredient>()
+            {
+                new Ingredient(product1, 1),
+                new Ingredient(product2, 2)
+            });
+            
+            var recipe2 = new Recipe(Guid.NewGuid(), "Test Recipe 2", 1, new List<Step>()
+            {
+                new Step(Guid.NewGuid(), "Test Step 4", "Test Step 4 Instructions", new TimeSpan(0, 1, 30)),
+                new Step(Guid.NewGuid(), "Test Step 5", "Test Step 5 Instructions", new TimeSpan(0, 1, 0)),
+                new Step(Guid.NewGuid(), "Test Step 3", "Test Step 6 Instructions", new TimeSpan(0, 1, 30))
+            }, new List<Ingredient>()
+            {
+                new Ingredient(product1, 1),
+                new Ingredient(product2, 2)
+            });
+
+            var repoRecipeMock = new Mock<IRecipeRepository>();
+            repoRecipeMock
+                .Setup(mock => mock.GetAllRecipes())
+                .Returns(() => Task.FromResult(new List<Recipe>() { recipe1,recipe2 }));
+
+            var service = new RecipeService(repoRecipeMock.Object, null);
+
+            // When
+            var result = await service.GetRecipes();
+
+            // Then
+            result.Should().HaveCount(2);
+            var recipe1Result = result.First(recipe => recipe.Id == recipe1.Id);
+            var recipe2Result = result.First(recipe => recipe.Id == recipe2.Id);
+
+            recipe1Result.Id.Should().Be(recipe1.Id);
+            recipe1Result.Name.Should().Be("Test Recipe 1");
+            recipe1Result.Difficulty.Should().Be(1);
+            recipe1Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
+            
+            recipe2Result.Id.Should().Be(recipe2.Id);
+            recipe2Result.Name.Should().Be("Test Recipe 2");
+            recipe2Result.Difficulty.Should().Be(1);
+            recipe2Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
+
+        }
     }
 }
