@@ -11,11 +11,11 @@ using ForkEat.Web.Tests.Integration;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace ForkEat.Web.Tests
+namespace ForkEat.Web.Tests.Integration
 {
     public class ProductsTests : AuthenticatedTests
     {
-        public ProductsTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Products"})
+        public ProductsTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Products","Units"})
         {
         }
 
