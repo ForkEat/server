@@ -18,13 +18,17 @@ steps:
       from_secret: test_database_url
   commands:
     - cd ForkEat
-    - dotnet test
+    - dotnet build
+    - dotnet test --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+    - ls -lhtr
 
 - name: coverage
   image: plugins/codecov
   settings:
     token:
       from_secret: codecov-token
+    files:
+      - ForkEat/coverage.opencover.xml
     required: true
 
 - name: publish image
