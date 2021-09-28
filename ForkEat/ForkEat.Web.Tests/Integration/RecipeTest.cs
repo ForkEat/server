@@ -17,7 +17,7 @@ namespace ForkEat.Web.Tests
     public class RecipeTest : AuthenticatedTests
     {
         public RecipeTest(WebApplicationFactory<Startup> factory) : base(factory,
-            new string[] { "Recipes", "StepEntity", "IngredientEntity" })
+            new string[] { "Recipes", "StepEntity", "IngredientEntity","Products" })
         {
         }
 
