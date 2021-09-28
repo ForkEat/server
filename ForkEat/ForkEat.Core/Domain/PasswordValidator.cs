@@ -9,6 +9,7 @@ namespace ForkEat.Core.Domain
         
         public PasswordValidator()
         {
+            RuleFor(user => user.Email).EmailAddress();
             RuleFor(user => user.Password).NotEmpty();
             RuleFor(user => user.Password).MinimumLength(8);
             RuleFor(user => user.Password).Matches("[A-Z]").WithMessage("'{PropertyName}' must contain one or more uppercase.");
