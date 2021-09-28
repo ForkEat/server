@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Web.Tests.Integration;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
 namespace ForkEat.Web.Tests
 {
-    public class ProductsTests : IntegrationTest
+    public class ProductsTests : AuthenticatedTests
     {
         public ProductsTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Products"})
         {
@@ -24,7 +25,6 @@ namespace ForkEat.Web.Tests
             var productName = "carrot";
             
             // Given
-            var client = factory.CreateClient();
             var createProductRequest = new CreateUpdateProductRequest()
             {
                 Name = productName
@@ -50,7 +50,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createProductRequest);
             var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
             var productId = createdProductResult.Id;
@@ -74,7 +74,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             await client.PostAsJsonAsync("/api/products", createProductRequest);
             
             // When
@@ -98,7 +98,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             await client.PostAsJsonAsync("/api/products", createProductRequest);
             await client.PostAsJsonAsync("/api/products", createProductRequest2);
             
@@ -121,7 +121,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createProductRequest);
             var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
             var productId = createdProductResult.Id;
@@ -144,7 +144,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             await client.PostAsJsonAsync("/api/products", createProductRequest);
             
             // When
@@ -164,7 +164,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
             var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
             var productId = createdProductResult.Id;
@@ -194,7 +194,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             await client.PostAsJsonAsync("/api/products", createProductRequest);
             
             // When
@@ -223,7 +223,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
@@ -273,7 +273,7 @@ namespace ForkEat.Web.Tests
             };
 
             // Given
-            var client = factory.CreateClient();
+            
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
@@ -314,7 +314,7 @@ namespace ForkEat.Web.Tests
             };
 
             // Given
-            var client = factory.CreateClient();
+            
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
             var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
             var productId = createdProductResult.Id;
@@ -368,7 +368,7 @@ namespace ForkEat.Web.Tests
             };
 
             // Given
-            var client = factory.CreateClient();
+            
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
             var unitId = createdUnitResult.Id;

@@ -8,12 +8,13 @@ using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Web.Database.Entities;
+using ForkEat.Web.Tests.Integration;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
 namespace ForkEat.Web.Tests
 {
-    public class RecipeTest : IntegrationTest
+    public class RecipeTest : AuthenticatedTests
     {
         public RecipeTest(WebApplicationFactory<Startup> factory) : base(factory,
             new string[] { "Recipes", "StepEntity", "IngredientEntity" })

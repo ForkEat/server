@@ -4,13 +4,14 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Web.Adapters.Files;
+using ForkEat.Web.Tests.Integration;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace ForkEat.Web.Tests
 {
-    public class FilesTests : IntegrationTest
+    public class FilesTests : AuthenticatedTests
     {
         public FilesTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Files"})
         {
