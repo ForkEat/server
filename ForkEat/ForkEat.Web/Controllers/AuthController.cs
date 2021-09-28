@@ -42,11 +42,10 @@ namespace ForkEat.Web.Controllers
                 var result = await authenticationService.Login(request);
                 return result;
             }
-            catch (InvalidCredentialsException exception)
+            catch (InvalidCredentialsException)
             {
                 return Unauthorized();
             }
-
         }
     }
 }
