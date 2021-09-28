@@ -3,15 +3,17 @@ using System;
 using ForkEat.Web.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ForkEat.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210923082956_stock2")]
+    partial class stock2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,101 +120,6 @@ namespace ForkEat.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Files");
-                });
-
-            modelBuilder.Entity("ForkEat.Web.Database.Entities.IngredientEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("Quantity")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid?>("RecipeEntityId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("RecipeEntityId");
-
-                    b.ToTable("IngredientEntity");
-                });
-
-            modelBuilder.Entity("ForkEat.Web.Database.Entities.RecipeEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<long>("Difficulty")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Recipes");
-                });
-
-            modelBuilder.Entity("ForkEat.Web.Database.Entities.StepEntity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<TimeSpan>("EstimatedTime")
-                        .HasColumnType("interval");
-
-                    b.Property<string>("Instructions")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("RecipeEntityId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RecipeEntityId");
-
-                    b.ToTable("StepEntity");
-                });
-
-            modelBuilder.Entity("ForkEat.Web.Database.Entities.IngredientEntity", b =>
-                {
-                    b.HasOne("ForkEat.Core.Domain.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId");
-
-                    b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", null)
-                        .WithMany("Ingredients")
-                        .HasForeignKey("RecipeEntityId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ForkEat.Web.Database.Entities.StepEntity", b =>
-                {
-                    b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", null)
-                        .WithMany("Steps")
-                        .HasForeignKey("RecipeEntityId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("ForkEat.Web.Database.Entities.RecipeEntity", b =>
-                {
-                    b.Navigation("Ingredients");
-
-                    b.Navigation("Steps");
                 });
 
             modelBuilder.Entity("ForkEat.Core.Contracts.Stock", b =>

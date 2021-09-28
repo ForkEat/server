@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
@@ -15,9 +16,12 @@ namespace ForkEat.Web.Controllers
     {
         private readonly IProductService productService;
 
-        public ProductsController(IProductService productService)
+        private readonly IStockService stockService;
+
+        public ProductsController(IProductService productService, IStockService stockService)
         {
             this.productService = productService;
+            this.stockService = stockService;
         }
 
         [HttpPost]
@@ -79,6 +83,36 @@ namespace ForkEat.Web.Controllers
         public async Task<IList<Product>> GetAllProducts()
         {
             return await productService.GetAllProducts();
+        }
+
+        [HttpPut("{id}/stock")]
+        public async Task<ActionResult<StockResponse>> CreateOrUpdateStock(Guid id, [FromBody] CreateUpdateStockRequest stock)
+        {
+            StockResponse updatedStock = null;
+
+            try
+            {
+                updatedStock = await stockService.CreateOrUpdateStock(id, stock);
+            }
+            catch (ProductNotFoundException)
+            {
+                return NotFound("Product with id: " + id + " was not found");
+            }
+            catch (UnitNotFoundException)
+            {
+                return NotFound("Unit with id: " + stock.UnitId + " was not found");
+            }
+
+            return updatedStock;
+        }
+
+        [HttpGet("{id}/stock")]
+        public async Task<ActionResult<IEnumerable<StockResponse>>> GetStocks(Guid id)
+        {
+            var result = await stockService.GetStocks(id);
+            return !result.Any()
+                ? NotFound("There is no stock for product with id: " + id)
+                : new ActionResult<IEnumerable<StockResponse>>(result);
         }
     }
 }
