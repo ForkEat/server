@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForkEat.Web.Controllers
@@ -18,7 +19,6 @@ namespace ForkEat.Web.Controllers
         {
             this.authenticationService = authenticationService;
         }
-
 
         [HttpPost("register")]
         public async Task<ActionResult<RegisterUserResponse>> Register([FromBody] RegisterUserRequest request)

@@ -5,17 +5,18 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
+using ForkEat.Web.Tests.Integration;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
 namespace ForkEat.Web.Tests
 {
-    public class UnitTests : IntegrationTest
+    public class UnitTests : AuthenticatedTests
     {
         public UnitTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Units"})
         {
         }
-        
+
         [Fact]
         public async Task CreateUnit_withValidParams_Returns201()
         {
@@ -23,7 +24,7 @@ namespace ForkEat.Web.Tests
             var unitSymbol = "kg";
             
             // Given
-            var client = factory.CreateClient();
+            
             var createUpdateUnitRequest = new CreateUpdateUnitRequest()
             {
                 Name = unitName,
@@ -53,7 +54,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
             var unitId = createdUnitResult.Id;
@@ -81,7 +82,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             
             // When
@@ -107,7 +108,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest2);
             
@@ -132,7 +133,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
             var unitId = createdUnitResult.Id;
@@ -158,7 +159,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             
             // When
@@ -180,7 +181,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
             var unitId = createdUnitResult.Id;
@@ -211,7 +212,7 @@ namespace ForkEat.Web.Tests
             };
             
             // Given
-            var client = factory.CreateClient();
+            
             await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             
             // When

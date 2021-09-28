@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ForkEat.Core.Contracts;
 using ForkEat.Web.Database;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +17,7 @@ namespace ForkEat.Web.Tests
         protected readonly WebApplicationFactory<Startup> factory;
 
 
-        protected IntegrationTest(WebApplicationFactory<Startup> factory, string[] tableToClear) : base(tableToClear)
+        protected IntegrationTest(WebApplicationFactory<Startup> factory, IList<string> tableToClear) : base(tableToClear)
         {
             this.factory = factory;
         }
@@ -30,6 +32,28 @@ namespace ForkEat.Web.Tests
             var scope = scopeFactory?.CreateScope();
             context = scope?.ServiceProvider.GetService<ApplicationDbContext>();
             await context.Database.MigrateAsync();
+        }
+
+        protected async Task<string> RegisterAndLogin()
+        {
+            var registerUserRequest = new RegisterUserRequest()
+            {
+                Email = "toto@gmail.com",
+                Password = "Bonj@ur42",
+                UserName = "toto"
+            };
+
+            await client.PostAsJsonAsync("/api/auth/register", registerUserRequest);
+
+            var loginUser = new LoginUserRequest()
+            {
+                Email = "toto@gmail.com",
+                Password = "Bonj@ur42"
+            };
+            var loginResponse = await client.PostAsJsonAsync("/api/auth/login", loginUser);
+            var loginResult = await loginResponse.Content.ReadAsAsync<LoginUserResponse>();
+
+            return loginResult.Token;
         }
     }
 }
