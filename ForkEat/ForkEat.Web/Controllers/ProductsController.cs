@@ -6,12 +6,14 @@ using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForkEat.Web.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly IProductService productService;
