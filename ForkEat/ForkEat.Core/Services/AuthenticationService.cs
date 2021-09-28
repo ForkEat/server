@@ -99,7 +99,7 @@ namespace ForkEat.Core.Services
 
             if (!validationResult.IsValid)
             {
-                throw new PasswordValidationException();
+                throw new PasswordValidationException("Password does not match the specified requirements");
             }
         }
 
