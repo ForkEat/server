@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
 using ForkEat.Web.Database.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ForkEat.Web.Database
 {
@@ -34,6 +36,18 @@ namespace ForkEat.Web.Database
             await this.dbContext.SaveChangesAsync();
 
             return recipe;
+        }
+
+        public Task<List<Recipe>> GetAllRecipes()
+        {
+            return this.dbContext.Recipes
+                .Include(entity => entity.Steps)
+                .OrderBy(entity => entity.Name)
+                .Select(entity =>
+                    new Recipe(entity.Id, entity.Name, entity.Difficulty,
+                        entity.Steps.Select(stepEntity => new Step(stepEntity.Id, stepEntity.Name,
+                            stepEntity.Instructions, stepEntity.EstimatedTime)).ToList(), new List<Ingredient>()))
+                .ToListAsync();
         }
     }
 }

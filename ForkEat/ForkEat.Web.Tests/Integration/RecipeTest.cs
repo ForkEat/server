@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Web.Database.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
@@ -114,6 +115,75 @@ namespace ForkEat.Web.Tests
 
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task GetRecipes_ReturnsRecipesInDb()
+        {
+            // Given
+            var recipeEntity1 = new RecipeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Recipe 1",
+                Difficulty = 1,
+                Ingredients = new List<IngredientEntity>() { },
+                Steps = new List<StepEntity>()
+                {
+                    new StepEntity()
+                    {
+                        Id = Guid.NewGuid(), Name = "Test Step 1", Instructions = "Test Step 1 Instructions",
+                        EstimatedTime = new TimeSpan(0, 1, 0)
+                    },
+                    new StepEntity()
+                    {
+                        Id = Guid.NewGuid(), Name = "Test Step 2", Instructions = "Test Step 2 Instructions",
+                        EstimatedTime = new TimeSpan(0, 1, 0)
+                    }
+                }
+            };
+
+            var recipeEntity2 = new RecipeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Recipe 2",
+                Difficulty = 1,
+                Ingredients = new List<IngredientEntity>() { },
+                Steps = new List<StepEntity>()
+                {
+                    new StepEntity()
+                    {
+                        Id = Guid.NewGuid(), Name = "Test Step 3", Instructions = "Test Step 3 Instructions",
+                        EstimatedTime = new TimeSpan(0, 1, 0)
+                    },
+                    new StepEntity()
+                    {
+                        Id = Guid.NewGuid(), Name = "Test Step 4", Instructions = "Test Step 4 Instructions",
+                        EstimatedTime = new TimeSpan(0, 1, 0)
+                    }
+                }
+            };
+
+            await this.context.Recipes.AddRangeAsync(recipeEntity1, recipeEntity2);
+            await this.context.SaveChangesAsync();
+            
+            // When
+            var response = await client.GetAsync("/api/recipes");
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadAsAsync<List<GetRecipesResponse>>();
+            result.Count.Should().Be(2);
+
+            result[0].Id.Should().Be(recipeEntity1.Id);
+            result[0].Name.Should().Be("Test Recipe 1");
+            result[0].Difficulty.Should().Be(1);
+            result[0].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+            
+            result[1].Id.Should().Be(recipeEntity2.Id);
+            result[1].Name.Should().Be("Test Recipe 2");
+            result[1].Difficulty.Should().Be(1);
+            result[1].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+
         }
     }
 }
