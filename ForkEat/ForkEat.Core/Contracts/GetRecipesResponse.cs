@@ -5,8 +5,6 @@ namespace ForkEat.Core.Contracts
 {
     public class GetRecipesResponse
     {
-
-
         public Guid Id { get; set; }
         public string Name { get; set; }
         public uint Difficulty { get; set; }
