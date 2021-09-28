@@ -9,7 +9,7 @@ platform:
 
 steps:
 - name: test
-  image: thomaslacaze/dotnet-java
+  image: mcr.microsoft.com/dotnet/core/sdk
   pull: always
   environment:
     JWT_SECRET:
