@@ -7,6 +7,7 @@ using Xunit;
 
 namespace ForkEat.Web.Tests
 {
+    [Collection("Database Test")]
     public abstract class DatabaseTest : IAsyncLifetime
     {
         protected ApplicationDbContext context;
