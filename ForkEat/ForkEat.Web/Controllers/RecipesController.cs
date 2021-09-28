@@ -34,5 +34,11 @@ namespace ForkEat.Web.Controllers
             }
             
         }
+
+        [HttpGet]
+        public async Task<ActionResult<List<GetRecipesResponse>>> GetRecipes()
+        {
+            return await this.service.GetRecipes();
+        }
     }
 }
