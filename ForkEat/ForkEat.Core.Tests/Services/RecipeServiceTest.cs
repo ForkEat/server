@@ -109,17 +109,14 @@ namespace ForkEat.Core.Tests.Services
             result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 30));
             result.Steps.Should().HaveCount(3);
 
-            result.Steps[0].Id.Should().NotBeEmpty();
             result.Steps[0].Name.Should().Be("Test Step 1");
             result.Steps[0].Instructions.Should().Be("Test Step 1 instructions");
             result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
 
-            result.Steps[1].Id.Should().NotBeEmpty();
             result.Steps[1].Name.Should().Be("Test Step 2");
             result.Steps[1].Instructions.Should().Be("Test Step 2 instructions");
             result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
 
-            result.Steps[2].Id.Should().NotBeEmpty();
             result.Steps[2].Name.Should().Be("Test Step 3");
             result.Steps[2].Instructions.Should().Be("Test Step 3 instructions");
             result.Steps[2].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
@@ -136,7 +133,7 @@ namespace ForkEat.Core.Tests.Services
         }
 
         [Fact]
-        public async Task GetRecipes_ReturnsAllRecipesInDb()
+        public async Task GetRecipes_ReturnsAllRecipesInRepo()
         {
             // Given
             var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
@@ -190,6 +187,36 @@ namespace ForkEat.Core.Tests.Services
             recipe2Result.Difficulty.Should().Be(1);
             recipe2Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
 
+        }
+
+        [Fact]
+        public async Task DeleteRecipe_DeletesRecipeInRepo()
+        {
+            // Given
+            var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
+            var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
+            
+            var recipe = new Recipe(Guid.NewGuid(), "Test Recipe 1", 1, new List<Step>()
+            {
+                new Step(Guid.NewGuid(), "Test Step 1", "Test Step 1 Instructions", new TimeSpan(0, 1, 30)),
+                new Step(Guid.NewGuid(), "Test Step 2", "Test Step 2 Instructions", new TimeSpan(0, 1, 0)),
+                new Step(Guid.NewGuid(), "Test Step 3", "Test Step 3 Instructions", new TimeSpan(0, 1, 30))
+            }, new List<Ingredient>()
+            {
+                new Ingredient(product1, 1),
+                new Ingredient(product2, 2)
+            });
+            
+            var repoRecipeMock = new Mock<IRecipeRepository>();
+            repoRecipeMock.Setup(mock => mock.DeleteRecipeById(recipe.Id));
+            
+            var service = new RecipeService(repoRecipeMock.Object, null);
+            
+            // When
+            await service.DeleteRecipe(recipe.Id);
+            
+            // Then
+            repoRecipeMock.Verify(mock => mock.DeleteRecipeById(recipe.Id), Times.Once);
         }
     }
 }

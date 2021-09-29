@@ -13,12 +13,12 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public class RecipeRepositoryTests : RepositoryTest
     {
-        public RecipeRepositoryTests() : base(new string[] { "Recipes", "StepEntity", "IngredientEntity" })
+        public RecipeRepositoryTests() : base(new string[] { "Recipes", "Steps", "Ingredients" })
         {
         }
 
         [Fact]
-        public async Task InsertRecipe()
+        public async Task InsertRecipe_InsertsInDb()
         {
             // Given
             var recipe = new Recipe(
@@ -78,7 +78,7 @@ namespace ForkEat.Web.Tests.Repositories
         }
 
         [Fact]
-        public async Task GetRecipes()
+        public async Task GetRecipes_RetrievesAllRecipesFromDb()
         {
             // Given
             var recipeEntity1 = new RecipeEntity()
@@ -138,11 +138,121 @@ namespace ForkEat.Web.Tests.Repositories
             result[0].Name.Should().Be("Test Recipe 1");
             result[0].Difficulty.Should().Be(1);
             result[0].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
-            
+
             result[1].Id.Should().Be(recipeEntity2.Id);
             result[1].Name.Should().Be("Test Recipe 2");
             result[1].Difficulty.Should().Be(1);
             result[1].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+        }
+
+        [Fact]
+        public async Task GetRecipeById_RetrievesRecipeWithGivenId()
+        {
+            // Given
+            var (recipeEntity1, recipeEntity2) = await CreateRecipesWithIngredients();
+            var repository = new RecipeRepository(this.context);
+
+            // When
+            Recipe result = await repository.GetRecipeById(recipeEntity1.Id);
+
+            // Then
+            result.Id.Should().Be(recipeEntity1.Id);
+            result.Difficulty.Should().Be(1);
+            result.Name.Should().Be("Test Recipe 1");
+            result.Ingredients.Should().HaveCount(2);
+            result.Steps.Should().HaveCount(2);
+            result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+
+            result.Steps[0].Name.Should().Be("Test Step 1");
+            result.Steps[0].Instructions.Should().Be("Test Step 1 Instructions");
+            result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+            result.Steps[1].Name.Should().Be("Test Step 2");
+            result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
+            result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+
+            result.Ingredients[0].Product.Name.Should().Be("Test Product 1");
+            result.Ingredients[0].Quantity.Should().Be(1);
+            result.Ingredients[1].Product.Name.Should().Be("Test Product 2");
+            result.Ingredients[1].Quantity.Should().Be(2);
+        }
+
+        [Fact]
+        public async Task DeleteRecipeById_DeletesRecipeWithGivenId()
+        {
+            // Given
+            var (recipeEntity1, recipeEntity2) = await CreateRecipesWithIngredients();
+
+            var repository = new RecipeRepository(this.context);
+
+            // When
+            await repository.DeleteRecipeById(recipeEntity1.Id);
+
+            // Then
+            this.context.Products.Should().HaveCount(2);
+            this.context.Recipes.Should().ContainSingle();
+            this.context.Ingredients.Should().BeEmpty();
+            this.context.Steps.Should().HaveCount(2);
+
+            recipeEntity2 = await this.context.Recipes.FirstAsync();
+            recipeEntity2.Name.Should().Be("Test Recipe 2");
+        }
+
+        private async Task<(RecipeEntity, RecipeEntity)> CreateRecipesWithIngredients()
+        {
+            var product1 = new Product() { Name = "Test Product 1" };
+            var product2 = new Product() { Name = "Test Product 2" };
+
+            await this.context.Products.AddRangeAsync(product1, product2);
+
+            var recipeEntity1 = new RecipeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Recipe 1",
+                Difficulty = 1,
+                Ingredients = new List<IngredientEntity>()
+                {
+                    new IngredientEntity() { Id = Guid.NewGuid(), Product = product1, Quantity = 1 },
+                    new IngredientEntity() { Id = Guid.NewGuid(), Product = product2, Quantity = 2 },
+                },
+                Steps = new List<StepEntity>()
+                {
+                    new StepEntity()
+                    {
+                        Id = Guid.NewGuid(), Name = "Test Step 1", Instructions = "Test Step 1 Instructions",
+                        EstimatedTime = new TimeSpan(0, 1, 0)
+                    },
+                    new StepEntity()
+                    {
+                        Id = Guid.NewGuid(), Name = "Test Step 2", Instructions = "Test Step 2 Instructions",
+                        EstimatedTime = new TimeSpan(0, 1, 0)
+                    }
+                }
+            };
+
+            var recipeEntity2 = new RecipeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Test Recipe 2",
+                Difficulty = 1,
+                Ingredients = new List<IngredientEntity>() { },
+                Steps = new List<StepEntity>()
+                {
+                    new StepEntity()
+                    {
+                        Id = Guid.NewGuid(), Name = "Test Step 3", Instructions = "Test Step 3 Instructions",
+                        EstimatedTime = new TimeSpan(0, 1, 0)
+                    },
+                    new StepEntity()
+                    {
+                        Id = Guid.NewGuid(), Name = "Test Step 4", Instructions = "Test Step 4 Instructions",
+                        EstimatedTime = new TimeSpan(0, 1, 0)
+                    }
+                }
+            };
+            await this.context.Recipes.AddRangeAsync(recipeEntity1, recipeEntity2);
+            await this.context.SaveChangesAsync();
+
+            return (recipeEntity1, recipeEntity2);
         }
     }
 }

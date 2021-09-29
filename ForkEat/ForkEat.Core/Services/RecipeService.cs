@@ -57,5 +57,7 @@ namespace ForkEat.Core.Services
         {
             return request.Ingredients.Select(i => i.ProductId).ToList();
         }
+
+        public Task DeleteRecipe(Guid recipeId) => this.recipeRepository.DeleteRecipeById(recipeId);
     }
 }
