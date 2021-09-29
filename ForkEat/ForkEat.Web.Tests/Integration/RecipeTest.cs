@@ -12,12 +12,12 @@ using ForkEat.Web.Tests.Integration;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace ForkEat.Web.Tests
+namespace ForkEat.Web.Tests.Integration
 {
     public class RecipeTest : AuthenticatedTests
     {
         public RecipeTest(WebApplicationFactory<Startup> factory) : base(factory,
-            new string[] { "Recipes", "StepEntity", "IngredientEntity","Products" })
+            new string[] { "Recipes", "Steps", "Ingredients","Products" })
         {
         }
 
@@ -182,6 +182,54 @@ namespace ForkEat.Web.Tests
             result[1].Difficulty.Should().Be(1);
             result[1].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
 
+        }
+
+        [Fact]
+        public async Task GetRecipeById_GetsCompleteRecipe()
+        {
+            // Given
+            var (recipeEntity1, _) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
+
+            // When
+            var response = await this.client.GetAsync($"/api/recipes/{recipeEntity1.Id}");
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadAsAsync<GetRecipeWithStepsAndIngredientsResponse>();
+            
+            result.Id.Should().Be(recipeEntity1.Id);
+            result.Difficulty.Should().Be(1);
+            result.Name.Should().Be("Test Recipe 1");
+            result.Ingredients.Should().HaveCount(2);
+            result.Steps.Should().HaveCount(2);
+            result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+
+            result.Steps[0].Name.Should().Be("Test Step 1");
+            result.Steps[0].Instructions.Should().Be("Test Step 1 Instructions");
+            result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+
+            result.Steps[1].Name.Should().Be("Test Step 2");
+            result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
+            result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+
+            result.Ingredients.Select(ingredient => ingredient.Name).Should().Contain("Test Product 1");
+            result.Ingredients.Select(ingredient => ingredient.Quantity).Should().Contain(1U);
+            result.Ingredients.Select(ingredient => ingredient.Name).Should().Contain("Test Product 2");
+            result.Ingredients.Select(ingredient => ingredient.Quantity).Should().Contain(2U);
+        }
+        
+        [Fact]
+        public async Task DeleteRecipe_DeletesRecipeFromDatabase()
+        {
+            // Given
+            var (recipeEntity1, _) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
+
+            // When
+            var response = await this.client.DeleteAsync($"/api/recipes/{recipeEntity1.Id}");
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            this.context.Recipes.Should().ContainSingle();
         }
     }
 }

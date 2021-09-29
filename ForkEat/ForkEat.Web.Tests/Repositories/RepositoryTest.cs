@@ -12,15 +12,13 @@ namespace ForkEat.Web.Tests.Repositories
         {
         }
 
-        public override async Task InitializeAsync()
+        public override ApplicationDbContext GetDbContext()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseNpgsql(GetPostgresConnectionString())
                 .Options;
 
-            this.context = new ApplicationDbContext(options);
-
-            await this.context.Database.MigrateAsync();
+            return new ApplicationDbContext(options);
         }
 
 

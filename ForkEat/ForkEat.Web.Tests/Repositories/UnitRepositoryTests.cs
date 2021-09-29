@@ -102,8 +102,8 @@ namespace ForkEat.Web.Tests.Repositories
             // Given
             var repository = new UnitRepository(context);
         
-            var unit = CreateUnit("kilograms", "kg");
-            var unit2 = CreateUnit("units", "ut");
+            var unit = this.dataFactory.CreateUnit("kilograms", "kg");
+            var unit2 = this.dataFactory.CreateUnit("units", "ut");
         
             await context.Units.AddAsync(unit);
             await context.Units.AddAsync(unit2);
@@ -168,16 +168,6 @@ namespace ForkEat.Web.Tests.Repositories
             result.Symbol.Should().Be(unitSymbol);
         }
         
-        private Unit CreateUnit(string name, string symbol)
-        {
-            var unitId = Guid.NewGuid();
-            
-            return new Unit()
-            {
-                Id = unitId,
-                Name = name,
-                Symbol = symbol
-            };
-        }
+
     }
 }

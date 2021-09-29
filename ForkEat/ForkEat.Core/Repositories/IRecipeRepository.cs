@@ -11,5 +11,6 @@ namespace ForkEat.Core.Repositories
         Task<Recipe> InsertRecipe(Recipe recipe);
         Task<List<Recipe>> GetAllRecipes();
         Task DeleteRecipeById(Guid recipeId);
+        Task<Recipe> GetRecipeById(Guid recipe1Id);
     }
 }

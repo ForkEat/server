@@ -175,8 +175,8 @@ namespace ForkEat.Web.Tests.Repositories
             await context.Units.AddAsync(unit);
 
             var stockId = Guid.NewGuid();
-            var stock = CreateStock(stockId, product, unit);
-            var stock2 = CreateStock(Guid.NewGuid(), product2, unit);
+            var stock = this.dataFactory.CreateStock(stockId, product, unit);
+            var stock2 = this.dataFactory.CreateStock(Guid.NewGuid(), product2, unit);
 
             await context.Stocks.AddAsync(stock);
             await context.Stocks.AddAsync(stock2);
@@ -189,17 +189,6 @@ namespace ForkEat.Web.Tests.Repositories
             // Then
             result.Should().HaveCount(1);
             result.First().Id.Should().Be(stockId);
-        }
-
-        private Stock CreateStock(Guid stockId, Product product, Unit unit)
-        {
-            return new Stock()
-            {
-                Id = stockId,
-                Quantity = 8,
-                Unit = unit,
-                Product = product
-            };
         }
     }
 }

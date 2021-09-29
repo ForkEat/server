@@ -38,6 +38,12 @@ namespace ForkEat.Core.Services
                     .ToList()
 ;        }
 
+        public async Task<GetRecipeWithStepsAndIngredientsResponse> GetRecipeById(Guid recipeId)
+        {
+            var recipe = await this.recipeRepository.GetRecipeById(recipeId);
+            return new GetRecipeWithStepsAndIngredientsResponse(recipe);
+        }
+        
         private static Recipe BuildRecipeFromRequest(CreateRecipeRequest request, Dictionary<Guid, Product> products)
         {
             return new Recipe(
@@ -58,6 +64,6 @@ namespace ForkEat.Core.Services
             return request.Ingredients.Select(i => i.ProductId).ToList();
         }
 
-        public Task DeleteRecipe(Guid recipeId) => this.recipeRepository.DeleteRecipeById(recipeId);
+        public Task DeleteRecipeById(Guid recipeId) => this.recipeRepository.DeleteRecipeById(recipeId);
     }
 }

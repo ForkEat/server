@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
+using ForkEat.Core.Domain;
 using ForkEat.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -41,6 +42,20 @@ namespace ForkEat.Web.Controllers
         public async Task<ActionResult<List<GetRecipesResponse>>> GetRecipes()
         {
             return await this.service.GetRecipes();
+        }
+
+        [HttpGet("{recipeId:guid}")]
+        public async Task<ActionResult<GetRecipeWithStepsAndIngredientsResponse>> GetRecipeById(Guid recipeId)
+        {
+            GetRecipeWithStepsAndIngredientsResponse recipe = await this.service.GetRecipeById(recipeId);
+            return recipe;
+        }
+
+        [HttpDelete("{recipeId:guid}")]
+        public async Task<ActionResult> DeleteRecipeById(Guid recipeId)
+        {
+            await this.service.DeleteRecipeById(recipeId);
+            return NoContent();
         }
     }
 }
