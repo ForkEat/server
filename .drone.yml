@@ -16,8 +16,12 @@ steps:
       from_secret: jwt_secret
     TEST_DATABASE_URL:
       from_secret: test_database_url
+    DATABASE_URL:
+      from_secret: test_database_url
   commands:
-    - cd ForkEat
+    - cd ForkEat/ForkEat.Web
+    - dotnet ef database update
+    - cd ../
     - dotnet test --logger "console;verbosity=detailed" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
 - name: coverage
