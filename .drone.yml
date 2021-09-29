@@ -19,7 +19,6 @@ steps:
   commands:
     - cd ForkEat
     - dotnet test --logger "console;verbosity=detailed" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-    - ls -lhtr
 
 - name: coverage
   image: plugins/codecov
@@ -28,7 +27,6 @@ steps:
       from_secret: codecov-token
     files:
       - ForkEat/ForkEat.Core.Tests/coverage.opencover.xml
-      - ForkEat/ForkEat.Web.Tests/coverage.opencover.xml
     required: true
 
 - name: publish image
