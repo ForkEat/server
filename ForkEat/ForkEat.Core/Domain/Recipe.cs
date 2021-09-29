@@ -8,6 +8,7 @@ namespace ForkEat.Core.Domain
     {
         public Guid Id { get; set; }
         private string name;
+        public Guid ImageId;
 
         public string Name
         {
@@ -32,13 +33,14 @@ namespace ForkEat.Core.Domain
             set => difficulty = value <= 5 ? value : throw new ArgumentException("Recipe difficulty should be between 0 and 5");
         }
         
-        public Recipe(Guid id, string name,uint difficulty, IList<Step> steps, List<Ingredient> ingredients)
+        public Recipe(Guid id, string name,uint difficulty, IList<Step> steps, List<Ingredient> ingredients, Guid imageId)
         {
             this.Id = id;
             this.Name = name;
             this.Steps = steps.ToList();
             this.difficulty = difficulty;
             Ingredients = ingredients.ToList();
+            this.ImageId = imageId;
         }
 
         

@@ -29,7 +29,8 @@ namespace ForkEat.Web.Database
                     Product = ingredient.Product,
                     Quantity = ingredient.Quantity
                 }).ToList(),
-                Steps = recipe.Steps.Select(step => new StepEntity(){Id = step.Id, Name = step.Name, Instructions = step.Instructions, EstimatedTime = step.EstimatedTime}).ToList()
+                Steps = recipe.Steps.Select(step => new StepEntity(){Id = step.Id, Name = step.Name, Instructions = step.Instructions, EstimatedTime = step.EstimatedTime}).ToList(),
+                ImageId = recipe.ImageId
             };
 
             await this.dbContext.Recipes.AddAsync(entity);
@@ -46,7 +47,8 @@ namespace ForkEat.Web.Database
                 .Select(entity =>
                     new Recipe(entity.Id, entity.Name, entity.Difficulty,
                         entity.Steps.Select(stepEntity => new Step(stepEntity.Id, stepEntity.Name,
-                            stepEntity.Instructions, stepEntity.EstimatedTime)).ToList(), new List<Ingredient>()))
+                            stepEntity.Instructions, stepEntity.EstimatedTime)).ToList(), new List<Ingredient>(),
+                        entity.ImageId))
                 .ToListAsync();
         }
     }
