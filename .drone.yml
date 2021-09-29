@@ -16,11 +16,23 @@ steps:
       from_secret: jwt_secret
     TEST_DATABASE_URL:
       from_secret: test_database_url
+    DATABASE_URL:
+      from_secret: test_database_url
+    Host:
+      from_secret: Host
+    Database:
+      from_secret: Database
+    Username:
+      from_secret: Username
+    Password:
+      from_secret: Password
   commands:
-    - cd ForkEat
-    - dotnet add package coverlet.msbuild --version 3.1.0
+    - cd ForkEat/ForkEat.Web
+    - export PATH="$PATH:/root/.dotnet/tools"
+    - dotnet tool install --global dotnet-ef
+    - dotnet ef database update --connection "Host=$${Host};Database=$${Database};Username=$${Username};Password=$${Password}"
+    - cd ../
     - dotnet test --logger "console;verbosity=detailed" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
-    - ls -lhtr
 
 - name: coverage
   image: plugins/codecov
@@ -29,7 +41,6 @@ steps:
       from_secret: codecov-token
     files:
       - ForkEat/ForkEat.Core.Tests/coverage.opencover.xml
-      - ForkEat/ForkEat.Web.Tests/coverage.opencover.xml
     required: true
 
 - name: publish image

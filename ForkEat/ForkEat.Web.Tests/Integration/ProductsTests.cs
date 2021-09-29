@@ -27,7 +27,8 @@ namespace ForkEat.Web.Tests.Integration
             // Given
             var createProductRequest = new CreateUpdateProductRequest()
             {
-                Name = productName
+                Name = productName,
+                ImageId = Guid.NewGuid()
             };
 
             // When
@@ -46,7 +47,8 @@ namespace ForkEat.Web.Tests.Integration
             var productName = "carrot";
             var createProductRequest = new CreateUpdateProductRequest()
             {
-                Name = productName
+                Name = productName,
+                ImageId = Guid.NewGuid()
             };
             
             // Given
@@ -63,6 +65,7 @@ namespace ForkEat.Web.Tests.Integration
             var result = await response.Content.ReadAsAsync<Product>();
             result.Id.Should().Be(productId);
             result.Name.Should().Be(productName);
+            result.ImageId.Should().NotBe(Guid.Empty);
         }
         
         [Fact]
@@ -70,7 +73,8 @@ namespace ForkEat.Web.Tests.Integration
         {
             var createProductRequest = new CreateUpdateProductRequest()
             {
-                Name = "carrot"
+                Name = "carrot",
+                ImageId = Guid.NewGuid()
             };
             
             // Given
@@ -89,12 +93,14 @@ namespace ForkEat.Web.Tests.Integration
         {
             var createProductRequest = new CreateUpdateProductRequest()
             {
-                Name = "carrot"
+                Name = "carrot",
+                ImageId = Guid.NewGuid()
             };
             
             var createProductRequest2 = new CreateUpdateProductRequest()
             {
-                Name = "tomato"
+                Name = "tomato",
+                ImageId = Guid.NewGuid()
             };
             
             // Given
@@ -117,7 +123,8 @@ namespace ForkEat.Web.Tests.Integration
             var productName = "carrot";
             var createProductRequest = new CreateUpdateProductRequest()
             {
-                Name = productName
+                Name = productName,
+                ImageId = Guid.NewGuid()
             };
             
             // Given
@@ -140,7 +147,8 @@ namespace ForkEat.Web.Tests.Integration
         {
             var createProductRequest = new CreateUpdateProductRequest()
             {
-                Name = "carrot"
+                Name = "carrot",
+                ImageId = Guid.NewGuid()
             };
             
             // Given
@@ -160,7 +168,8 @@ namespace ForkEat.Web.Tests.Integration
             var productName = "carrot";
             var createUpdateProductRequest = new CreateUpdateProductRequest()
             {
-                Name = productName
+                Name = productName,
+                ImageId = Guid.NewGuid()
             };
             
             // Given
@@ -190,7 +199,8 @@ namespace ForkEat.Web.Tests.Integration
         {
             var createProductRequest = new CreateUpdateProductRequest()
             {
-                Name = "carrot"
+                Name = "carrot",
+                ImageId = Guid.NewGuid()
             };
             
             // Given
@@ -214,7 +224,8 @@ namespace ForkEat.Web.Tests.Integration
             var productName = "carrot";
             var createUpdateProductRequest = new CreateUpdateProductRequest()
             {
-                Name = productName
+                Name = productName,
+                ImageId = Guid.NewGuid()
             };
             var createUpdateUnitRequest = new CreateUpdateUnitRequest()
             {
@@ -264,7 +275,8 @@ namespace ForkEat.Web.Tests.Integration
             var productName = "carrot";
             var createUpdateProductRequest = new CreateUpdateProductRequest()
             {
-                Name = productName
+                Name = productName,
+                ImageId = Guid.NewGuid()
             };
             var createUpdateUnitRequest = new CreateUpdateUnitRequest()
             {
@@ -304,7 +316,8 @@ namespace ForkEat.Web.Tests.Integration
             var productName = "carrot";
             var createUpdateProductRequest = new CreateUpdateProductRequest()
             {
-                Name = productName
+                Name = productName,
+                ImageId = Guid.NewGuid()
             };
 
             var createUpdateUnitRequest = new CreateUpdateUnitRequest()
@@ -359,12 +372,14 @@ namespace ForkEat.Web.Tests.Integration
 
             var createUpdateProductRequest = new CreateUpdateProductRequest()
             {
-                Name = "carott"
+                Name = "carott",
+                ImageId = Guid.NewGuid()
             };
 
             var createUpdateProductRequest2 = new CreateUpdateProductRequest()
             {
-                Name = "carott"
+                Name = "carott",
+                ImageId = Guid.NewGuid()
             };
 
             // Given

@@ -22,10 +22,12 @@ namespace ForkEat.Web.Tests.Repositories
         {
             // Given
             var productName = "carrot";
+            var imageId = Guid.NewGuid();
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
-                Name = productName
+                Name = productName,
+                ImageId = imageId
             };
             var repository = new ProductRepository(context);
 
@@ -37,10 +39,12 @@ namespace ForkEat.Web.Tests.Repositories
 
             result.Id.Should().NotBe(Guid.Empty);
             result.Name.Should().Be(productName);
+            result.ImageId.Should().Be(imageId);
 
             var productInDb = await context.Products.FirstAsync(product => product.Id == result.Id);
             productInDb.Id.Should().Be(result.Id);
             productInDb.Name.Should().Be(productName);
+            productInDb.ImageId.Should().Be(imageId);
         }
 
         [Fact]
@@ -49,11 +53,13 @@ namespace ForkEat.Web.Tests.Repositories
             // Given
             var productName = "carrot";
             var productId = Guid.NewGuid();
+            var imageId = Guid.NewGuid();
 
             var product = new Product()
             {
                 Id = productId,
-                Name = productName
+                Name = productName,
+                ImageId = imageId
             };
             var repository = new ProductRepository(context);
 
@@ -66,6 +72,7 @@ namespace ForkEat.Web.Tests.Repositories
             // Then
             result.Id.Should().Be(result.Id);
             result.Name.Should().Be(productName);
+            result.ImageId.Should().Be(imageId);
         }
 
         [Fact]
@@ -74,11 +81,13 @@ namespace ForkEat.Web.Tests.Repositories
             // Given
             var productName = "carrot";
             var productId = Guid.NewGuid();
+            var imageId = Guid.NewGuid();
 
             var product = new Product()
             {
                 Id = productId,
-                Name = productName
+                Name = productName,
+                ImageId = imageId
             };
             var repository = new ProductRepository(context);
 
@@ -122,7 +131,8 @@ namespace ForkEat.Web.Tests.Repositories
             var product = new Product()
             {
                 Id = productId,
-                Name = productName
+                Name = productName,
+                ImageId = Guid.NewGuid()
             };
             var repository = new ProductRepository(context);
 
@@ -140,11 +150,13 @@ namespace ForkEat.Web.Tests.Repositories
             // Given
             var productName = "carrot";
             var productId = Guid.NewGuid();
+            var imageId = Guid.NewGuid();
 
             var product = new Product()
             {
                 Id = productId,
-                Name = productName
+                Name = productName,
+                ImageId = imageId
             };
 
             var repository = new ProductRepository(context);
@@ -159,6 +171,7 @@ namespace ForkEat.Web.Tests.Repositories
             // Then
             result.Id.Should().Be(productId);
             result.Name.Should().Be(productName + " updated");
+            result.ImageId.Should().Be(imageId);
         }
 
         [Fact]
@@ -167,9 +180,9 @@ namespace ForkEat.Web.Tests.Repositories
             // Given
             var products = new Product[]
             {
-                new Product() { Id = Guid.NewGuid(), Name = "Potatoes" },
-                new Product() { Id = Guid.NewGuid(), Name = "Carrot" },
-                new Product() { Id = Guid.NewGuid(), Name = "Cabbage" },
+                new Product() { Id = Guid.NewGuid(), Name = "Potatoes", ImageId = Guid.NewGuid() },
+                new Product() { Id = Guid.NewGuid(), Name = "Carrot", ImageId = Guid.NewGuid() },
+                new Product() { Id = Guid.NewGuid(), Name = "Cabbage", ImageId = Guid.NewGuid()},
             };
             await this.context.Products.AddRangeAsync(products);
             await this.context.SaveChangesAsync();
@@ -199,7 +212,8 @@ namespace ForkEat.Web.Tests.Repositories
             return new Product
             {
                 Id = productId,
-                Name = productName + " " + productId
+                Name = productName + " " + productId,
+                ImageId = Guid.NewGuid()
             };
         }
     }
