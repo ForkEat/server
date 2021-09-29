@@ -18,6 +18,7 @@ namespace ForkEat.Core.Tests.Services
         public async Task CreateProduct_WithValidParams_ReturnsProduct()
         {
             var productName = "carrot";
+            var imageId = Guid.NewGuid();
 
             var mockRepository = new Mock<IProductRepository>();
 
@@ -35,13 +36,15 @@ namespace ForkEat.Core.Tests.Services
 
             var productRequest = new CreateUpdateProductRequest()
             {
-                Name = productName
+                Name = productName,
+                ImageId = imageId
             };
 
             var result = await service.CreateProduct(productRequest);
             result.Should().NotBeNull();
             result.Id.Should().NotBe(Guid.Empty);
             result.Name.Should().Be(productName);
+            result.ImageId.Should().Be(imageId);
         }
 
         [Fact]
@@ -49,6 +52,7 @@ namespace ForkEat.Core.Tests.Services
         {
             var productName = "carrot";
             var productId = Guid.NewGuid();
+            var imageId = Guid.NewGuid();
 
             var mockRepository = new Mock<IProductRepository>();
 
@@ -56,7 +60,8 @@ namespace ForkEat.Core.Tests.Services
                 .Returns<Guid>(_ => Task.FromResult(new Product
                 {
                     Id = productId,
-                    Name = productName
+                    Name = productName,
+                    ImageId = imageId
                 }));
 
             var service = new ProductService(mockRepository.Object);
@@ -66,6 +71,7 @@ namespace ForkEat.Core.Tests.Services
             result.Should().NotBeNull();
             result.Id.Should().Be(productId);
             result.Name.Should().Be(productName);
+            result.ImageId.Should().Be(imageId);
         }
 
         [Fact]
@@ -207,7 +213,8 @@ namespace ForkEat.Core.Tests.Services
             return new Product
             {
                 Id = productId,
-                Name = productName + " " +productId
+                Name = productName + " " +productId,
+                ImageId = Guid.NewGuid()
             };
         }
     }

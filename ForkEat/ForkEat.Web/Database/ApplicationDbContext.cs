@@ -29,6 +29,7 @@ namespace ForkEat.Web.Database
 
             modelBuilder.Entity<Product>().HasKey(product => product.Id);
             modelBuilder.Entity<Product>().Property(product => product.Name);
+            modelBuilder.Entity<Product>().Property(product => product.ImageId);
 
             modelBuilder.Entity<DbFile>().HasKey(file => file.Id);
             modelBuilder.Entity<DbFile>().Property(file => file.Type);
