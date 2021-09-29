@@ -18,11 +18,19 @@ steps:
       from_secret: test_database_url
     DATABASE_URL:
       from_secret: test_database_url
+    Host:
+      from_secret: Host
+    Database:
+      from_secret: Database
+    Username:
+      from_secret: Username
+    Password:
+      from_secret: Password
   commands:
     - cd ForkEat/ForkEat.Web
     - export PATH="$PATH:/root/.dotnet/tools"
     - dotnet tool install --global dotnet-ef
-    - dotnet ef database update
+    - dotnet ef database update --connection "Host=$${Host};Database=$${Database};Username=$${Username};Password=$${Password}"
     - cd ../
     - dotnet test --logger "console;verbosity=detailed" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
