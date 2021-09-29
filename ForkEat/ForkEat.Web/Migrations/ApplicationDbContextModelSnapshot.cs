@@ -72,6 +72,9 @@ namespace ForkEat.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("ImageId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
@@ -186,6 +189,25 @@ namespace ForkEat.Web.Migrations
                     b.ToTable("StepEntity");
                 });
 
+            modelBuilder.Entity("ForkEat.Core.Contracts.Stock", b =>
+                {
+                    b.HasOne("ForkEat.Core.Domain.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ForkEat.Core.Contracts.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Unit");
+                });
+
             modelBuilder.Entity("ForkEat.Web.Database.Entities.IngredientEntity", b =>
                 {
                     b.HasOne("ForkEat.Core.Domain.Product", "Product")
@@ -213,25 +235,6 @@ namespace ForkEat.Web.Migrations
                     b.Navigation("Ingredients");
 
                     b.Navigation("Steps");
-                });
-
-            modelBuilder.Entity("ForkEat.Core.Contracts.Stock", b =>
-                {
-                    b.HasOne("ForkEat.Core.Domain.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ForkEat.Core.Contracts.Unit", "Unit")
-                        .WithMany()
-                        .HasForeignKey("UnitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Unit");
                 });
 #pragma warning restore 612, 618
         }
