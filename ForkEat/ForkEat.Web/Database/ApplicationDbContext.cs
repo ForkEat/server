@@ -19,6 +19,8 @@ namespace ForkEat.Web.Database
         public DbSet<Unit> Units { get; set; }
         public DbSet<RecipeEntity> Recipes { get; set; }
         public DbSet<Stock> Stocks { get; set; }
+        public DbSet<IngredientEntity> Ingredients { get; set; }
+        public DbSet<StepEntity> Steps { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

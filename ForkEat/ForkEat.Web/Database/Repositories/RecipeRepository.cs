@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Domain;
@@ -29,7 +30,10 @@ namespace ForkEat.Web.Database
                     Product = ingredient.Product,
                     Quantity = ingredient.Quantity
                 }).ToList(),
-                Steps = recipe.Steps.Select(step => new StepEntity(){Id = step.Id, Name = step.Name, Instructions = step.Instructions, EstimatedTime = step.EstimatedTime}).ToList()
+                Steps = recipe.Steps.Select(step => new StepEntity()
+                {
+                    Id = step.Id, Name = step.Name, Instructions = step.Instructions, EstimatedTime = step.EstimatedTime
+                }).ToList()
             };
 
             await this.dbContext.Recipes.AddAsync(entity);
@@ -43,11 +47,57 @@ namespace ForkEat.Web.Database
             return this.dbContext.Recipes
                 .Include(entity => entity.Steps)
                 .OrderBy(entity => entity.Name)
-                .Select(entity =>
-                    new Recipe(entity.Id, entity.Name, entity.Difficulty,
-                        entity.Steps.Select(stepEntity => new Step(stepEntity.Id, stepEntity.Name,
-                            stepEntity.Instructions, stepEntity.EstimatedTime)).ToList(), new List<Ingredient>()))
+                .Select(entity => CreateRecipeFromEntityWithoutIngredient(entity))
                 .ToListAsync();
+        }
+
+        public Task DeleteRecipeById(Guid recipeId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Recipe> GetRecipeById(Guid recipeId)
+        {
+            RecipeEntity recipeEntity = await this.dbContext.Recipes.FirstAsync(entity => entity.Id == recipeId);
+            return CreateRecipeFromEntity(recipeEntity);
+        }
+
+        public Recipe CreateRecipeFromEntity(RecipeEntity entity)
+        {
+            return new Recipe(
+                entity.Id, 
+                entity.Name, 
+                entity.Difficulty,
+                entity.Steps.Select(stepEntity => 
+                    new Step(
+                        stepEntity.Id,
+                        stepEntity.Name,
+                        stepEntity.Instructions,
+                        stepEntity.EstimatedTime
+                        )
+                ).ToList(),
+                entity.Ingredients.Select(ingredientEntity =>
+                    new Ingredient(
+                        ingredientEntity.Product,
+                        ingredientEntity.Quantity
+                        )
+                ).ToList());
+        }
+
+        public Recipe CreateRecipeFromEntityWithoutIngredient(RecipeEntity entity)
+        {
+            return new Recipe(
+                entity.Id, 
+                entity.Name, 
+                entity.Difficulty,
+                entity.Steps.Select(stepEntity => 
+                    new Step(
+                        stepEntity.Id,
+                        stepEntity.Name, 
+                        stepEntity.Instructions,
+                        stepEntity.EstimatedTime
+                        )
+                ).ToList(), new List<Ingredient>());
         }
     }
 }

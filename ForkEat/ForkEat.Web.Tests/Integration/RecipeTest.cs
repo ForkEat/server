@@ -73,17 +73,14 @@ namespace ForkEat.Web.Tests
             result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 30));
             result.Steps.Should().HaveCount(3);
 
-            result.Steps[0].Id.Should().NotBeEmpty();
             result.Steps[0].Name.Should().Be("Test Step 1");
             result.Steps[0].Instructions.Should().Be("Test Step 1 instructions");
             result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
 
-            result.Steps[1].Id.Should().NotBeEmpty();
             result.Steps[1].Name.Should().Be("Test Step 2");
             result.Steps[1].Instructions.Should().Be("Test Step 2 instructions");
             result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
 
-            result.Steps[2].Id.Should().NotBeEmpty();
             result.Steps[2].Name.Should().Be("Test Step 3");
             result.Steps[2].Instructions.Should().Be("Test Step 3 instructions");
             result.Steps[2].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));

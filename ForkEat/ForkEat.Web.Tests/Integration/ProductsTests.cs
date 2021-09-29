@@ -255,7 +255,7 @@ namespace ForkEat.Web.Tests.Integration
             var getResponse = await client.GetAsync("/api/products/" + productId + "/stock");
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var getResult = await getResponse.Content.ReadAsAsync<IEnumerable<Stock>>();
-            getResult.First().Quantity.Should().Be(5);;
+            getResult.First().Quantity.Should().Be(5);
         }
         
         [Fact]
