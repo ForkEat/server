@@ -30,7 +30,8 @@ namespace ForkEat.Web.Tests.Repositories
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
-                Name = "carrot"
+                Name = "carrot",
+                ImageId = Guid.NewGuid()
             };
             
             var stockToInsert = new Stock()
@@ -74,7 +75,8 @@ namespace ForkEat.Web.Tests.Repositories
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
-                Name = "carrot"
+                Name = "carrot",
+                ImageId = Guid.NewGuid()
             };
             
             var stock = new Stock()
@@ -118,7 +120,8 @@ namespace ForkEat.Web.Tests.Repositories
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
-                Name = "carrot"
+                Name = "carrot",
+                ImageId = Guid.NewGuid()
             };
 
             var stock = new Stock()
@@ -157,13 +160,15 @@ namespace ForkEat.Web.Tests.Repositories
             var product = new Product()
             {
                 Id = productId,
-                Name = "carrot"
+                Name = "carrot",
+                ImageId = Guid.NewGuid()
             };
 
             var product2 = new Product()
             {
                 Id = Guid.NewGuid(),
-                Name = "carrot"
+                Name = "carrot",
+                ImageId = Guid.NewGuid()
             };
 
             await context.Products.AddAsync(product);

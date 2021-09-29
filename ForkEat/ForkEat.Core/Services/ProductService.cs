@@ -22,7 +22,8 @@ namespace ForkEat.Core.Services
             var product = new Product()
             {
                 Id = Guid.NewGuid(),
-                Name = createUpdateProductRequest.Name
+                Name = createUpdateProductRequest.Name,
+                ImageId = createUpdateProductRequest.ImageId
             };
 
             return await productRepository.InsertProduct(product);
@@ -48,7 +49,10 @@ namespace ForkEat.Core.Services
         public async Task<Product> UpdateProduct(Guid id, CreateUpdateProductRequest updatedProduct)
         {
             var productFromDb = await GetProductById(id);
-            productFromDb.Name = updatedProduct.Name;
+            productFromDb.Name = updatedProduct.Name ?? productFromDb.Name;
+            productFromDb.ImageId = updatedProduct.ImageId != Guid.Empty
+                ? updatedProduct.ImageId
+                : productFromDb.ImageId;
             return await productRepository.UpdateProduct(productFromDb);
         }
     }
