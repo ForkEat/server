@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Repositories;
-using ForkEat.Web.Migrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace ForkEat.Web.Database
