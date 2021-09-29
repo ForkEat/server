@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Domain;
-using ForkEat.Web.Database;
+using ForkEat.Web.Database.Repositories;
 using ForkEat.Web.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -13,7 +13,7 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public class RecipeRepositoryTests : RepositoryTest
     {
-        public RecipeRepositoryTests() : base(new string[] { "Recipes", "Steps", "Ingredients" })
+        public RecipeRepositoryTests() : base(new string[] { "Recipes", "Steps", "Ingredients","Products" })
         {
         }
 
@@ -27,7 +27,8 @@ namespace ForkEat.Web.Tests.Repositories
                 3,
                 new List<Step>()
                 {
-                    new Step(Guid.NewGuid(), "Test Step", "Test Instructions", new TimeSpan(0, 1, 0))
+                    new Step(Guid.NewGuid(), "Test Step 1", "Test Instructions 1", new TimeSpan(0, 1, 0)),
+                    new Step(Guid.NewGuid(), "Test Step 2", "Test Instructions 2", new TimeSpan(0, 1, 0)),
                 },
                 new List<Ingredient>()
                 {
@@ -48,13 +49,19 @@ namespace ForkEat.Web.Tests.Repositories
             recipeInDb.Id.Should().Be(recipe.Id);
             recipeInDb.Difficulty.Should().Be(3);
             recipeInDb.Name.Should().Be("Test Name");
-            recipeInDb.Steps.Should().HaveCount(1);
+            recipeInDb.Steps.Should().HaveCount(2);
             recipeInDb.Ingredients.Should().HaveCount(1);
 
             recipeInDb.Steps[0].Id.Should().Be(recipe.Steps[0].Id);
-            recipeInDb.Steps[0].Name.Should().Be("Test Step");
-            recipeInDb.Steps[0].Instructions.Should().Be("Test Instructions");
+            recipeInDb.Steps[0].Name.Should().Be("Test Step 1");
+            recipeInDb.Steps[0].Instructions.Should().Be("Test Instructions 1");
             recipeInDb.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+            recipeInDb.Steps[0].Order.Should().Be(0);
+            recipeInDb.Steps[1].Id.Should().Be(recipe.Steps[1].Id);
+            recipeInDb.Steps[1].Name.Should().Be("Test Step 2");
+            recipeInDb.Steps[1].Instructions.Should().Be("Test Instructions 2");
+            recipeInDb.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+            recipeInDb.Steps[1].Order.Should().Be(1);
 
             recipeInDb.Ingredients[0].Product.Id.Should().Be(recipe.Ingredients[0].Product.Id);
             recipeInDb.Ingredients[0].Product.Name.Should().Be(recipe.Ingredients[0].Product.Name);
@@ -63,14 +70,19 @@ namespace ForkEat.Web.Tests.Repositories
             result.Id.Should().Be(recipe.Id);
             result.Difficulty.Should().Be(3);
             result.Name.Should().Be("Test Name");
-            result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
-            result.Steps.Should().HaveCount(1);
+            result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+            result.Steps.Should().HaveCount(2);
             result.Ingredients.Should().HaveCount(1);
 
             result.Steps[0].Id.Should().Be(recipe.Steps[0].Id);
-            result.Steps[0].Name.Should().Be("Test Step");
-            result.Steps[0].Instructions.Should().Be("Test Instructions");
+            result.Steps[0].Name.Should().Be("Test Step 1");
+            result.Steps[0].Instructions.Should().Be("Test Instructions 1");
             result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+            
+            result.Steps[1].Id.Should().Be(recipe.Steps[1].Id);
+            result.Steps[1].Name.Should().Be("Test Step 2");
+            result.Steps[1].Instructions.Should().Be("Test Instructions 2");
+            result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
 
             result.Ingredients[0].Product.Id.Should().Be(recipe.Ingredients[0].Product.Id);
             result.Ingredients[0].Product.Name.Should().Be(recipe.Ingredients[0].Product.Name);
@@ -92,12 +104,14 @@ namespace ForkEat.Web.Tests.Repositories
                     new StepEntity()
                     {
                         Id = Guid.NewGuid(), Name = "Test Step 1", Instructions = "Test Step 1 Instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 0)
+                        EstimatedTime = new TimeSpan(0, 1, 0),
+                        Order = 0
                     },
                     new StepEntity()
                     {
                         Id = Guid.NewGuid(), Name = "Test Step 2", Instructions = "Test Step 2 Instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 0)
+                        EstimatedTime = new TimeSpan(0, 1, 0),
+                        Order = 1
                     }
                 }
             };
@@ -113,12 +127,14 @@ namespace ForkEat.Web.Tests.Repositories
                     new StepEntity()
                     {
                         Id = Guid.NewGuid(), Name = "Test Step 3", Instructions = "Test Step 3 Instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 0)
+                        EstimatedTime = new TimeSpan(0, 1, 0),
+                        Order = 0
                     },
                     new StepEntity()
                     {
                         Id = Guid.NewGuid(), Name = "Test Step 4", Instructions = "Test Step 4 Instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 0)
+                        EstimatedTime = new TimeSpan(0, 1, 0),
+                        Order = 1
                     }
                 }
             };
@@ -149,7 +165,7 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task GetRecipeById_RetrievesRecipeWithGivenId()
         {
             // Given
-            var (recipeEntity1, recipeEntity2) = await CreateRecipesWithIngredients();
+            var (recipeEntity1, _) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
             var repository = new RecipeRepository(this.context);
 
             // When
@@ -166,6 +182,7 @@ namespace ForkEat.Web.Tests.Repositories
             result.Steps[0].Name.Should().Be("Test Step 1");
             result.Steps[0].Instructions.Should().Be("Test Step 1 Instructions");
             result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+
             result.Steps[1].Name.Should().Be("Test Step 2");
             result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
             result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
@@ -180,7 +197,7 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task DeleteRecipeById_DeletesRecipeWithGivenId()
         {
             // Given
-            var (recipeEntity1, recipeEntity2) = await CreateRecipesWithIngredients();
+            var (recipeEntity1, recipeEntity2) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
 
             var repository = new RecipeRepository(this.context);
 
@@ -197,62 +214,6 @@ namespace ForkEat.Web.Tests.Repositories
             recipeEntity2.Name.Should().Be("Test Recipe 2");
         }
 
-        private async Task<(RecipeEntity, RecipeEntity)> CreateRecipesWithIngredients()
-        {
-            var product1 = new Product() { Name = "Test Product 1" };
-            var product2 = new Product() { Name = "Test Product 2" };
 
-            await this.context.Products.AddRangeAsync(product1, product2);
-
-            var recipeEntity1 = new RecipeEntity()
-            {
-                Id = Guid.NewGuid(),
-                Name = "Test Recipe 1",
-                Difficulty = 1,
-                Ingredients = new List<IngredientEntity>()
-                {
-                    new IngredientEntity() { Id = Guid.NewGuid(), Product = product1, Quantity = 1 },
-                    new IngredientEntity() { Id = Guid.NewGuid(), Product = product2, Quantity = 2 },
-                },
-                Steps = new List<StepEntity>()
-                {
-                    new StepEntity()
-                    {
-                        Id = Guid.NewGuid(), Name = "Test Step 1", Instructions = "Test Step 1 Instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 0)
-                    },
-                    new StepEntity()
-                    {
-                        Id = Guid.NewGuid(), Name = "Test Step 2", Instructions = "Test Step 2 Instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 0)
-                    }
-                }
-            };
-
-            var recipeEntity2 = new RecipeEntity()
-            {
-                Id = Guid.NewGuid(),
-                Name = "Test Recipe 2",
-                Difficulty = 1,
-                Ingredients = new List<IngredientEntity>() { },
-                Steps = new List<StepEntity>()
-                {
-                    new StepEntity()
-                    {
-                        Id = Guid.NewGuid(), Name = "Test Step 3", Instructions = "Test Step 3 Instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 0)
-                    },
-                    new StepEntity()
-                    {
-                        Id = Guid.NewGuid(), Name = "Test Step 4", Instructions = "Test Step 4 Instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 0)
-                    }
-                }
-            };
-            await this.context.Recipes.AddRangeAsync(recipeEntity1, recipeEntity2);
-            await this.context.SaveChangesAsync();
-
-            return (recipeEntity1, recipeEntity2);
-        }
     }
 }

@@ -188,15 +188,16 @@ namespace ForkEat.Core.Tests.Services
             recipe2Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
 
         }
-
-        [Fact]
-        public async Task DeleteRecipe_DeletesRecipeInRepo()
+        
+                [Fact]
+        public async Task GetRecipeById_ReturnsRecipeByIdFromRepo()
         {
             // Given
             var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
             var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
-            
-            var recipe = new Recipe(Guid.NewGuid(), "Test Recipe 1", 1, new List<Step>()
+
+
+            var recipe1 = new Recipe(Guid.NewGuid(), "Test Recipe 1", 1, new List<Step>()
             {
                 new Step(Guid.NewGuid(), "Test Step 1", "Test Step 1 Instructions", new TimeSpan(0, 1, 30)),
                 new Step(Guid.NewGuid(), "Test Step 2", "Test Step 2 Instructions", new TimeSpan(0, 1, 0)),
@@ -207,16 +208,60 @@ namespace ForkEat.Core.Tests.Services
                 new Ingredient(product2, 2)
             });
             
+
             var repoRecipeMock = new Mock<IRecipeRepository>();
-            repoRecipeMock.Setup(mock => mock.DeleteRecipeById(recipe.Id));
+            repoRecipeMock
+                .Setup(mock => mock.GetRecipeById(recipe1.Id))
+                .Returns(() => Task.FromResult(recipe1));
+
+            var service = new RecipeService(repoRecipeMock.Object, null);
+
+            // When
+            var result = await service.GetRecipeById(recipe1.Id);
+
+            // Then
+
+            result.Id.Should().Be(recipe1.Id);
+            result.Name.Should().Be("Test Recipe 1");
+            result.Difficulty.Should().Be(1);
+            result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
+
+            result.Ingredients.Should().HaveCount(2);
+            result.Ingredients[0].Name.Should().Be("Product 1");
+            result.Ingredients[0].Quantity.Should().Be(1);
+            result.Ingredients[0].ProductId.Should().Be(product1.Id);
+            result.Ingredients[1].Name.Should().Be("Product 2");
+            result.Ingredients[1].Quantity.Should().Be(2);
+            result.Ingredients[1].ProductId.Should().Be(product2.Id);
+
+            result.Steps.Should().HaveCount(3);
+            result.Steps[0].Name.Should().Be("Test Step 1");
+            result.Steps[0].Instructions.Should().Be("Test Step 1 Instructions");
+            result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
+            result.Steps[1].Name.Should().Be("Test Step 2");
+            result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
+            result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+            result.Steps[2].Name.Should().Be("Test Step 3");
+            result.Steps[2].Instructions.Should().Be("Test Step 3 Instructions");
+            result.Steps[2].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
+        }
+
+        [Fact]
+        public async Task DeleteRecipe_DeletesRecipeInRepo()
+        {
+            // Given
+            var recipeId = Guid.NewGuid();
+            
+            var repoRecipeMock = new Mock<IRecipeRepository>();
+            repoRecipeMock.Setup(mock => mock.DeleteRecipeById(recipeId));
             
             var service = new RecipeService(repoRecipeMock.Object, null);
             
             // When
-            await service.DeleteRecipe(recipe.Id);
+            await service.DeleteRecipeById(recipeId);
             
             // Then
-            repoRecipeMock.Verify(mock => mock.DeleteRecipeById(recipe.Id), Times.Once);
+            repoRecipeMock.Verify(mock => mock.DeleteRecipeById(recipeId), Times.Once);
         }
     }
 }

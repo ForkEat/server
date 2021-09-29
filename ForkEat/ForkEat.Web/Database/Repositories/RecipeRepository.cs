@@ -7,7 +7,7 @@ using ForkEat.Core.Repositories;
 using ForkEat.Web.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace ForkEat.Web.Database
+namespace ForkEat.Web.Database.Repositories
 {
     public class RecipeRepository : IRecipeRepository
     {
@@ -30,9 +30,9 @@ namespace ForkEat.Web.Database
                     Product = ingredient.Product,
                     Quantity = ingredient.Quantity
                 }).ToList(),
-                Steps = recipe.Steps.Select(step => new StepEntity()
+                Steps = recipe.Steps.Select((step, index) => new StepEntity()
                 {
-                    Id = step.Id, Name = step.Name, Instructions = step.Instructions, EstimatedTime = step.EstimatedTime
+                    Id = step.Id, Name = step.Name, Instructions = step.Instructions, EstimatedTime = step.EstimatedTime, Order = (uint) index
                 }).ToList()
             };
 
@@ -51,18 +51,31 @@ namespace ForkEat.Web.Database
                 .ToListAsync();
         }
 
-        public Task DeleteRecipeById(Guid recipeId)
+        public async Task DeleteRecipeById(Guid recipeId)
         {
-            throw new NotImplementedException();
+            var recipeEntity = await GetRecipeEntityById(recipeId);
+            this.dbContext.Recipes.Remove(recipeEntity);
+            await this.dbContext.SaveChangesAsync();
         }
 
         public async Task<Recipe> GetRecipeById(Guid recipeId)
         {
-            RecipeEntity recipeEntity = await this.dbContext.Recipes.FirstAsync(entity => entity.Id == recipeId);
+            var recipeEntity = await GetRecipeEntityById(recipeId);
             return CreateRecipeFromEntity(recipeEntity);
         }
 
-        public Recipe CreateRecipeFromEntity(RecipeEntity entity)
+        
+        private async Task<RecipeEntity> GetRecipeEntityById(Guid recipeId)
+        {
+            RecipeEntity recipeEntity = await this.dbContext
+                .Recipes
+                .Include(entity => entity.Ingredients).ThenInclude(ingredientEntity => ingredientEntity.Product)
+                .Include(entity => entity.Steps.OrderBy(stepEntity => stepEntity.Order))
+                .FirstAsync(entity => entity.Id == recipeId);
+            return recipeEntity;
+        }
+
+        private static Recipe CreateRecipeFromEntity(RecipeEntity entity)
         {
             return new Recipe(
                 entity.Id, 
@@ -84,7 +97,7 @@ namespace ForkEat.Web.Database
                 ).ToList());
         }
 
-        public Recipe CreateRecipeFromEntityWithoutIngredient(RecipeEntity entity)
+        private static Recipe CreateRecipeFromEntityWithoutIngredient(RecipeEntity entity)
         {
             return new Recipe(
                 entity.Id, 

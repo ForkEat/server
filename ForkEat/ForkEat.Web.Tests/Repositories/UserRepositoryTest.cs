@@ -116,7 +116,7 @@ namespace ForkEat.Web.Tests.Repositories
             result.UserName.Should().Be("John Shepard");
             result.Password.Should().Be(hashedPassword);
 
-            var userInDb = await this.context.Users.FirstAsync(user => user.Id == result.Id);
+            var userInDb = await this.context.Users.FirstAsync(u => u.Id == result.Id);
             userInDb.Id.Should().Be(result.Id);
             userInDb.Email.Should().Be("john.shepard@sr2-normandy.com");
             userInDb.UserName.Should().Be("John Shepard");

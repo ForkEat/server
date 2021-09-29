@@ -68,7 +68,7 @@ namespace ForkEat.Web.Tests.Repositories
             result.Id.Should().NotBe(Guid.Empty);
             result.Name.Should().Be("test-file");
 
-            var fileInDb = await this.context.Files.FirstAsync(file => file.Id == result.Id);
+            var fileInDb = await this.context.Files.FirstAsync(f => f.Id == result.Id);
             fileInDb.Data.Should().BeEquivalentTo(file);
             fileInDb.Type.Should().Be("gif");
             fileInDb.Id.Should().Be(result.Id);
