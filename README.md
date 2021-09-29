@@ -1,5 +1,9 @@
 # ForkEat server
 
+[![codecov](https://codecov.io/gh/ForkEat/server/branch/main/graph/badge.svg?token=OW6YBGZ2P0)](https://codecov.io/gh/ForkEat/server)
+
+[![Build Status](https://drone.thomaslacaze.fr/api/badges/ForkEat/server/status.svg)](https://drone.thomaslacaze.fr/ForkEat/server)
+
 ## 🛠️ Installation Steps
 
 ### 🐳 Option 1: Run from Docker run
