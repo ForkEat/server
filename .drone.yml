@@ -20,6 +20,7 @@ steps:
       from_secret: test_database_url
   commands:
     - cd ForkEat/ForkEat.Web
+    - dotnet tool install --global dotnet-ef
     - dotnet ef database update
     - cd ../
     - dotnet test --logger "console;verbosity=detailed" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
