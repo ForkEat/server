@@ -19,12 +19,12 @@ namespace ForkEat.Core.Services
 
         public async Task<Product> CreateProduct(CreateUpdateProductRequest createUpdateProductRequest)
         {
-            var product = new Product()
-            {
-                Id = Guid.NewGuid(),
-                Name = createUpdateProductRequest.Name,
-                ImageId = createUpdateProductRequest.ImageId
-            };
+            var product = new Product
+            (
+                Guid.NewGuid(),
+                createUpdateProductRequest.Name,
+                createUpdateProductRequest.ImageId
+            );
 
             return await productRepository.InsertProduct(product);
         }

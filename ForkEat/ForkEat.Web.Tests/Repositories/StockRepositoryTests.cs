@@ -26,12 +26,7 @@ namespace ForkEat.Web.Tests.Repositories
                 Symbol = "kg"
             };
 
-            var product = new Product()
-            {
-                Id = Guid.NewGuid(),
-                Name = "carrot",
-                ImageId = Guid.NewGuid()
-            };
+            var product = this.dataFactory.CreateCarrotProduct();
             
             var stockToInsert = new Stock()
             {
@@ -71,12 +66,8 @@ namespace ForkEat.Web.Tests.Repositories
                 Symbol = "kg"
             };
 
-            var product = new Product()
-            {
-                Id = Guid.NewGuid(),
-                Name = "carrot",
-                ImageId = Guid.NewGuid()
-            };
+
+            var product = this.dataFactory.CreateCarrotProduct();
             
             var stock = new Stock()
             {
@@ -116,12 +107,8 @@ namespace ForkEat.Web.Tests.Repositories
                 Symbol = "kg"
             };
 
-            var product = new Product()
-            {
-                Id = Guid.NewGuid(),
-                Name = "carrot",
-                ImageId = Guid.NewGuid()
-            };
+
+            var product = this.dataFactory.CreateCarrotProduct();
 
             var stock = new Stock()
             {
@@ -156,25 +143,13 @@ namespace ForkEat.Web.Tests.Repositories
                 Symbol = "kg"
             };
 
-            var product = new Product()
-            {
-                Id = productId,
-                Name = "carrot",
-                ImageId = Guid.NewGuid()
-            };
 
-            var product2 = new Product()
-            {
-                Id = Guid.NewGuid(),
-                Name = "carrot",
-                ImageId = Guid.NewGuid()
-            };
+            var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
 
-            await context.Products.AddAsync(product);
             await context.Units.AddAsync(unit);
 
             var stockId = Guid.NewGuid();
-            var stock = this.dataFactory.CreateStock(stockId, product, unit);
+            var stock = this.dataFactory.CreateStock(stockId, product1, unit);
             var stock2 = this.dataFactory.CreateStock(Guid.NewGuid(), product2, unit);
 
             await context.Stocks.AddAsync(stock);

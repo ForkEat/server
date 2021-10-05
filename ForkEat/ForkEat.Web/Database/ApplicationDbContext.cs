@@ -13,7 +13,7 @@ namespace ForkEat.Web.Database
 
         public DbSet<User> Users { get; set; }
         
-        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductEntity> Products { get; set; }
         public DbSet<DbFile> Files { get; set; }
         public DbSet<Unit> Units { get; set; }
         public DbSet<RecipeEntity> Recipes { get; set; }
@@ -28,9 +28,9 @@ namespace ForkEat.Web.Database
             modelBuilder.Entity<User>().Property(user => user.Password);
             modelBuilder.Entity<User>().Property(user => user.UserName);
 
-            modelBuilder.Entity<Product>().HasKey(product => product.Id);
-            modelBuilder.Entity<Product>().Property(product => product.Name);
-            modelBuilder.Entity<Product>().Property(product => product.ImageId);
+            modelBuilder.Entity<ProductEntity>().HasKey(product => product.Id);
+            modelBuilder.Entity<ProductEntity>().Property(product => product.Name);
+            modelBuilder.Entity<ProductEntity>().Property(product => product.ImageId);
 
             modelBuilder.Entity<DbFile>().HasKey(file => file.Id);
             modelBuilder.Entity<DbFile>().Property(file => file.Type);

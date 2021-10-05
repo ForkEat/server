@@ -18,8 +18,7 @@ namespace ForkEat.Core.Tests.Services
         public async Task CreateRecipe_InsertRecipeInRepo()
         {
             // Given
-            var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
-            var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
+            var (product1, product2) = CreateProducts();
 
             var imageId = Guid.NewGuid();
             var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
@@ -158,8 +157,7 @@ namespace ForkEat.Core.Tests.Services
         public async Task GetRecipes_ReturnsAllRecipesInRepo()
         {
             // Given
-            var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
-            var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
+            var (product1, product2) = CreateProducts();
             var imageId = Guid.NewGuid();
 
             var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
@@ -221,8 +219,7 @@ namespace ForkEat.Core.Tests.Services
         public async Task GetRecipeById_ReturnsRecipeByIdFromRepo()
         {
             // Given
-            var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
-            var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
+            var (product1, product2) = CreateProducts();
 
             var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
 
@@ -298,8 +295,7 @@ namespace ForkEat.Core.Tests.Services
         public async Task UpdateRecipe_DeletesThenInsertInRepo()
         {
             // Given
-            var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
-            var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
+            var (product1, product2) = CreateProducts();
 
             var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
 
@@ -376,6 +372,13 @@ namespace ForkEat.Core.Tests.Services
             // Then
             repoRecipeMock.Verify(mock => mock.DeleteRecipeById(recipe1.Id), Times.Once);
             repoRecipeMock.Verify(mock => mock.InsertRecipe(It.IsAny<Recipe>()), Times.Once);
+        }
+
+        private static (Product,Product) CreateProducts()
+        {
+            var product1 = new Product(Guid.NewGuid(), "Product 1", Guid.NewGuid());
+            var product2 = new Product(Guid.NewGuid(), "Product 2", Guid.NewGuid());
+            return (product1, product2);
         }
 
         [Fact]
