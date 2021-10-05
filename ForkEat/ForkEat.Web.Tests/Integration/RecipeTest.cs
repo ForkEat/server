@@ -126,6 +126,7 @@ namespace ForkEat.Web.Tests
             {
                 Id = Guid.NewGuid(),
                 Name = "Test Recipe 1",
+                ImageId = Guid.NewGuid(),
                 Difficulty = 1,
                 Ingredients = new List<IngredientEntity>() { },
                 Steps = new List<StepEntity>()
@@ -147,6 +148,7 @@ namespace ForkEat.Web.Tests
             {
                 Id = Guid.NewGuid(),
                 Name = "Test Recipe 2",
+                ImageId = Guid.NewGuid(),
                 Difficulty = 1,
                 Ingredients = new List<IngredientEntity>() { },
                 Steps = new List<StepEntity>()
@@ -177,11 +179,13 @@ namespace ForkEat.Web.Tests
 
             result[0].Id.Should().Be(recipeEntity1.Id);
             result[0].Name.Should().Be("Test Recipe 1");
+            result[0].ImageId.Should().NotBe(Guid.Empty);
             result[0].Difficulty.Should().Be(1);
             result[0].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
             
             result[1].Id.Should().Be(recipeEntity2.Id);
             result[1].Name.Should().Be("Test Recipe 2");
+            result[1].ImageId.Should().NotBe(Guid.Empty);
             result[1].Difficulty.Should().Be(1);
             result[1].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
 
