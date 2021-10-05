@@ -9,10 +9,10 @@ namespace ForkEat.Core.Services
     public interface IRecipeService
     {
         Task<GetRecipeWithStepsAndIngredientsResponse> CreateRecipe(CreateRecipeRequest request);
-        Task<List<GetRecipesResponse>> GetRecipes();
+        Task<IList<GetRecipesResponse>> GetRecipes();
         Task<GetRecipeWithStepsAndIngredientsResponse> GetRecipeById(Guid recipeId);
         Task DeleteRecipeById(Guid recipeId);
         Task<GetRecipeWithStepsAndIngredientsResponse> UpdateRecipe(Guid recipeId, UpdateRecipeRequest request);
-        Task<IList<Recipe>> SearchRecipeByIngredients(IList<Guid> guids);
+        Task<IList<GetRecipesResponse>> SearchRecipeByIngredients(IList<Guid> guids);
     }
 }

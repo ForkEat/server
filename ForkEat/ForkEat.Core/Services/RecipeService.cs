@@ -38,14 +38,13 @@ namespace ForkEat.Core.Services
             return request.Ingredients.Select(i => i.UnitId).ToList();
         }
 
-        public async Task<List<GetRecipesResponse>> GetRecipes()
+        public async Task<IList<GetRecipesResponse>> GetRecipes()
         {
             var recipes = await recipeRepository.GetAllRecipes();
 
             return recipes
                     .Select(recipe => new GetRecipesResponse(recipe))
-                    .ToList()
-                ;
+                    .ToList();
         }
 
         public async Task<GetRecipeWithStepsAndIngredientsResponse> GetRecipeById(Guid recipeId)
@@ -92,9 +91,12 @@ namespace ForkEat.Core.Services
             return new GetRecipeWithStepsAndIngredientsResponse(recipe);
         }
 
-        public Task<IList<Recipe>> SearchRecipeByIngredients(IList<Guid> guids)
+        public async Task<IList<GetRecipesResponse>> SearchRecipeByIngredients(IList<Guid> guids)
         {
-            return this.recipeRepository.FindRecipesWithIngredients(guids);
+            var recipes = await this.recipeRepository.FindRecipesWithIngredients(guids);
+            return recipes
+                .Select(recipe => new GetRecipesResponse(recipe))
+                .ToList();
         }
     }
 }

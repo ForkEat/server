@@ -229,7 +229,7 @@ namespace ForkEat.Web.Tests.Repositories
             this.context.Products.Should().HaveCount(2);
             this.context.Units.Should().HaveCount(1);
             this.context.Recipes.Should().ContainSingle();
-            this.context.Ingredients.Should().BeEmpty();
+            this.context.Ingredients.Should().HaveCount(1);
             this.context.Steps.Should().HaveCount(2);
 
             recipeEntity2 = await this.context.Recipes.FirstAsync();
@@ -250,6 +250,7 @@ namespace ForkEat.Web.Tests.Repositories
             // Then
             result.Should().ContainSingle();
             result[0].Id.Should().Be(recipeEntity1.Id);
+            result[0].Steps.Should().HaveCount(2);
         }
     }
 }
