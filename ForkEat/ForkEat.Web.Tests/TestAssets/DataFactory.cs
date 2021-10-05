@@ -93,7 +93,10 @@ namespace ForkEat.Web.Tests.TestAssets
                 Id = Guid.NewGuid(),
                 Name = "Test Recipe 2",
                 Difficulty = 1,
-                Ingredients = new List<IngredientEntity>() { },
+                Ingredients = new List<IngredientEntity>()
+                {
+                    new IngredientEntity() { Id = Guid.NewGuid(), Product = product1,Unit = unit, Quantity = 1 },
+                },
                 Steps = new List<StepEntity>()
                 {
                     new StepEntity()

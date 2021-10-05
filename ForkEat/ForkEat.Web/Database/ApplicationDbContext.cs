@@ -46,7 +46,7 @@ namespace ForkEat.Web.Database
             modelBuilder.Entity<RecipeEntity>().Property(recipe => recipe.ImageId);
             modelBuilder.Entity<RecipeEntity>().Property(recipe => recipe.Difficulty);
             modelBuilder.Entity<RecipeEntity>().HasMany<StepEntity>(recipe => recipe.Steps).WithOne().OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<RecipeEntity>().HasMany<IngredientEntity>(recipe => recipe.Ingredients).WithOne().OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<RecipeEntity>().HasMany<IngredientEntity>(recipe => recipe.Ingredients).WithOne().HasForeignKey(i => i.RecipeId).OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<StepEntity>().HasKey(step => step.Id);
             modelBuilder.Entity<StepEntity>().Property(step => step.Name);

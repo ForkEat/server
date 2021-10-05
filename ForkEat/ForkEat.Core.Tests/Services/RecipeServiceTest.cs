@@ -377,5 +377,37 @@ namespace ForkEat.Core.Tests.Services
             repoRecipeMock.Verify(mock => mock.DeleteRecipeById(recipe1.Id), Times.Once);
             repoRecipeMock.Verify(mock => mock.InsertRecipe(It.IsAny<Recipe>()), Times.Once);
         }
+
+        [Fact]
+        public async Task SearchRecipeByIngredients_returnsRecipesFromRepo()
+        {
+            // Given
+            var recipe = new Recipe(
+                Guid.NewGuid(),
+                "Test Recipe",
+                2,
+                new List<Step>(),
+                new List<Ingredient>(),
+                Guid.NewGuid()
+            );
+
+            IList<Guid> receivedIds = null;
+            var recipeRepoMock = new Mock<IRecipeRepository>();
+            recipeRepoMock.Setup(mock => mock.FindRecipesWithIngredients(It.IsAny<IList<Guid>>()))
+                .Returns<IList<Guid>>(ids =>
+                {
+                    receivedIds = ids;
+                    return Task.FromResult(new List<Recipe>() { recipe } as IList<Recipe>);
+                });
+
+            IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null);
+
+            // When
+            var result = await service.SearchRecipeByIngredients(new List<Guid> { recipe.Id });
+            
+            // Then
+            result.Should().ContainSingle();
+            result[0].Should().BeSameAs(recipe);
+        }
     }
 }

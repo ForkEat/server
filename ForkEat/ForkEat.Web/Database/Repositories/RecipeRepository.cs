@@ -67,7 +67,32 @@ namespace ForkEat.Web.Database.Repositories
             return CreateRecipeFromEntity(recipeEntity);
         }
 
-        
+        public async Task<IList<Recipe>> FindRecipesWithIngredients(IList<Guid> productsIds)
+        {
+            // var recipes = await this.dbContext
+            //     .Recipes
+            //     .Where(recipe => recipe.Ingredients.Select(i => i.Product.Id).Intersect(productsIds).Any())
+            //     .ToListAsync();
+            //
+            // return recipes.Select(CreateRecipeFromEntity).ToList();
+            var recipesIdsWithThisProducts = await this.dbContext
+                .Ingredients
+                .Where(i => productsIds.Contains(i.Product.Id))
+                .Distinct()
+                .Select(i => i.RecipeId)
+                .ToListAsync();
+
+            var recipes = await this.dbContext
+                .Recipes
+                .Where(recipe => recipesIdsWithThisProducts.Contains(recipe.Id))
+                .ToListAsync();
+
+            return recipes
+                .Select(CreateRecipeFromEntity)
+                .ToList();
+        }
+
+
         private async Task<RecipeEntity> GetRecipeEntityById(Guid recipeId)
         {
             RecipeEntity recipeEntity = await this.dbContext
