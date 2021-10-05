@@ -245,7 +245,7 @@ namespace ForkEat.Web.Tests.Repositories
             
             // When
             var result =
-                await repository.FindRecipesWithIngredients(new List<Guid> { recipeEntity1.Ingredients[0].Product.Id });
+                await repository.FindRecipesWithIngredients(new List<Guid> { recipeEntity1.Ingredients[1].Product.Id });
 
             // Then
             result.Should().ContainSingle();
