@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Web.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -107,8 +105,8 @@ namespace ForkEat.Web.Tests.Repositories
             // Given
             var repository = new ProductRepository(context);
 
-            var product = CreateProduct();
-            var product2 = CreateProduct();
+            var product = this.dataFactory.CreateCarrotProduct();
+            var product2 = this.dataFactory.CreateCarrotProduct();
 
             await context.Products.AddAsync(product);
             await context.Products.AddAsync(product2);
@@ -204,17 +202,6 @@ namespace ForkEat.Web.Tests.Repositories
             result[productIds[1]].Name.Should().Be("Carrot");
         }
 
-        private Product CreateProduct()
-        {
-            var productName = "carrot";
-            var productId = Guid.NewGuid();
 
-            return new Product
-            {
-                Id = productId,
-                Name = productName + " " + productId,
-                ImageId = Guid.NewGuid()
-            };
-        }
     }
 }

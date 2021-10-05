@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ForkEat.Core.Contracts;
+using ForkEat.Core.Domain;
 
 namespace ForkEat.Core.Repositories
 {
@@ -12,5 +12,6 @@ namespace ForkEat.Core.Repositories
         Task<List<Unit>> FindAllUnits();
         Task DeleteUnit(Unit unit);
         Task<Unit> UpdateUnit(Unit newUnit);
+        Task<Dictionary<Guid,Unit>> FindUnitsByIds(List<Guid> unitIds);
     }
 }

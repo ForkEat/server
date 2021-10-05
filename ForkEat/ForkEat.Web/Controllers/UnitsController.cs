@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
+using ForkEat.Core.Domain;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
 using Microsoft.AspNetCore.Authorization;

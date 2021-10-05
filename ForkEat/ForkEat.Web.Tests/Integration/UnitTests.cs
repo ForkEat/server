@@ -5,11 +5,11 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
-using ForkEat.Web.Tests.Integration;
+using ForkEat.Core.Domain;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace ForkEat.Web.Tests
+namespace ForkEat.Web.Tests.Integration
 {
     public class UnitTests : AuthenticatedTests
     {

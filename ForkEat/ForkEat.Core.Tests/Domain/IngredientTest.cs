@@ -11,26 +11,55 @@ namespace ForkEat.Core.Tests.Domain
         public void Quantity_Not0()
         {
             // Given
-            var ingredient = new Ingredient(new Product(){Id = Guid.NewGuid(), Name = "Test product"}, 1);
-            
+            var ingredient = new Ingredient(
+                1, new Product() { Id = Guid.NewGuid(), Name = "Test product" },
+                new Unit()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Kilogramme", Symbol = "kg"
+                });
             // When  & Then
             ingredient.Invoking(i => i.Quantity = 0)
                 .Should()
                 .Throw<ArgumentException>()
                 .WithMessage("Ingredient Quantity should be positive");
         }
-        
+
         [Fact]
         public void Product_NotNull()
         {
             // Given
-            var ingredient = new Ingredient(new Product(){Id = Guid.NewGuid(), Name = "Test product"}, 1);
-            
+            var ingredient = new Ingredient(
+                1, new Product() { Id = Guid.NewGuid(), Name = "Test product" },
+                new Unit()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Kilogramme", Symbol = "kg"
+                });
             // When  & Then
             ingredient.Invoking(i => i.Product = null)
                 .Should()
                 .Throw<ArgumentException>()
                 .WithMessage("Ingredient Product should not be null");
+        }
+
+        [Fact]
+        public void Unit_NotNull()
+        {
+            // Given
+            var ingredient = new Ingredient(
+                1, new Product() { Id = Guid.NewGuid(), Name = "Test product" },
+                new Unit()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Kilogramme", Symbol = "kg"
+                });
+
+            // When  & Then
+            ingredient.Invoking(i => i.Unit = null)
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Ingredient Unit should not be null");
         }
     }
 }

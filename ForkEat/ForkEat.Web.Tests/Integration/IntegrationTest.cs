@@ -5,21 +5,26 @@ using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Web.Database;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace ForkEat.Web.Tests
+namespace ForkEat.Web.Tests.Integration
 {
     public abstract class IntegrationTest : DatabaseTest, IClassFixture<WebApplicationFactory<Startup>>
     {
         protected HttpClient client;
-        protected readonly WebApplicationFactory<Startup> factory;
-
+        private readonly WebApplicationFactory<Startup> factory;
 
         protected IntegrationTest(WebApplicationFactory<Startup> factory, IList<string> tableToClear) : base(tableToClear)
         {
             this.factory = factory;
+        }
+
+        public override ApplicationDbContext GetDbContext()
+        {
+            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>() ?? throw new InvalidOperationException("Service Scope Factory is null");
+            var scope = scopeFactory.CreateScope();
+            return scope.ServiceProvider.GetService<ApplicationDbContext>();
         }
 
         public override async Task InitializeAsync()
@@ -28,10 +33,7 @@ namespace ForkEat.Web.Tests
                 Environment.GetEnvironmentVariable("TEST_DATABASE_URL") ??
                 throw new ArgumentException("Please populate TEST_DATABASE_URL env variable"));
             client = factory.CreateClient();
-            var scopeFactory = factory.Services.GetService<IServiceScopeFactory>();
-            var scope = scopeFactory?.CreateScope();
-            context = scope?.ServiceProvider.GetService<ApplicationDbContext>();
-            await context.Database.MigrateAsync();
+            await base.InitializeAsync();
         }
 
         protected async Task<string> RegisterAndLogin()
