@@ -1,8 +1,11 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
+using ForkEat.Core.Domain;
 using ForkEat.Web.Database;
+using ForkEat.Web.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -168,6 +171,36 @@ namespace ForkEat.Web.Tests.Repositories
             result.Symbol.Should().Be(unitSymbol);
         }
         
+        [Fact]
+        public async Task FindProductsByIds_ReturnsOnlyExpectedProducts()
+        {
+            // Given
+            var units = new Unit[]
+            {
+                new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" },
+                new Unit() { Id = Guid.NewGuid(), Name = "Litre", Symbol = "L" },
+                new Unit() { Id = Guid.NewGuid(), Name = "Gramme", Symbol ="g"},
+            };
+            await this.context.Units.AddRangeAsync(units);
+            await this.context.SaveChangesAsync();
+
+            var repository = new UnitRepository(this.context);
+            
+            var unitsIds = units
+                .Take(2)
+                .Select(product => product.Id)
+                .ToList();
+
+            // When
+            var result = await repository.FindUnitsByIds(unitsIds);
+
+            // Then
+            result.Should().HaveCount(2);
+            result.Should().ContainKeys(unitsIds);
+            result[unitsIds[0]].Name.Should().Be("Kilogramme");
+            result[unitsIds[1]].Name.Should().Be("Litre");
+        }
+
 
     }
 }

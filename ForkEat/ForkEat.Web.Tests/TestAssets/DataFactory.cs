@@ -57,8 +57,10 @@ namespace ForkEat.Web.Tests.TestAssets
         {
             var product1 = new Product() { Name = "Test Product 1" };
             var product2 = new Product() { Name = "Test Product 2" };
+            var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
 
             await this.context.Products.AddRangeAsync(product1, product2);
+            await this.context.Units.AddAsync(unit);
 
             var recipeEntity1 = new RecipeEntity()
             {
@@ -67,8 +69,8 @@ namespace ForkEat.Web.Tests.TestAssets
                 Difficulty = 1,
                 Ingredients = new List<IngredientEntity>()
                 {
-                    new IngredientEntity() { Id = Guid.NewGuid(), Product = product1, Quantity = 1 },
-                    new IngredientEntity() { Id = Guid.NewGuid(), Product = product2, Quantity = 2 },
+                    new IngredientEntity() { Id = Guid.NewGuid(), Product = product1,Unit = unit, Quantity = 1 },
+                    new IngredientEntity() { Id = Guid.NewGuid(), Product = product2,Unit = unit, Quantity = 2 },
                 },
                 Steps = new List<StepEntity>()
                 {

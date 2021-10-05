@@ -28,7 +28,8 @@ namespace ForkEat.Web.Database.Repositories
                 Ingredients = recipe.Ingredients.Select(ingredient => new IngredientEntity()
                 {
                     Product = ingredient.Product,
-                    Quantity = ingredient.Quantity
+                    Quantity = ingredient.Quantity,
+                    Unit = ingredient.Unit
                 }).ToList(),
                 Steps = recipe.Steps.Select((step, index) => new StepEntity()
                 {
@@ -70,6 +71,7 @@ namespace ForkEat.Web.Database.Repositories
             RecipeEntity recipeEntity = await this.dbContext
                 .Recipes
                 .Include(entity => entity.Ingredients).ThenInclude(ingredientEntity => ingredientEntity.Product)
+                .Include(entity => entity.Ingredients).ThenInclude(ingredientEntity => ingredientEntity.Unit)
                 .Include(entity => entity.Steps.OrderBy(stepEntity => stepEntity.Order))
                 .FirstAsync(entity => entity.Id == recipeId);
             return recipeEntity;
@@ -91,8 +93,9 @@ namespace ForkEat.Web.Database.Repositories
                 ).ToList(),
                 entity.Ingredients.Select(ingredientEntity =>
                     new Ingredient(
+                        ingredientEntity.Quantity,
                         ingredientEntity.Product,
-                        ingredientEntity.Quantity
+                        ingredientEntity.Unit
                         )
                 ).ToList());
         }

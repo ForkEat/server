@@ -12,5 +12,6 @@ namespace ForkEat.Core.Services
         Task<List<GetRecipesResponse>> GetRecipes();
         Task<GetRecipeWithStepsAndIngredientsResponse> GetRecipeById(Guid recipeId);
         Task DeleteRecipeById(Guid recipeId);
+        Task<GetRecipeWithStepsAndIngredientsResponse> UpdateRecipe(Guid recipeId, UpdateRecipeRequest request);
     }
 }
