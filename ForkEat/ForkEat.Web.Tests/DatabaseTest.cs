@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Web.Database;
+using ForkEat.Web.Tests.TestAssets;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -11,6 +11,8 @@ namespace ForkEat.Web.Tests
     public abstract class DatabaseTest : IAsyncLifetime
     {
         protected ApplicationDbContext context;
+        protected DataFactory dataFactory;
+        
         private readonly IList<string> tableToClear;
 
         protected DatabaseTest(IList<string> tableToClear)
@@ -18,7 +20,14 @@ namespace ForkEat.Web.Tests
             this.tableToClear = tableToClear;
         }
 
-        public abstract Task InitializeAsync();
+        public abstract ApplicationDbContext GetDbContext();
+        
+        public virtual async Task InitializeAsync()
+        {
+            this.context = this.GetDbContext();
+            this.dataFactory = new DataFactory(this.context);
+            await this.context.Database.MigrateAsync();
+        }
 
         public async Task DisposeAsync()
         {

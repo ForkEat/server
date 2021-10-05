@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using ForkEat.Core.Contracts;
+using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace ForkEat.Web.Database
+namespace ForkEat.Web.Database.Repositories
 {
     public class UnitRepository : IUnitRepository
     {
@@ -46,6 +47,14 @@ namespace ForkEat.Web.Database
             dbContext.Units.Update(newUnit);
             await dbContext.SaveChangesAsync();
             return await FindUnitById(newUnit.Id);
+        }
+
+        public Task<Dictionary<Guid, Unit>> FindUnitsByIds(List<Guid> unitIds)
+        {
+            return this.dbContext
+                .Units
+                .Where(unit => unitIds.Contains(unit.Id))
+                .ToDictionaryAsync(u => u.Id, u => u);
         }
     }
 }

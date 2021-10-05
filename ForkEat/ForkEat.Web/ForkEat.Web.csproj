@@ -22,4 +22,8 @@
       <ProjectReference Include="..\ForkEat.Core\ForkEat.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Migrations" />
+    </ItemGroup>
+
 </Project>

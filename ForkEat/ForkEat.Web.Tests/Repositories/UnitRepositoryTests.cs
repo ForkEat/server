@@ -1,8 +1,9 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using ForkEat.Core.Contracts;
-using ForkEat.Web.Database;
+using ForkEat.Core.Domain;
+using ForkEat.Web.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -102,8 +103,8 @@ namespace ForkEat.Web.Tests.Repositories
             // Given
             var repository = new UnitRepository(context);
         
-            var unit = CreateUnit("kilograms", "kg");
-            var unit2 = CreateUnit("units", "ut");
+            var unit = this.dataFactory.CreateUnit("kilograms", "kg");
+            var unit2 = this.dataFactory.CreateUnit("units", "ut");
         
             await context.Units.AddAsync(unit);
             await context.Units.AddAsync(unit2);
@@ -168,16 +169,36 @@ namespace ForkEat.Web.Tests.Repositories
             result.Symbol.Should().Be(unitSymbol);
         }
         
-        private Unit CreateUnit(string name, string symbol)
+        [Fact]
+        public async Task FindProductsByIds_ReturnsOnlyExpectedProducts()
         {
-            var unitId = Guid.NewGuid();
-            
-            return new Unit()
+            // Given
+            var units = new Unit[]
             {
-                Id = unitId,
-                Name = name,
-                Symbol = symbol
+                new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" },
+                new Unit() { Id = Guid.NewGuid(), Name = "Litre", Symbol = "L" },
+                new Unit() { Id = Guid.NewGuid(), Name = "Gramme", Symbol ="g"},
             };
+            await this.context.Units.AddRangeAsync(units);
+            await this.context.SaveChangesAsync();
+
+            var repository = new UnitRepository(this.context);
+            
+            var unitsIds = units
+                .Take(2)
+                .Select(product => product.Id)
+                .ToList();
+
+            // When
+            var result = await repository.FindUnitsByIds(unitsIds);
+
+            // Then
+            result.Should().HaveCount(2);
+            result.Should().ContainKeys(unitsIds);
+            result[unitsIds[0]].Name.Should().Be("Kilogramme");
+            result[unitsIds[1]].Name.Should().Be("Litre");
         }
+
+
     }
 }

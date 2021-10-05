@@ -10,7 +10,7 @@ using ForkEat.Core.Services;
 using Moq;
 using Xunit;
 
-namespace ForkEat.Core.Tests
+namespace ForkEat.Core.Tests.Services
 {
     public class StockServiceTests
     {

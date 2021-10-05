@@ -1,5 +1,4 @@
-﻿using ForkEat.Core.Contracts;
-using ForkEat.Core.Domain;
+﻿using ForkEat.Core.Domain;
 using ForkEat.Web.Adapters.Files;
 using ForkEat.Web.Database.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +18,8 @@ namespace ForkEat.Web.Database
         public DbSet<Unit> Units { get; set; }
         public DbSet<RecipeEntity> Recipes { get; set; }
         public DbSet<Stock> Stocks { get; set; }
+        public DbSet<IngredientEntity> Ingredients { get; set; }
+        public DbSet<StepEntity> Steps { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -55,6 +56,7 @@ namespace ForkEat.Web.Database
             modelBuilder.Entity<IngredientEntity>().HasKey(ingredient => ingredient.Id);
             modelBuilder.Entity<IngredientEntity>().Property(ingredient => ingredient.Quantity);
             modelBuilder.Entity<IngredientEntity>().HasOne<Product>(ingredient => ingredient.Product).WithMany();
+            modelBuilder.Entity<IngredientEntity>().HasOne<Unit>(ingredient => ingredient.Unit).WithMany();
 
             modelBuilder.Entity<Stock>().HasKey(stock => stock.Id);
             modelBuilder.Entity<Stock>().Property(stock => stock.Quantity);

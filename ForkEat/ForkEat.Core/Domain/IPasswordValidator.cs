@@ -1,5 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-using ValidationResult = FluentValidation.Results.ValidationResult;
+using FluentValidation.Results;
 
 namespace ForkEat.Core.Domain
 {

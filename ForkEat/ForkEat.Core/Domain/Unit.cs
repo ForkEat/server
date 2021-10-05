@@ -1,6 +1,6 @@
 using System;
 
-namespace ForkEat.Core.Contracts
+namespace ForkEat.Core.Domain
 {
     public class Unit
     {

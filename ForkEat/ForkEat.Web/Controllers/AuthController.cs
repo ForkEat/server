@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForkEat.Web.Controllers

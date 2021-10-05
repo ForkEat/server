@@ -1,5 +1,5 @@
 using FluentValidation;
-using ValidationResult = FluentValidation.Results.ValidationResult;
+using FluentValidation.Results;
 
 namespace ForkEat.Core.Domain
 {
