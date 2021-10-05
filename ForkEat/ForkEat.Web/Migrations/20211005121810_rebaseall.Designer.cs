@@ -10,18 +10,35 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ForkEat.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210929090838_stepsAndIngredientsAsDbSets")]
-    partial class stepsAndIngredientsAsDbSets
+    [Migration("20211005121810_rebaseall")]
+    partial class rebaseall
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.7")
+                .HasAnnotation("ProductVersion", "5.0.10")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            modelBuilder.Entity("ForkEat.Core.Contracts.Stock", b =>
+            modelBuilder.Entity("ForkEat.Core.Domain.Product", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ImageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("ForkEat.Core.Domain.Stock", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -51,7 +68,7 @@ namespace ForkEat.Web.Migrations
                     b.ToTable("Stocks");
                 });
 
-            modelBuilder.Entity("ForkEat.Core.Contracts.Unit", b =>
+            modelBuilder.Entity("ForkEat.Core.Domain.Unit", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,23 +83,6 @@ namespace ForkEat.Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Units");
-                });
-
-            modelBuilder.Entity("ForkEat.Core.Domain.Product", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ImageId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("ForkEat.Core.Domain.User", b =>
@@ -140,11 +140,16 @@ namespace ForkEat.Web.Migrations
                     b.Property<Guid?>("RecipeEntityId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("UnitId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
 
                     b.HasIndex("RecipeEntityId");
+
+                    b.HasIndex("UnitId");
 
                     b.ToTable("Ingredients");
                 });
@@ -157,6 +162,9 @@ namespace ForkEat.Web.Migrations
 
                     b.Property<long>("Difficulty")
                         .HasColumnType("bigint");
+
+                    b.Property<Guid>("ImageId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
@@ -181,6 +189,9 @@ namespace ForkEat.Web.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
+                    b.Property<long>("Order")
+                        .HasColumnType("bigint");
+
                     b.Property<Guid?>("RecipeEntityId")
                         .HasColumnType("uuid");
 
@@ -191,7 +202,7 @@ namespace ForkEat.Web.Migrations
                     b.ToTable("Steps");
                 });
 
-            modelBuilder.Entity("ForkEat.Core.Contracts.Stock", b =>
+            modelBuilder.Entity("ForkEat.Core.Domain.Stock", b =>
                 {
                     b.HasOne("ForkEat.Core.Domain.Product", "Product")
                         .WithMany()
@@ -199,7 +210,7 @@ namespace ForkEat.Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ForkEat.Core.Contracts.Unit", "Unit")
+                    b.HasOne("ForkEat.Core.Domain.Unit", "Unit")
                         .WithMany()
                         .HasForeignKey("UnitId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -221,7 +232,13 @@ namespace ForkEat.Web.Migrations
                         .HasForeignKey("RecipeEntityId")
                         .OnDelete(DeleteBehavior.Cascade);
 
+                    b.HasOne("ForkEat.Core.Domain.Unit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId");
+
                     b.Navigation("Product");
+
+                    b.Navigation("Unit");
                 });
 
             modelBuilder.Entity("ForkEat.Web.Database.Entities.StepEntity", b =>
