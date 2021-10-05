@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
+using ForkEat.Core.Domain;
 
 namespace ForkEat.Core.Services
 {
@@ -12,5 +13,6 @@ namespace ForkEat.Core.Services
         Task<GetRecipeWithStepsAndIngredientsResponse> GetRecipeById(Guid recipeId);
         Task DeleteRecipeById(Guid recipeId);
         Task<GetRecipeWithStepsAndIngredientsResponse> UpdateRecipe(Guid recipeId, UpdateRecipeRequest request);
+        Task<IList<Recipe>> SearchRecipeByIngredients(IList<Guid> guids);
     }
 }

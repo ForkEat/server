@@ -9,5 +9,6 @@ namespace ForkEat.Web.Database.Entities
         public Product Product { get; set; }
         public uint Quantity { get; set; }
         public Unit Unit { get; set; }
+        public Guid RecipeId { get; set; }
     }
 }

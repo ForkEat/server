@@ -236,6 +236,20 @@ namespace ForkEat.Web.Tests.Repositories
             recipeEntity2.Name.Should().Be("Test Recipe 2");
         }
 
+        [Fact]
+        public async Task FindRecipesWithIngredients_returnsOnlyExpectedRecipe()
+        {
+            // Given
+            var (recipeEntity1, _) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
+            var repository = new RecipeRepository(this.context);
+            
+            // When
+            var result =
+                await repository.FindRecipesWithIngredients(new List<Guid> { recipeEntity1.Ingredients[0].Product.Id });
 
+            // Then
+            result.Should().ContainSingle();
+            result[0].Id.Should().Be(recipeEntity1.Id);
+        }
     }
 }

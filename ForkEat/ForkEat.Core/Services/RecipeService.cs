@@ -91,5 +91,10 @@ namespace ForkEat.Core.Services
 
             return new GetRecipeWithStepsAndIngredientsResponse(recipe);
         }
+
+        public Task<IList<Recipe>> SearchRecipeByIngredients(IList<Guid> guids)
+        {
+            return this.recipeRepository.FindRecipesWithIngredients(guids);
+        }
     }
 }
