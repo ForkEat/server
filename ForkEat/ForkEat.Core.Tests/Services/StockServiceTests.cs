@@ -61,11 +61,7 @@ namespace ForkEat.Core.Tests.Services
             Stock insertedStock = null;
 
             productMockRepository.Setup(mock => mock.FindProductById(productId))
-                .Returns<Guid>(_ => Task.FromResult(new Product()
-                {
-                    Id = productId,
-                    Name = productName
-                }));
+                .Returns<Guid>(_ => Task.FromResult(new Product(productId,productName, Guid.NewGuid())));
 
             unitMockRepository.Setup(mock => mock.FindUnitById(unitId))
                 .Returns<Guid>(_ => Task.FromResult(new Unit()
@@ -122,11 +118,7 @@ namespace ForkEat.Core.Tests.Services
             };
 
             productMockRepository.Setup(mock => mock.FindProductById(productId))
-                .Returns<Guid>(_ => Task.FromResult(new Product()
-                {
-                    Id = productId,
-                    Name = productName
-                }));
+                .Returns<Guid>(_ => Task.FromResult(new Product(productId,productName, Guid.NewGuid())));
 
             unitMockRepository.Setup(mock => mock.FindUnitById(unitId))
                 .Returns<Guid>(_ => Task.FromResult(new Unit()
@@ -192,11 +184,7 @@ namespace ForkEat.Core.Tests.Services
             };
 
             productMockRepository.Setup(mock => mock.FindProductById(productId))
-                .Returns<Guid>(_ => Task.FromResult(new Product()
-                {
-                    Id = productId,
-                    Name = productName
-                }));
+                .Returns<Guid>(_ => Task.FromResult(new Product(productId,productName, Guid.NewGuid())));
 
             unitMockRepository.Setup(mock => mock.FindUnitById(unitId))
                 .Returns<Guid>(_ => Task.FromResult(new Unit()

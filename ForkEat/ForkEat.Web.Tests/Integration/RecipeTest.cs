@@ -24,10 +24,10 @@ namespace ForkEat.Web.Tests.Integration
         public async Task CreateRecipe_Returns201()
         {
             // Given
-            var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
-            var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
             var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
 
+            
+            
             var recipeRequest = new CreateRecipeRequest()
             {
                 Name = "Test Recipe",
@@ -57,9 +57,6 @@ namespace ForkEat.Web.Tests.Integration
                 }
             };
 
-            await this.context.Products.AddRangeAsync(new Product[] { product1, product2 });
-            await this.context.Units.AddAsync(unit);
-            await this.context.SaveChangesAsync();
 
             // When
             var response = await client.PostAsJsonAsync("/api/recipes", recipeRequest);
