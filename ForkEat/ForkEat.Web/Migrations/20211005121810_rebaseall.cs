@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ForkEat.Web.Migrations
 {
-    public partial class stepsAndIngredientsAsDbSets : Migration
+    public partial class rebaseall : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -40,7 +40,8 @@ namespace ForkEat.Web.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: true),
-                    Difficulty = table.Column<long>(type: "bigint", nullable: false)
+                    Difficulty = table.Column<long>(type: "bigint", nullable: false),
+                    ImageId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -75,12 +76,35 @@ namespace ForkEat.Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Steps",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    Instructions = table.Column<string>(type: "text", nullable: true),
+                    EstimatedTime = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    Order = table.Column<long>(type: "bigint", nullable: false),
+                    RecipeEntityId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Steps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Steps_Recipes_RecipeEntityId",
+                        column: x => x.RecipeEntityId,
+                        principalTable: "Recipes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Ingredients",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ProductId = table.Column<Guid>(type: "uuid", nullable: true),
                     Quantity = table.Column<long>(type: "bigint", nullable: false),
+                    UnitId = table.Column<Guid>(type: "uuid", nullable: true),
                     RecipeEntityId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
@@ -98,27 +122,12 @@ namespace ForkEat.Web.Migrations
                         principalTable: "Recipes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Steps",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: true),
-                    Instructions = table.Column<string>(type: "text", nullable: true),
-                    EstimatedTime = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    RecipeEntityId = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Steps", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Steps_Recipes_RecipeEntityId",
-                        column: x => x.RecipeEntityId,
-                        principalTable: "Recipes",
+                        name: "FK_Ingredients_Units_UnitId",
+                        column: x => x.UnitId,
+                        principalTable: "Units",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -158,6 +167,11 @@ namespace ForkEat.Web.Migrations
                 name: "IX_Ingredients_RecipeEntityId",
                 table: "Ingredients",
                 column: "RecipeEntityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ingredients_UnitId",
+                table: "Ingredients",
+                column: "UnitId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Steps_RecipeEntityId",
