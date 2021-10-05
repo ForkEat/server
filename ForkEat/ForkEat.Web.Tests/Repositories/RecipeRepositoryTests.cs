@@ -13,7 +13,7 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public class RecipeRepositoryTests : RepositoryTest
     {
-        public RecipeRepositoryTests() : base(new string[] { "Recipes", "Steps", "Ingredients","Products" })
+        public RecipeRepositoryTests() : base(new string[] { "Recipes", "Steps", "Ingredients","Products","Units" })
         {
         }
 
@@ -21,6 +21,7 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task InsertRecipe_InsertsInDb()
         {
             // Given
+            var unit = new Unit(){Id = Guid.NewGuid(), Name = "Kilogramme",Symbol = "kg"};
             var recipe = new Recipe(
                 Guid.NewGuid(),
                 "Test Name",
@@ -32,7 +33,7 @@ namespace ForkEat.Web.Tests.Repositories
                 },
                 new List<Ingredient>()
                 {
-                    new Ingredient(new Product() { Id = Guid.NewGuid(), Name = "Test ingredient" }, 1)
+                    new Ingredient(1,new Product() { Id = Guid.NewGuid(), Name = "Test ingredient" }, unit)
                 }
             );
 
@@ -66,6 +67,9 @@ namespace ForkEat.Web.Tests.Repositories
             recipeInDb.Ingredients[0].Product.Id.Should().Be(recipe.Ingredients[0].Product.Id);
             recipeInDb.Ingredients[0].Product.Name.Should().Be(recipe.Ingredients[0].Product.Name);
             recipeInDb.Ingredients[0].Quantity.Should().Be(1);
+            recipeInDb.Ingredients[0].Unit.Id.Should().Be(unit.Id);
+            recipeInDb.Ingredients[0].Unit.Name.Should().Be("Kilogramme");
+            recipeInDb.Ingredients[0].Unit.Symbol.Should().Be("kg");
 
             result.Id.Should().Be(recipe.Id);
             result.Difficulty.Should().Be(3);
@@ -87,6 +91,9 @@ namespace ForkEat.Web.Tests.Repositories
             result.Ingredients[0].Product.Id.Should().Be(recipe.Ingredients[0].Product.Id);
             result.Ingredients[0].Product.Name.Should().Be(recipe.Ingredients[0].Product.Name);
             result.Ingredients[0].Quantity.Should().Be(1);
+            result.Ingredients[0].Unit.Id.Should().Be(unit.Id);
+            result.Ingredients[0].Unit.Name.Should().Be("Kilogramme");
+            result.Ingredients[0].Unit.Symbol.Should().Be("kg");
         }
 
         [Fact]
@@ -189,8 +196,14 @@ namespace ForkEat.Web.Tests.Repositories
 
             result.Ingredients[0].Product.Name.Should().Be("Test Product 1");
             result.Ingredients[0].Quantity.Should().Be(1);
+            result.Ingredients[0].Unit.Id.Should().Be(recipeEntity1.Ingredients[0].Unit.Id);
+            result.Ingredients[0].Unit.Name.Should().Be("Kilogramme");
+            result.Ingredients[0].Unit.Symbol.Should().Be("kg");
             result.Ingredients[1].Product.Name.Should().Be("Test Product 2");
             result.Ingredients[1].Quantity.Should().Be(2);
+            result.Ingredients[1].Unit.Id.Should().Be(recipeEntity1.Ingredients[0].Unit.Id);
+            result.Ingredients[1].Unit.Name.Should().Be("Kilogramme");
+            result.Ingredients[1].Unit.Symbol.Should().Be("kg");
         }
 
         [Fact]
@@ -206,6 +219,7 @@ namespace ForkEat.Web.Tests.Repositories
 
             // Then
             this.context.Products.Should().HaveCount(2);
+            this.context.Units.Should().HaveCount(1);
             this.context.Recipes.Should().ContainSingle();
             this.context.Ingredients.Should().BeEmpty();
             this.context.Steps.Should().HaveCount(2);

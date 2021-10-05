@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
+using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 

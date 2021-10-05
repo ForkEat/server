@@ -50,6 +50,13 @@ namespace ForkEat.Web.Controllers
             GetRecipeWithStepsAndIngredientsResponse recipe = await this.service.GetRecipeById(recipeId);
             return recipe;
         }
+        
+        [HttpPut("{recipeId:guid}")]
+        public async Task<ActionResult<GetRecipeWithStepsAndIngredientsResponse>> UpdateRecipe(Guid recipeId,[FromBody] UpdateRecipeRequest request)
+        {
+            GetRecipeWithStepsAndIngredientsResponse recipe = await this.service.UpdateRecipe(recipeId,request);
+            return recipe;
+        }
 
         [HttpDelete("{recipeId:guid}")]
         public async Task<ActionResult> DeleteRecipeById(Guid recipeId)

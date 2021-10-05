@@ -2,7 +2,7 @@
 
 namespace ForkEat.Core.Contracts
 {
-    public class CreateStepRequest
+    public class CreateOrUpdateStepRequest
     {
         public string Name { get; set; }
         public string Instructions { get; set; }

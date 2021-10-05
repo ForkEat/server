@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
+using ForkEat.Core.Domain;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Repositories;
 using ForkEat.Core.Services;
 using Moq;
 using Xunit;
 
-namespace ForkEat.Core.Tests
+namespace ForkEat.Core.Tests.Services
 {
     public class UnitServiceTests
     {

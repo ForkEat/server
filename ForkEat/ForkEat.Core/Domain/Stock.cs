@@ -1,7 +1,7 @@
 using System;
 using ForkEat.Core.Domain;
 
-namespace ForkEat.Core.Contracts
+namespace ForkEat.Core.Domain
 {
     public class Stock
     {
