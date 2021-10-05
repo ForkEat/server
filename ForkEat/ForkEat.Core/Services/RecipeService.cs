@@ -50,7 +50,8 @@ namespace ForkEat.Core.Services
                     stepRequest.Instructions,
                     stepRequest.EstimatedTime)
                 ).ToList(),
-                request.Ingredients.Select(i => new Ingredient(products[i.ProductId], i.Quantity)).ToList());
+                request.Ingredients.Select(i => new Ingredient(products[i.ProductId], i.Quantity)).ToList(),
+                request.ImageId);
         }
 
         private static List<Guid> ExtractProductIds(CreateRecipeRequest request)
