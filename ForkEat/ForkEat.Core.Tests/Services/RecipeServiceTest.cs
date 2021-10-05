@@ -20,6 +20,7 @@ namespace ForkEat.Core.Tests.Services
             // Given
             var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
             var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
+            var imageId = Guid.NewGuid();
 
             var recipeRequest = new CreateRecipeRequest()
             {
@@ -47,7 +48,8 @@ namespace ForkEat.Core.Tests.Services
                 {
                     new CreateIngredientRequest() { ProductId = product1.Id, Quantity = 1 },
                     new CreateIngredientRequest() { ProductId = product2.Id, Quantity = 2 }
-                }
+                },
+                ImageId = imageId
             };
 
             Recipe insertedRecipe = null;
@@ -141,6 +143,7 @@ namespace ForkEat.Core.Tests.Services
             // Given
             var product1 = new Product() { Id = Guid.NewGuid(), Name = "Product 1" };
             var product2 = new Product() { Id = Guid.NewGuid(), Name = "Product 2" };
+            var imageId = Guid.NewGuid();
 
 
             var recipe1 = new Recipe(Guid.NewGuid(), "Test Recipe 1", 1, new List<Step>()
@@ -152,7 +155,8 @@ namespace ForkEat.Core.Tests.Services
             {
                 new Ingredient(product1, 1),
                 new Ingredient(product2, 2)
-            });
+            },
+                imageId);
             
             var recipe2 = new Recipe(Guid.NewGuid(), "Test Recipe 2", 1, new List<Step>()
             {
@@ -163,7 +167,8 @@ namespace ForkEat.Core.Tests.Services
             {
                 new Ingredient(product1, 1),
                 new Ingredient(product2, 2)
-            });
+            },
+                imageId);
 
             var repoRecipeMock = new Mock<IRecipeRepository>();
             repoRecipeMock
@@ -182,11 +187,13 @@ namespace ForkEat.Core.Tests.Services
 
             recipe1Result.Id.Should().Be(recipe1.Id);
             recipe1Result.Name.Should().Be("Test Recipe 1");
+            recipe1Result.ImageId.Should().NotBe(Guid.Empty);
             recipe1Result.Difficulty.Should().Be(1);
             recipe1Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
             
             recipe2Result.Id.Should().Be(recipe2.Id);
             recipe2Result.Name.Should().Be("Test Recipe 2");
+            recipe2Result.ImageId.Should().NotBe(Guid.Empty);
             recipe2Result.Difficulty.Should().Be(1);
             recipe2Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
 

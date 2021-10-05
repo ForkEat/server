@@ -32,7 +32,8 @@ namespace ForkEat.Web.Tests.Repositories
                 new List<Ingredient>()
                 {
                     new Ingredient(new Product() { Id = Guid.NewGuid(), Name = "Test ingredient" }, 1)
-                }
+                },
+                Guid.NewGuid()
             );
 
             var repository = new RecipeRepository(this.context);
@@ -49,6 +50,7 @@ namespace ForkEat.Web.Tests.Repositories
             recipeInDb.Difficulty.Should().Be(3);
             recipeInDb.Name.Should().Be("Test Name");
             recipeInDb.Steps.Should().HaveCount(1);
+            recipeInDb.ImageId.Should().NotBe(Guid.Empty);
             recipeInDb.Ingredients.Should().HaveCount(1);
 
             recipeInDb.Steps[0].Id.Should().Be(recipe.Steps[0].Id);
@@ -81,6 +83,7 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task GetRecipes()
         {
             // Given
+            var imageId = Guid.NewGuid();
             var recipeEntity1 = new RecipeEntity()
             {
                 Id = Guid.NewGuid(),
@@ -99,7 +102,8 @@ namespace ForkEat.Web.Tests.Repositories
                         Id = Guid.NewGuid(), Name = "Test Step 2", Instructions = "Test Step 2 Instructions",
                         EstimatedTime = new TimeSpan(0, 1, 0)
                     }
-                }
+                },
+                ImageId = imageId
             };
 
             var recipeEntity2 = new RecipeEntity()
@@ -120,7 +124,8 @@ namespace ForkEat.Web.Tests.Repositories
                         Id = Guid.NewGuid(), Name = "Test Step 4", Instructions = "Test Step 4 Instructions",
                         EstimatedTime = new TimeSpan(0, 1, 0)
                     }
-                }
+                },
+                ImageId = imageId
             };
 
             await this.context.Recipes.AddRangeAsync(recipeEntity1, recipeEntity2);
@@ -137,11 +142,13 @@ namespace ForkEat.Web.Tests.Repositories
             result[0].Id.Should().Be(recipeEntity1.Id);
             result[0].Name.Should().Be("Test Recipe 1");
             result[0].Difficulty.Should().Be(1);
+            result[0].ImageId.Should().NotBe(Guid.Empty);
             result[0].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
             
             result[1].Id.Should().Be(recipeEntity2.Id);
             result[1].Name.Should().Be("Test Recipe 2");
             result[1].Difficulty.Should().Be(1);
+            result[1].ImageId.Should().NotBe(Guid.Empty);
             result[1].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
         }
     }
