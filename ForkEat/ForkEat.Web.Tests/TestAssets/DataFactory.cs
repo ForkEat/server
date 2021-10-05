@@ -85,7 +85,7 @@ namespace ForkEat.Web.Tests.TestAssets
                         EstimatedTime = new TimeSpan(0, 1, 0),
                         Order = 1
                     }
-                }
+                },ImageId = Guid.NewGuid()
             };
 
             var recipeEntity2 = new RecipeEntity()
@@ -109,7 +109,7 @@ namespace ForkEat.Web.Tests.TestAssets
                         Id = Guid.NewGuid(), Name = "Test Step 4", Instructions = "Test Step 4 Instructions",
                         EstimatedTime = new TimeSpan(0, 1, 0)
                     }
-                }
+                },ImageId = Guid.NewGuid()
             };
             await this.context.Recipes.AddRangeAsync(recipeEntity1, recipeEntity2);
             await this.context.SaveChangesAsync();

@@ -191,6 +191,29 @@ namespace ForkEat.Web.Tests.Integration
             result[1].Difficulty.Should().Be(1);
             result[1].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
         }
+        
+                [Fact]
+        public async Task GetRecipesWithIngredient_ReturnsExpectedRecipes()
+        {
+            // Given
+            var (recipeEntity1, recipeEntity2) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
+
+            var productId = recipeEntity1.Ingredients[1].Product.Id;
+            
+            // When
+            var response = await client.GetAsync($"/api/recipes?ingredients={productId}");
+
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadAsAsync<List<GetRecipesResponse>>();
+            result.Should().ContainSingle();
+
+            result[0].Id.Should().Be(recipeEntity1.Id);
+            result[0].Name.Should().Be("Test Recipe 1");
+            result[0].ImageId.Should().NotBe(Guid.Empty);
+            result[0].Difficulty.Should().Be(1);
+            result[0].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+        }
 
         [Fact]
         public async Task GetRecipeById_GetsCompleteRecipe()

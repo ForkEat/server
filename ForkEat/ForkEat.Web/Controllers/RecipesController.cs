@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Services;
@@ -36,9 +37,13 @@ namespace ForkEat.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<GetRecipesResponse>>> GetRecipes()
+        public async Task<ActionResult<IList<GetRecipesResponse>>> GetRecipes([FromQuery] Guid[] ingredients)
         {
-            return await this.service.GetRecipes();
+            var recipes = await (ingredients.Length == 0
+                ? this.service.GetRecipes()
+                : this.service.SearchRecipeByIngredients(ingredients.ToList()));
+            
+            return Ok(recipes);
         }
 
         [HttpGet("{recipeId:guid}")]

@@ -79,11 +79,12 @@ namespace ForkEat.Web.Database.Repositories
 
             var recipes = await this.dbContext
                 .Recipes
+                .Include(r => r.Steps)
                 .Where(recipe => recipesIdsWithThisProducts.Contains(recipe.Id))
                 .ToListAsync();
 
             return recipes
-                .Select(CreateRecipeFromEntity)
+                .Select(CreateRecipeFromEntityWithoutIngredient)
                 .ToList();
         }
 

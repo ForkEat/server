@@ -407,7 +407,7 @@ namespace ForkEat.Core.Tests.Services
             
             // Then
             result.Should().ContainSingle();
-            result[0].Should().BeSameAs(recipe);
+            result[0].Id.Should().Be(recipe.Id);
         }
     }
 }
