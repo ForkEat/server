@@ -30,18 +30,12 @@ namespace ForkEat.Core.Services
             var unit = await unitRepository.FindUnitById(stockRequest.UnitId) ?? throw new UnitNotFoundException();
             var stock = stockRequest.Id != Guid.Empty
                 ? await stockRepository.FindStockById(stockRequest.Id)
-                : new Stock()
-                {
-                    Id = Guid.NewGuid(),
-                    Quantity = stockRequest.Quantity
-                };
+                : new Stock(Guid.NewGuid(), stockRequest.Quantity, unit,product);
 
             Stock response = null;
 
             if (stock.Id != stockRequest.Id)
             {
-                stock.Product = product;
-                stock.Unit = unit;
                 response =  await stockRepository.InsertStock(stock);
             }
             else

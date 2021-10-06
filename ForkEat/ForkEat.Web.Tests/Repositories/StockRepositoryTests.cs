@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Domain;
 using ForkEat.Web.Database;
+using ForkEat.Web.Database.Entities;
+using ForkEat.Web.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
@@ -26,18 +28,14 @@ namespace ForkEat.Web.Tests.Repositories
                 Symbol = "kg"
             };
 
-            var product = this.dataFactory.CreateCarrotProduct();
-            
-            var stockToInsert = new Stock()
-            {
-                Quantity = 2.5,
-                Unit = unit,
-                Product = product
-            };
+            var (productEntity,_) = await this.dataFactory.CreateAndInsertProducts();
+
+
+            var product = new Product(productEntity.Id, productEntity.Name, productEntity.ImageId);
+            var stockToInsert =  new Stock(2.5, unit, product);
             var repository = new StockRepository(context);
 
             // When
-            await context.Products.AddAsync(product);
             await context.Units.AddAsync(unit);
             await context.SaveChangesAsync();
             var result = await repository.InsertStock(stockToInsert);
@@ -65,27 +63,24 @@ namespace ForkEat.Web.Tests.Repositories
                 Name = "kilogram",
                 Symbol = "kg"
             };
-
-
-            var product = this.dataFactory.CreateCarrotProduct();
             
-            var stock = new Stock()
+            var (productEntity,_) = await this.dataFactory.CreateAndInsertProducts();
+            var stockEntity = new StockEntity()
             {
                 Id = stockId,
                 Quantity = 2.5,
                 Unit = unit,
-                Product = product
+                Product = productEntity
             };
             
-            var repository = new StockRepository(context);
-            
-            await context.Products.AddAsync(product);
             await context.Units.AddAsync(unit);
-            await context.Stocks.AddAsync(stock);
+            await context.Stocks.AddAsync(stockEntity);
             await context.SaveChangesAsync();
             
+            var stock = new Stock(stockId, 7, unit, new Product(productEntity.Id, productEntity.Name, productEntity.ImageId));
+            var repository = new StockRepository(context);
+            
             //When
-            stock.Quantity = 7;
             var result = await repository.UpdateStock(stock);
             
             // Then
@@ -108,9 +103,9 @@ namespace ForkEat.Web.Tests.Repositories
             };
 
 
-            var product = this.dataFactory.CreateCarrotProduct();
+            var (product,_) = await this.dataFactory.CreateAndInsertProducts();
 
-            var stock = new Stock()
+            var stock = new StockEntity()
             {
                 Id = stockId,
                 Quantity = 2.5,
@@ -120,13 +115,12 @@ namespace ForkEat.Web.Tests.Repositories
 
             var repository = new StockRepository(context);
 
-            await context.Products.AddAsync(product);
             await context.Units.AddAsync(unit);
             await context.Stocks.AddAsync(stock);
             await context.SaveChangesAsync();
 
             // Then
-            await repository.DeleteStock(stock);
+            await repository.DeleteStock(new Stock(stockId, 2.5, unit, new Product(product.Id, product.Name, product.ImageId)));
             context.Stocks.Should().BeEmpty();
         }
 
@@ -149,11 +143,10 @@ namespace ForkEat.Web.Tests.Repositories
             await context.Units.AddAsync(unit);
 
             var stockId = Guid.NewGuid();
-            var stock = this.dataFactory.CreateStock(stockId, product1, unit);
-            var stock2 = this.dataFactory.CreateStock(Guid.NewGuid(), product2, unit);
+            var stock1 = new StockEntity(){Id = stockId,Quantity = 1,Unit = unit,Product = product1};
+            var stock2 = new StockEntity(){Id = Guid.NewGuid(),Quantity = 1,Unit = unit,Product = product2};
 
-            await context.Stocks.AddAsync(stock);
-            await context.Stocks.AddAsync(stock2);
+            await context.Stocks.AddRangeAsync(stock1,stock2);
             await context.SaveChangesAsync();
 
             // When

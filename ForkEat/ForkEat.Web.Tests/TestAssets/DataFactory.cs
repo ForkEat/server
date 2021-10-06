@@ -34,6 +34,16 @@ namespace ForkEat.Web.Tests.TestAssets
             return (product1, product2);
         }
 
+        public async Task<ProductEntity> CreateAndInsertProduct(Guid id, string name, Guid imageId)
+        {
+            var product1 = new ProductEntity(){ Id = id,Name = name, ImageId =imageId};
+
+            await context.AddAsync(product1);
+            await context.SaveChangesAsync();
+            
+            return product1;
+        }
+
 
         public Unit CreateUnit(string name, string symbol)
         {
@@ -46,18 +56,7 @@ namespace ForkEat.Web.Tests.TestAssets
                 Symbol = symbol
             };
         }
-
-        public Stock CreateStock(Guid stockId, Product product, Unit unit)
-        {
-            return new Stock()
-            {
-                Id = stockId,
-                Quantity = 8,
-                Unit = unit,
-                Product = product
-            };
-        }
-
+        
         public Product CreateCarrotProduct()
         {
             var productName = "carrot";

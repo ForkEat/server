@@ -312,6 +312,7 @@ namespace ForkEat.Web.Tests.Integration
         [Fact]
         public async Task UpdateStock_With0Quantity_Returns200()
         {
+            // Given
             var productName = "carrot";
             var createUpdateProductRequest = new CreateUpdateProductRequest()
             {
@@ -325,7 +326,7 @@ namespace ForkEat.Web.Tests.Integration
                 Symbol = "kg"
             };
 
-            // Given
+            
             
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
             var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
@@ -335,7 +336,7 @@ namespace ForkEat.Web.Tests.Integration
             var unitId = createdUnitResult.Id;
 
             // When
-            var stock = new Stock
+            var stock = new CreateUpdateStockRequest
             {
                 Quantity = 7,
                 UnitId = unitId
@@ -348,7 +349,7 @@ namespace ForkEat.Web.Tests.Integration
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             //Then
-            var updatedStock = new Stock
+            var updatedStock = new CreateUpdateStockRequest
             {
                 Id = stockId,
                 Quantity = 0,
@@ -393,13 +394,13 @@ namespace ForkEat.Web.Tests.Integration
             var createdProductResult2 = await createdProductResponse2.Content.ReadAsAsync<Product>();
             var productId2 = createdProductResult2.Id;
 
-            var stock = new Stock
+            var stock = new CreateUpdateStockRequest
             {
                 Quantity = 7,
                 UnitId = unitId
             };
 
-            var stock2 = new Stock
+            var stock2 = new CreateUpdateStockRequest
             {
                 Quantity = 7,
                 UnitId = unitId
