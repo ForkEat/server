@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Domain;
+using ForkEat.Web.Database.Entities;
 using ForkEat.Web.Database.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -46,11 +47,8 @@ namespace ForkEat.Web.Tests.Repositories
             var productId = Guid.NewGuid();
             var imageId = Guid.NewGuid();
 
-            var product = this.dataFactory.CreateCarrotProduct();
+            var product = await this.dataFactory.CreateAndInsertProduct(productId, productName, imageId);
             var repository = new ProductRepository(context);
-
-            await context.Products.AddAsync(product);
-            await context.SaveChangesAsync();
 
             // When
             var result = await repository.FindProductById(productId);
@@ -65,11 +63,8 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task FindProductById_NonExistingProduct_ReturnsNull()
         {
             // Given
-            var product = this.dataFactory.CreateCarrotProduct();
+            await this.dataFactory.CreateAndInsertProducts();
             var repository = new ProductRepository(context);
-
-            await context.Products.AddAsync(product);
-            await context.SaveChangesAsync();
 
             // When
             var result = await repository.FindProductById(Guid.NewGuid());
@@ -84,12 +79,7 @@ namespace ForkEat.Web.Tests.Repositories
             // Given
             var repository = new ProductRepository(context);
 
-            var product = this.dataFactory.CreateCarrotProduct();
-            var product2 = this.dataFactory.CreateCarrotProduct();
-
-            await context.Products.AddAsync(product);
-            await context.Products.AddAsync(product2);
-            await context.SaveChangesAsync();
+            await this.dataFactory.CreateAndInsertProducts();
 
             // When
             var result = await repository.FindAllProducts();
@@ -102,18 +92,17 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task DeleteProduct_WithExistingProduct_ReturnsVoid()
         {
             // Given
-            var productName = "carrot";
-            var productId = Guid.NewGuid();
-
-            var product = this.dataFactory.CreateCarrotProduct();
+            var (productEntity, _) = await this.dataFactory.CreateAndInsertProducts();
             var repository = new ProductRepository(context);
 
-            await context.Products.AddAsync(product);
-            await context.SaveChangesAsync();
-
+            var product = new Product(productEntity.Id, productEntity.Name, productEntity.ImageId);
+            
             // Then
             await repository.Invoking(productRepository => productRepository.DeleteProduct(product))
-                .Should().NotThrowAsync<Exception>();
+                .Should()
+                .NotThrowAsync<Exception>();
+
+            this.context.Products.Should().BeEmpty();
         }
 
         [Fact]
@@ -121,39 +110,50 @@ namespace ForkEat.Web.Tests.Repositories
         {
             // Given
 
-            var product = this.dataFactory.CreateCarrotProduct();
+            var productId = Guid.NewGuid();
+            var productName = "Carrot";
+            var imageId = Guid.NewGuid();
+
+            var productEntity = await this.dataFactory.CreateAndInsertProduct(productId, productName, imageId);
 
             var repository = new ProductRepository(context);
 
-            await context.Products.AddAsync(product);
-            await context.SaveChangesAsync();
+            var product = new Product(productId, "Carrot updated", imageId);
 
             //When
-            product.Name += " updated";
+            
             var result = await repository.UpdateProduct(product);
 
             // Then
-            result.Id.Should().Be(product.Id);
-            result.Name.Should().Be(product.Name + " updated");
-            result.ImageId.Should().Be(product.ImageId);
+            result.Id.Should().Be(productId);
+            result.Name.Should().Be("Carrot updated");
+            result.ImageId.Should().Be(imageId);
+
+            ProductEntity productInDb = await this.context.Products
+                .FirstAsync(entity => entity.Id == productId);
+            
+            productInDb.Id.Should().Be(productId);
+            productInDb.Name.Should().Be("Carrot updated");
+            productInDb.ImageId.Should().Be(imageId);
+
         }
 
         [Fact]
         public async Task FindProductsByIds_ReturnsOnlyExpectedProducts()
         {
             // Given
-            var products = new Product[]
+            var productEntities = new ProductEntity[]
             {
-                new Product(Guid.NewGuid(), "Potatoes",  Guid.NewGuid() ),
-                new Product(Guid.NewGuid(), "Carrot",  Guid.NewGuid() ),
-                new Product(Guid.NewGuid(), "Cabbage", Guid.NewGuid()),
+                new ProductEntity(){Id = Guid.NewGuid(), Name = "Potatoes",ImageId =   Guid.NewGuid() },
+                new ProductEntity(){Id = Guid.NewGuid(), Name = "Carrot",  ImageId = Guid.NewGuid() },
+                new ProductEntity(){Id = Guid.NewGuid(), Name = "Cabbage", ImageId = Guid.NewGuid()},
             };
-            await this.context.Products.AddRangeAsync(products);
+            await this.context.Products.AddRangeAsync(productEntities);
             await this.context.SaveChangesAsync();
 
             var repository = new ProductRepository(this.context);
             
-            var productIds = products
+            var productIds = productEntities
                 .Take(2)
                 .Select(product => product.Id)
                 .ToList();

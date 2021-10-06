@@ -26,6 +26,7 @@ namespace ForkEat.Web.Tests.Integration
             // Given
             var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
 
+            var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
             
             
             var recipeRequest = new CreateRecipeRequest()

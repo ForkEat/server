@@ -27,7 +27,7 @@ namespace ForkEat.Web.Database.Repositories
                 Name = recipe.Name,
                 Ingredients = recipe.Ingredients.Select(ingredient => new IngredientEntity()
                 {
-                    Product = ingredient.Product,
+                    Product = new ProductEntity(ingredient.Product),
                     Quantity = ingredient.Quantity,
                     Unit = ingredient.Unit
                 }).ToList(),
@@ -117,7 +117,7 @@ namespace ForkEat.Web.Database.Repositories
                 entity.Ingredients.Select(ingredientEntity =>
                     new Ingredient(
                         ingredientEntity.Quantity,
-                        ingredientEntity.Product,
+                        new Product(ingredientEntity.Product.Id, ingredientEntity.Product.Name, ingredientEntity.Product.ImageId),
                         ingredientEntity.Unit
                         )
                 ).ToList(), entity.ImageId);
