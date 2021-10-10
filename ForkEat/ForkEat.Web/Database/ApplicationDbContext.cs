@@ -60,8 +60,8 @@ namespace ForkEat.Web.Database
 
             modelBuilder.Entity<StockEntity>().HasKey(stock => stock.Id);
             modelBuilder.Entity<StockEntity>().Property(stock => stock.Quantity);
-            modelBuilder.Entity<StockEntity>().HasOne<Unit>(stock => stock.Unit);
-            modelBuilder.Entity<StockEntity>().HasOne<ProductEntity>(stock => stock.Product);
+            modelBuilder.Entity<StockEntity>().HasOne<Unit>(stock => stock.Unit).WithMany();
+            modelBuilder.Entity<StockEntity>().HasOne<ProductEntity>(stock => stock.Product).WithMany();
             modelBuilder.Entity<StockEntity>().Property(stock => stock.BestBeforeDate);
             modelBuilder.Entity<StockEntity>().Property(stock => stock.PurchaseDate);
         }

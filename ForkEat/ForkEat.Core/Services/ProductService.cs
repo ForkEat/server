@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
@@ -17,7 +18,7 @@ namespace ForkEat.Core.Services
             this.productRepository = productRepository;
         }
 
-        public async Task<Product> CreateProduct(CreateUpdateProductRequest createUpdateProductRequest)
+        public async Task<GetProductResponse> CreateProduct(CreateUpdateProductRequest createUpdateProductRequest)
         {
             var product = new Product
             (
@@ -26,18 +27,25 @@ namespace ForkEat.Core.Services
                 createUpdateProductRequest.ImageId
             );
 
-            return await productRepository.InsertProduct(product);
+            product = await productRepository.InsertProduct(product);
+            
+            return new GetProductResponse(){ Id = product.Id, Name = product.Name, ImageId = product.ImageId};
         }
 
         public async Task<Product> GetProductById(Guid id)
         {
-            var product = await productRepository.FindProductById(id);
-            return product ?? throw new ProductNotFoundException();
+            var product = await productRepository.FindProductById(id)?? throw new ProductNotFoundException();
+            return product;
         }
+        
+        private async 
 
-        public async Task<IList<Product>> GetAllProducts()
+        public async Task<IList<GetProductResponse>> GetAllProducts()
         {
-            return await productRepository.FindAllProducts();
+            var products = await productRepository.FindAllProducts();
+            return products
+                .Select(product => new GetProductResponse() {Id = product.Id, Name = product.Name, ImageId = product.ImageId})
+                .ToList();
         }
 
         public async Task DeleteProduct(Guid id)
@@ -46,7 +54,7 @@ namespace ForkEat.Core.Services
             await productRepository.DeleteProduct(product);
         }
 
-        public async Task<Product> UpdateProduct(Guid id, CreateUpdateProductRequest updatedProduct)
+        public async Task<GetProductResponse> UpdateProduct(Guid id, CreateUpdateProductRequest updatedProduct)
         {
             var productFromDb = await GetProductById(id);
             productFromDb.Name = updatedProduct.Name ?? productFromDb.Name;

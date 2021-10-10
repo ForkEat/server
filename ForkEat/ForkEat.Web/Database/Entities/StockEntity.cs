@@ -23,7 +23,6 @@ namespace ForkEat.Web.Database.Entities
             Id = stock.Id;
             Quantity = stock.Quantity;
             Unit = stock.Unit;
-            Product = new ProductEntity(stock.Product);
             BestBeforeDate = stock.BestBeforeDate;
             PurchaseDate = stock.PurchaseDate;
             

@@ -27,7 +27,9 @@ namespace ForkEat.Web.Database.Repositories
 
         public async Task<Stock> UpdateStock(Stock stock)
         {
-            dbContext.Stocks.Update(new StockEntity(stock));
+            var productEntity = await dbContext.Products.FirstAsync(p => p.Id == stock.Product.Id);
+            var stockEntity = new StockEntity(stock) {Product = productEntity};
+            dbContext.Stocks.Update(stockEntity);
             await dbContext.SaveChangesAsync();
             return await FindStockById(stock.Id);
         }
@@ -36,6 +38,8 @@ namespace ForkEat.Web.Database.Repositories
         {
             var entity = await dbContext
                 .Stocks
+                .Include(stock => stock.Product)
+                .Include(stock => stock.Unit)
                 .FirstOrDefaultAsync(stock => stock.Id == id);
 
             return CreateStockFromStockEntity(entity);
