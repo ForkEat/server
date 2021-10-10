@@ -20,15 +20,23 @@ namespace ForkEat.Web.Database.Repositories
 
         public async Task<Stock> InsertStock(Stock stock)
         {
-            await dbContext.Stocks.AddAsync(new StockEntity(stock));
+            ProductEntity productEntity = await dbContext.Products.FirstAsync(p => p.Id == stock.Product.Id);
+            
+            await dbContext.Stocks.AddAsync(new StockEntity(stock) { Product = productEntity});
             await dbContext.SaveChangesAsync();
             return stock;
         }
 
         public async Task<Stock> UpdateStock(Stock stock)
         {
-            var productEntity = await dbContext.Products.FirstAsync(p => p.Id == stock.Product.Id);
-            var stockEntity = new StockEntity(stock) {Product = productEntity};
+            StockEntity stockEntity = await dbContext.Stocks.FirstAsync(entity => entity.Id == stock.Id);
+            
+            stockEntity.Id = stock.Id;
+            stockEntity.Quantity = stock.Quantity;
+            stockEntity.Unit = stock.Unit;
+            stockEntity.BestBeforeDate = stock.BestBeforeDate;
+            stockEntity.PurchaseDate = stock.PurchaseDate;
+            
             dbContext.Stocks.Update(stockEntity);
             await dbContext.SaveChangesAsync();
             return await FindStockById(stock.Id);
@@ -53,7 +61,8 @@ namespace ForkEat.Web.Database.Repositories
 
         public async Task DeleteStock(Stock stock)
         {
-            dbContext.Stocks.Remove(new StockEntity(stock));
+            StockEntity stockEntity = await dbContext.Stocks.FirstAsync(entity => entity.Id == stock.Id);
+            dbContext.Stocks.Remove(stockEntity);
             await dbContext.SaveChangesAsync();
         }
 

@@ -47,9 +47,14 @@ namespace ForkEat.Web.Tests.Repositories
             result.Id.Should().NotBe(Guid.Empty);
             result.Quantity.Should().Be(2.5);
 
-            var stockInDb = await context.Stocks.FirstAsync(stock => stock.Id == result.Id);
+            var stockInDb = await context
+                .Stocks
+                .Include(stock => stock.Product)
+                .FirstAsync(stock => stock.Id == result.Id);
+            
             stockInDb.Id.Should().Be(result.Id);
             stockInDb.Quantity.Should().Be(2.5);
+            stockInDb.Product.Id.Should().Be(product.Id);
         }
         
         [Fact]

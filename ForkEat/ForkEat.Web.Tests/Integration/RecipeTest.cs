@@ -16,7 +16,7 @@ namespace ForkEat.Web.Tests.Integration
     public class RecipeTest : AuthenticatedTests
     {
         public RecipeTest(WebApplicationFactory<Startup> factory) : base(factory,
-            new string[] { "Recipes", "Steps", "Ingredients", "Products", "Units" })
+            new string[] {"Stocks", "Recipes", "Steps", "Ingredients", "Products", "Units" })
         {
         }
 
@@ -26,6 +26,9 @@ namespace ForkEat.Web.Tests.Integration
             // Given
             var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
 
+            await context.Units.AddAsync(unit);
+            await context.SaveChangesAsync();
+            
             var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
             
             
@@ -241,10 +244,10 @@ namespace ForkEat.Web.Tests.Integration
             result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
             result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
 
-            result.Ingredients.Select(ingredient => ingredient.Name).Should().Contain("Test Product 1");
+            result.Ingredients.Select(ingredient => ingredient.Name).Should().Contain("Product 1");
             result.Ingredients.Select(ingredient => ingredient.Quantity).Should().Contain(1U);
 
-            result.Ingredients.Select(ingredient => ingredient.Name).Should().Contain("Test Product 2");
+            result.Ingredients.Select(ingredient => ingredient.Name).Should().Contain("Product 2");
             result.Ingredients.Select(ingredient => ingredient.Quantity).Should().Contain(2U);
 
             result.Ingredients.Select(ingredient => ingredient.Unit.Name).Should().AllBe("Kilogramme");

@@ -13,7 +13,7 @@ namespace ForkEat.Web.Tests.Integration
 {
     public class UnitTests : AuthenticatedTests
     {
-        public UnitTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Units"})
+        public UnitTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Stocks","Units"})
         {
         }
 

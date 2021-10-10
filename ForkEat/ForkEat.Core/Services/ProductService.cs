@@ -32,14 +32,18 @@ namespace ForkEat.Core.Services
             return new GetProductResponse(){ Id = product.Id, Name = product.Name, ImageId = product.ImageId};
         }
 
-        public async Task<Product> GetProductById(Guid id)
+        private async Task<Product> FindProductById(Guid id)
         {
             var product = await productRepository.FindProductById(id)?? throw new ProductNotFoundException();
             return product;
         }
-        
-        private async 
 
+        public async Task<GetProductResponse> GetProductById(Guid id)
+        {
+            var product = await FindProductById(id);
+            return new GetProductResponse(product);
+        }
+        
         public async Task<IList<GetProductResponse>> GetAllProducts()
         {
             var products = await productRepository.FindAllProducts();
@@ -50,18 +54,20 @@ namespace ForkEat.Core.Services
 
         public async Task DeleteProduct(Guid id)
         {
-            var product = await GetProductById(id);
+            var product = await FindProductById(id);
             await productRepository.DeleteProduct(product);
         }
 
         public async Task<GetProductResponse> UpdateProduct(Guid id, CreateUpdateProductRequest updatedProduct)
         {
-            var productFromDb = await GetProductById(id);
+            Product productFromDb = await FindProductById(id);
             productFromDb.Name = updatedProduct.Name ?? productFromDb.Name;
             productFromDb.ImageId = updatedProduct.ImageId != Guid.Empty
                 ? updatedProduct.ImageId
                 : productFromDb.ImageId;
-            return await productRepository.UpdateProduct(productFromDb);
+            productFromDb =  await productRepository.UpdateProduct(productFromDb);
+
+            return new GetProductResponse(productFromDb);
         }
     }
 }

@@ -55,7 +55,7 @@ namespace ForkEat.Web.Database
 
             modelBuilder.Entity<IngredientEntity>().HasKey(ingredient => ingredient.Id);
             modelBuilder.Entity<IngredientEntity>().Property(ingredient => ingredient.Quantity);
-            modelBuilder.Entity<IngredientEntity>().HasOne<ProductEntity>(ingredient => ingredient.Product).WithMany();
+            modelBuilder.Entity<IngredientEntity>().HasOne<ProductEntity>(ingredient => ingredient.Product).WithMany().HasForeignKey(ingredient => ingredient.ProductId);
             modelBuilder.Entity<IngredientEntity>().HasOne<Unit>(ingredient => ingredient.Unit).WithMany();
 
             modelBuilder.Entity<StockEntity>().HasKey(stock => stock.Id);

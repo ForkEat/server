@@ -48,41 +48,37 @@ namespace ForkEat.Web.Controllers
         }
         
         [HttpPut("{id}")]
-        public async Task<ActionResult<Product>> UpdateProduct(Guid id, [FromBody] CreateUpdateProductRequest product)
+        public async Task<ActionResult<GetProductResponse>> UpdateProduct(Guid id, [FromBody] CreateUpdateProductRequest product)
         {
-            Product updatedProduct = null;
-            
             try
             {
-                updatedProduct = await productService.UpdateProduct(id, product);
+                GetProductResponse updatedProduct = await productService.UpdateProduct(id, product);
+                return updatedProduct;
             }
             catch (ProductNotFoundException)
             {
                 return NotFound("Product with id: " + id + " was not found");
             }
 
-            return updatedProduct;
         }
         
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProductById(Guid id)
+        public async Task<ActionResult<GetProductResponse>> GetProductById(Guid id)
         {
-            Product product = null;
-            
             try
             {
-                product = await productService.GetProductById(id);
+                GetProductResponse product = await productService.GetProductById(id);
+
+                return product;
             }
             catch (ProductNotFoundException)
             {
                 return NotFound("Product with id: " + id + " was not found");
             }
-
-            return product;
         }
         
         [HttpGet]
-        public async Task<IList<Product>> GetAllProducts()
+        public async Task<IList<GetProductResponse >> GetAllProducts()
         {
             return await productService.GetAllProducts();
         }
@@ -90,11 +86,10 @@ namespace ForkEat.Web.Controllers
         [HttpPut("{id}/stock")]
         public async Task<ActionResult<StockResponse>> CreateOrUpdateStock(Guid id, [FromBody] CreateUpdateStockRequest stock)
         {
-            StockResponse updatedStock = null;
-
             try
             {
-                updatedStock = await stockService.CreateOrUpdateStock(id, stock);
+                StockResponse updatedStock = await stockService.CreateOrUpdateStock(id, stock);
+                return updatedStock;
             }
             catch (ProductNotFoundException)
             {
@@ -104,8 +99,6 @@ namespace ForkEat.Web.Controllers
             {
                 return NotFound("Unit with id: " + stock.UnitId + " was not found");
             }
-
-            return updatedStock;
         }
 
         [HttpGet("{id}/stock")]

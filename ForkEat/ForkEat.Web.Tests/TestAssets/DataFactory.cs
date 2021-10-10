@@ -85,7 +85,8 @@ namespace ForkEat.Web.Tests.TestAssets
             var (product1, product2) = await CreateAndInsertProducts();
             var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
             
-            await this.context.Units.AddAsync(unit);
+            await context.Units.AddAsync(unit);
+            await context.SaveChangesAsync();
 
             var recipeEntity1 = new RecipeEntity()
             {
