@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Web.Database.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
@@ -254,7 +255,6 @@ namespace ForkEat.Web.Tests.Integration
             // When
             var updatedStock = new CreateUpdateStockRequest
             {
-                Id = stockId,
                 Quantity = 5,
                 UnitId = unitId
             };
@@ -351,7 +351,6 @@ namespace ForkEat.Web.Tests.Integration
             //Then
             var updatedStock = new CreateUpdateStockRequest
             {
-                Id = stockId,
                 Quantity = 0,
                 UnitId = unitId
             };
@@ -365,6 +364,7 @@ namespace ForkEat.Web.Tests.Integration
         [Fact]
         public async Task GetStocks_Returns200()
         {
+            // Given
             var createUpdateUnitRequest = new CreateUpdateUnitRequest()
             {
                 Name = "kilogram",
@@ -382,8 +382,6 @@ namespace ForkEat.Web.Tests.Integration
                 Name = "carott",
                 ImageId = Guid.NewGuid()
             };
-
-            // Given
             
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
@@ -425,6 +423,71 @@ namespace ForkEat.Web.Tests.Integration
             var result = await response.Content.ReadAsAsync<IEnumerable<StockResponse>>();
             result.Should().HaveCount(1);
             result.First().Id.Should().Be(stockId);
+        }
+
+        [Fact]
+        public async Task GetStock_ReturnsCurrentStockOfAllProducts()
+        {
+            // Given
+            var unit = this.dataFactory.CreateUnit("Kilogramme","kg");
+
+            await this.context.Units.AddAsync(unit);
+            await this.context.SaveChangesAsync();
+            
+            var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
+
+            var stock1 = new StockEntity()
+            {
+                Id = Guid.NewGuid(), 
+                Product = product1, 
+                Quantity = 2,
+                Unit = unit, 
+                PurchaseDate = DateTime.Today,
+                BestBeforeDate = DateTime.Today.AddDays(4)
+            };
+            
+            var stock2 = new StockEntity()
+            {
+                Id = Guid.NewGuid(), 
+                Product = product2, 
+                Quantity = 4,
+                Unit = unit, 
+                PurchaseDate = DateTime.Today,
+                BestBeforeDate = DateTime.Today.AddDays(1)
+            };
+
+            await this.context.Stocks.AddRangeAsync(stock1, stock2);
+            await this.context.SaveChangesAsync();
+            
+            // When
+            var response = await this.client.GetAsync("/api/products/stock");
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            List<ProductStockResponse> result = await response.Content.ReadAsAsync<List<ProductStockResponse>>();
+
+            result.Should().HaveCount(2);
+
+            ProductStockResponse stockProduct1 = result.First(stock => stock.Product.Id == product1.Id);
+            ProductStockResponse stockProduct2 = result.First(stock => stock.Product.Id == product2.Id);
+
+            stockProduct1.Product.Name.Should().Be(product1.Name);
+            stockProduct1.Product.ImageId.Should().Be(product1.ImageId);
+            stockProduct1.Quantity.Should().Be(2);
+            stockProduct1.Unit.Id.Should().Be(unit.Id);
+            stockProduct1.Unit.Name.Should().Be(unit.Name);
+            stockProduct1.Unit.Symbol.Should().Be(unit.Symbol);
+            stockProduct1.BestBeforeDate.Should().Be(DateTime.Today.AddDays(4));
+            stockProduct1.PurchaseDate.Should().Be(DateTime.Today);
+
+            stockProduct2.Product.Name.Should().Be(product2.Name);
+            stockProduct2.Product.ImageId.Should().Be(product2.ImageId);
+            stockProduct2.Quantity.Should().Be(4);
+            stockProduct2.Unit.Id.Should().Be(unit.Id);
+            stockProduct2.Unit.Name.Should().Be(unit.Name);
+            stockProduct2.Unit.Symbol.Should().Be(unit.Symbol);
+            stockProduct2.BestBeforeDate.Should().Be(DateTime.Today.AddDays(1));
+            stockProduct2.PurchaseDate.Should().Be(DateTime.Today);
         }
     }
 }

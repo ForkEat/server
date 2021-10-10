@@ -55,8 +55,19 @@ namespace ForkEat.Web.Database.Repositories
 
         private static Stock CreateStockFromStockEntity(StockEntity entity)
         {
-            return new Stock(entity.Id, entity.Quantity, entity.Unit,
-                new Product(entity.Product.Id, entity.Product.Name, entity.Product.ImageId));
+            return new Stock(
+                entity.Id,
+                entity.Quantity, 
+                entity.Unit,
+                new Product(
+                    entity.Product.Id,
+                    entity.Product.Name, 
+                    entity.Product.ImageId)
+                )
+            {
+                PurchaseDate = entity.PurchaseDate,
+                BestBeforeDate = entity.BestBeforeDate
+            };
         }
 
         public async Task DeleteStock(Stock stock)
@@ -74,6 +85,28 @@ namespace ForkEat.Web.Database.Repositories
                 .Include(stock => stock.Unit)
                 .Include(stock => stock.Product)
                 .Select(entity => CreateStockFromStockEntity(entity));
+        }
+
+        public async Task<Stock> FindStockByProductId(Guid productId)
+        {
+            var entity = await dbContext
+                .Stocks
+                .Include(stock => stock.Unit)
+                .Include(stock => stock.Product)
+                .Where(stock => stock.Product.Id == productId)
+                .FirstOrDefaultAsync();
+
+            return entity is null ? null : CreateStockFromStockEntity(entity);
+        }
+
+        public Task<List<Stock>> FindAllStocks()
+        {
+            return this.dbContext
+                .Stocks
+                .Include(stock => stock.Product)
+                .Include(stock => stock.Unit)
+                .Select(entity => CreateStockFromStockEntity(entity))
+                .ToListAsync();
         }
     }
 }

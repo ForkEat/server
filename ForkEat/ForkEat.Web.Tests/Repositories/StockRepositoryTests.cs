@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Domain;
+using ForkEat.Core.Repositories;
 using ForkEat.Web.Database;
 using ForkEat.Web.Database.Entities;
 using ForkEat.Web.Database.Repositories;
@@ -169,5 +171,99 @@ namespace ForkEat.Web.Tests.Repositories
             result.Should().HaveCount(1);
             result.First().Id.Should().Be(stockId);
         }
+        
+                [Fact]
+        public async Task FindStocksByProductId_ReturnsExpectedRecords()
+        {
+            // Given
+            var unit = new Unit()
+            {
+                Id = Guid.NewGuid(),
+                Name = "kilogram",
+                Symbol = "kg"
+            };
+
+
+            var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
+
+            await context.Units.AddAsync(unit);
+
+            var stockId = Guid.NewGuid();
+            var stock1 = new StockEntity(){Id = stockId,Quantity = 1,Unit = unit,Product = product1};
+            var stock2 = new StockEntity(){Id = Guid.NewGuid(),Quantity = 1,Unit = unit,Product = product2};
+
+            await context.Stocks.AddRangeAsync(stock1,stock2);
+            await context.SaveChangesAsync();
+
+            // When
+            var repository = new StockRepository(context);
+            var result = await repository.FindStockByProductId(product1.Id);
+
+            // Then
+            result.Id.Should().Be(stock1.Id);
+        }
+
+        [Fact]
+        public async Task FindAllStocks_GetAllStockWithUnitsAndProduct()
+        {
+            // Given
+            var unit = this.dataFactory.CreateUnit("Kilogramme","kg");
+
+            await this.context.Units.AddAsync(unit);
+            await this.context.SaveChangesAsync();
+            
+            var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
+
+            var stock1 = new StockEntity()
+            {
+                Id = Guid.NewGuid(), 
+                Product = product1, 
+                Quantity = 2,
+                Unit = unit, 
+                PurchaseDate = DateTime.Today,
+                BestBeforeDate = DateTime.Today.AddDays(4)
+            };
+            
+            var stock2 = new StockEntity()
+            {
+                Id = Guid.NewGuid(), 
+                Product = product2, 
+                Quantity = 4,
+                Unit = unit, 
+                PurchaseDate = DateTime.Today,
+                BestBeforeDate = DateTime.Today.AddDays(2)
+            };
+
+            await this.context.Stocks.AddRangeAsync(stock1, stock2);
+            await this.context.SaveChangesAsync();
+
+            IStockRepository repository = new StockRepository(this.context);
+            
+            // When
+            List<Stock> result = await repository.FindAllStocks();
+            
+            // Then
+            Stock stockProduct1 = result.First(stock => stock.Product.Id == product1.Id);
+            Stock stockProduct2 = result.First(stock => stock.Product.Id == product2.Id);
+
+            stockProduct1.Product.Name.Should().Be(product1.Name);
+            stockProduct1.Product.ImageId.Should().Be(product1.ImageId);
+            stockProduct1.Quantity.Should().Be(2);
+            stockProduct1.Unit.Id.Should().Be(unit.Id);
+            stockProduct1.Unit.Name.Should().Be(unit.Name);
+            stockProduct1.Unit.Symbol.Should().Be(unit.Symbol);
+            stockProduct1.BestBeforeDate.Should().Be(DateTime.Today.AddDays(4));
+            stockProduct1.PurchaseDate.Should().Be(DateTime.Today);
+
+            stockProduct2.Product.Name.Should().Be(product2.Name);
+            stockProduct2.Product.ImageId.Should().Be(product2.ImageId);
+            stockProduct2.Quantity.Should().Be(4);
+            stockProduct2.Unit.Id.Should().Be(unit.Id);
+            stockProduct2.Unit.Name.Should().Be(unit.Name);
+            stockProduct2.Unit.Symbol.Should().Be(unit.Symbol);
+            stockProduct2.BestBeforeDate.Should().Be(DateTime.Today.AddDays(2));
+            stockProduct2.PurchaseDate.Should().Be(DateTime.Today);
+        }
+        
     }
 }
