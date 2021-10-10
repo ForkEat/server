@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ForkEat.Web.Database;
 using ForkEat.Web.Tests.TestAssets;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Xunit;
 
 namespace ForkEat.Web.Tests
@@ -28,6 +29,7 @@ namespace ForkEat.Web.Tests
             this.dataFactory = new DataFactory(this.context);
             await this.context.Database.MigrateAsync();
         }
+        
 
         public async Task DisposeAsync()
         {

@@ -20,6 +20,7 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task InsertRecipe_InsertsInDb()
         {
             // Given
+            var product = await this.dataFactory.CreateAndInsertProduct();
             var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
             var recipe = new Recipe(
                 Guid.NewGuid(),
@@ -32,7 +33,7 @@ namespace ForkEat.Web.Tests.Repositories
                 },
                 new List<Ingredient>()
                 {
-                    new Ingredient(1, new Product(Guid.NewGuid(), "Test ingredient", Guid.NewGuid()), unit)
+                    new Ingredient(1, new Product(product.Id, product.Name, product.ImageId), unit)
                 },
                 Guid.NewGuid()
             );
