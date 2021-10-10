@@ -12,5 +12,7 @@ namespace ForkEat.Core.Repositories
         Task<Stock> FindStockById(Guid id);
         Task DeleteStock(Stock stock);
         Task<IEnumerable<Stock>> FindAllStocksByProductId(Guid productId);
+        Task<Stock> FindStockByProductId(Guid productId);
+        Task<List<Stock>> FindAllStocks();
     }
 }

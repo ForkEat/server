@@ -109,5 +109,11 @@ namespace ForkEat.Web.Controllers
                 ? NotFound("There is no stock for product with id: " + id)
                 : new ActionResult<IEnumerable<StockResponse>>(result);
         }
+
+        [HttpGet("stock")]
+        public async Task<ActionResult<List<ProductStockResponse>>> GetStocks()
+        {
+            return await stockService.GetCompleteStock();
+        }
     }
 }
