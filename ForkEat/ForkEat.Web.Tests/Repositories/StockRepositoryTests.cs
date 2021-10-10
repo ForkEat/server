@@ -35,9 +35,10 @@ namespace ForkEat.Web.Tests.Repositories
             var stockToInsert =  new Stock(2.5, unit, product);
             var repository = new StockRepository(context);
 
-            // When
             await context.Units.AddAsync(unit);
             await context.SaveChangesAsync();
+
+            // When
             var result = await repository.InsertStock(stockToInsert);
 
             // Then
@@ -79,6 +80,9 @@ namespace ForkEat.Web.Tests.Repositories
             
             var stock = new Stock(stockId, 7, unit, new Product(productEntity.Id, productEntity.Name, productEntity.ImageId));
             var repository = new StockRepository(context);
+
+            context.Entry(stockEntity).State = EntityState.Detached;
+            await context.SaveChangesAsync();
             
             //When
             var result = await repository.UpdateStock(stock);
@@ -119,6 +123,11 @@ namespace ForkEat.Web.Tests.Repositories
             await context.Stocks.AddAsync(stock);
             await context.SaveChangesAsync();
 
+            // Remove entities tracking to be able to re-query them in repo for deletion
+            context.Entry(stock).State = EntityState.Detached;
+            context.Entry(stock.Product).State = EntityState.Detached;
+            await context.SaveChangesAsync();
+            
             // Then
             await repository.DeleteStock(new Stock(stockId, 2.5, unit, new Product(product.Id, product.Name, product.ImageId)));
             context.Stocks.Should().BeEmpty();
@@ -128,8 +137,6 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task FindAllStocksByProductId_WithValidParams_ReturnsList()
         {
             // Given
-            var productId = Guid.NewGuid();
-
             var unit = new Unit()
             {
                 Id = Guid.NewGuid(),
@@ -151,7 +158,7 @@ namespace ForkEat.Web.Tests.Repositories
 
             // When
             var repository = new StockRepository(context);
-            var result = await repository.FindAllStocksByProductId(productId);
+            var result = await repository.FindAllStocksByProductId(product1.Id);
 
             // Then
             result.Should().HaveCount(1);

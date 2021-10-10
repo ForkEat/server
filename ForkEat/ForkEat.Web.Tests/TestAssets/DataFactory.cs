@@ -23,6 +23,16 @@ namespace ForkEat.Web.Tests.TestAssets
             return (product1, product2);
         }
         
+        public async Task<ProductEntity> CreateAndInsertProduct()
+        {
+            var product1 = new ProductEntity(){ Id = Guid.NewGuid(),Name =  "Product 1", ImageId = Guid.NewGuid()};
+
+            await context.AddRangeAsync(product1);
+            await context.SaveChangesAsync();
+            
+            return product1;
+        }
+        
         public async Task<(ProductEntity, ProductEntity)> CreateAndInsertProducts()
         {
             var product1 = new ProductEntity(){ Id = Guid.NewGuid(),Name =  "Product 1", ImageId = Guid.NewGuid()};
@@ -64,7 +74,8 @@ namespace ForkEat.Web.Tests.TestAssets
 
             return new Product
             (
-                productId, productName + " " + productId,
+                productId,
+                productName,
                 Guid.NewGuid()
             );
         }

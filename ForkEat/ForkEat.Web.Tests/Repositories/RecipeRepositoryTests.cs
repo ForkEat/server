@@ -201,12 +201,12 @@ namespace ForkEat.Web.Tests.Repositories
             result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
             result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
 
-            result.Ingredients[0].Product.Name.Should().Be("Test Product 1");
+            result.Ingredients[0].Product.Name.Should().Be("Product 1");
             result.Ingredients[0].Quantity.Should().Be(1);
             result.Ingredients[0].Unit.Id.Should().Be(recipeEntity1.Ingredients[0].Unit.Id);
             result.Ingredients[0].Unit.Name.Should().Be("Kilogramme");
             result.Ingredients[0].Unit.Symbol.Should().Be("kg");
-            result.Ingredients[1].Product.Name.Should().Be("Test Product 2");
+            result.Ingredients[1].Product.Name.Should().Be("Product 2");
             result.Ingredients[1].Quantity.Should().Be(2);
             result.Ingredients[1].Unit.Id.Should().Be(recipeEntity1.Ingredients[0].Unit.Id);
             result.Ingredients[1].Unit.Name.Should().Be("Kilogramme");

@@ -33,7 +33,7 @@ namespace ForkEat.Web.Tests.Repositories
             result.Name.Should().Be("carrot");
             result.ImageId.Should().Be(product.ImageId);
 
-            var productInDb = await context.Products.FirstAsync(product => product.Id == result.Id);
+            var productInDb = await context.Products.FirstAsync(p => p.Id == result.Id);
             productInDb.Id.Should().Be(result.Id);
             productInDb.Name.Should().Be("carrot");
             productInDb.ImageId.Should().Be(product.ImageId);
@@ -92,13 +92,14 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task DeleteProduct_WithExistingProduct_ReturnsVoid()
         {
             // Given
-            var (productEntity, _) = await this.dataFactory.CreateAndInsertProducts();
+            var productEntity = await this.dataFactory.CreateAndInsertProduct();
             var repository = new ProductRepository(context);
 
             var product = new Product(productEntity.Id, productEntity.Name, productEntity.ImageId);
             
             // Then
-            await repository.Invoking(productRepository => productRepository.DeleteProduct(product))
+            await repository
+                .Invoking(productRepository => productRepository.DeleteProduct(product))
                 .Should()
                 .NotThrowAsync<Exception>();
 

@@ -31,7 +31,7 @@ namespace ForkEat.Web.Database.Repositories
                 .Products
                 .FirstOrDefaultAsync(product => product.Id == id);
 
-            return new Product(entity.Id, entity.Name, entity.ImageId);
+            return entity is null ? null : new Product(entity.Id, entity.Name, entity.ImageId);
         }
 
         public async Task<List<Product>> FindAllProducts()
@@ -47,7 +47,6 @@ namespace ForkEat.Web.Database.Repositories
         {
             ProductEntity entity = await dbContext.Products.FirstAsync(entity => entity.Id == product.Id);
             dbContext.Products.Remove(entity);
-            
             await dbContext.SaveChangesAsync();
         }
 
