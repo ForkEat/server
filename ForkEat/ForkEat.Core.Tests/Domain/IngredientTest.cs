@@ -12,7 +12,7 @@ namespace ForkEat.Core.Tests.Domain
         {
             // Given
             var ingredient = new Ingredient(
-                1, new Product() { Id = Guid.NewGuid(), Name = "Test product" },
+                1, new Product(Guid.NewGuid(),"Test product", Guid.NewGuid()),
                 new Unit()
                 {
                     Id = Guid.NewGuid(),
@@ -30,7 +30,7 @@ namespace ForkEat.Core.Tests.Domain
         {
             // Given
             var ingredient = new Ingredient(
-                1, new Product() { Id = Guid.NewGuid(), Name = "Test product" },
+                1,new Product(Guid.NewGuid(),"Test product", Guid.NewGuid()),
                 new Unit()
                 {
                     Id = Guid.NewGuid(),
@@ -48,7 +48,7 @@ namespace ForkEat.Core.Tests.Domain
         {
             // Given
             var ingredient = new Ingredient(
-                1, new Product() { Id = Guid.NewGuid(), Name = "Test product" },
+                1, new Product(Guid.NewGuid(),"Test product", Guid.NewGuid()),
                 new Unit()
                 {
                     Id = Guid.NewGuid(),

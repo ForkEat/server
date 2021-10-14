@@ -9,5 +9,6 @@ namespace ForkEat.Core.Services
     {
         Task<StockResponse> CreateOrUpdateStock(Guid productId, CreateUpdateStockRequest stock);
         Task<IEnumerable<StockResponse>> GetStocks(Guid productId);
+        Task<List<ProductStockResponse>> GetCompleteStock();
     }
 }

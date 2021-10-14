@@ -28,21 +28,12 @@ namespace ForkEat.Core.Services
         {
             var product = await productRepository.FindProductById(productId) ?? throw new ProductNotFoundException();
             var unit = await unitRepository.FindUnitById(stockRequest.UnitId) ?? throw new UnitNotFoundException();
-            var stock = stockRequest.Id != Guid.Empty
-                ? await stockRepository.FindStockById(stockRequest.Id)
-                : new Stock()
-                {
-                    Id = Guid.NewGuid(),
-                    Quantity = stockRequest.Quantity
-                };
+            Stock stock = await stockRepository.FindStockByProductId(productId);
 
-            Stock response = null;
-
-            if (stock.Id != stockRequest.Id)
+            if (stock == null)
             {
-                stock.Product = product;
-                stock.Unit = unit;
-                response =  await stockRepository.InsertStock(stock);
+                stock = new Stock(Guid.NewGuid(), stockRequest.Quantity, unit,product);
+                stock =  await stockRepository.InsertStock(stock);
             }
             else
             {
@@ -54,19 +45,10 @@ namespace ForkEat.Core.Services
                 }
 
                 stock.Quantity = stockRequest.Quantity;
-                response = await stockRepository.UpdateStock(stock);
+                stock = await stockRepository.UpdateStock(stock);
             }
 
-            return new StockResponse()
-            {
-                Id = response.Id,
-                Quantity = response.Quantity,
-                Unit = new UnitResponse()
-                {
-                    Name = response.Unit.Name,
-                    Symbol = response.Unit.Symbol,
-                }
-            };
+            return new StockResponse(stock);
         }
 
         public async Task<IEnumerable<StockResponse>> GetStocks(Guid productId)
@@ -86,5 +68,13 @@ namespace ForkEat.Core.Services
 
             return response;
         }
+
+        public async Task<List<ProductStockResponse>> GetCompleteStock()
+        {
+            List<Stock> stocks = await this.stockRepository.FindAllStocks();
+
+            return stocks.Select(stock => new ProductStockResponse(stock)).ToList();
+        }
+        
     }
 }

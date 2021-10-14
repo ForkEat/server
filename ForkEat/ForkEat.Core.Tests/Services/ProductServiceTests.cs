@@ -28,7 +28,6 @@ namespace ForkEat.Core.Tests.Services
                 .Returns<Product>(product =>
                 {
                     insertedProduct = product;
-                    insertedProduct.Id = Guid.NewGuid();
                     return Task.FromResult(insertedProduct);
                 });
 
@@ -57,12 +56,7 @@ namespace ForkEat.Core.Tests.Services
             var mockRepository = new Mock<IProductRepository>();
 
             mockRepository.Setup(mock => mock.FindProductById(productId))
-                .Returns<Guid>(_ => Task.FromResult(new Product
-                {
-                    Id = productId,
-                    Name = productName,
-                    ImageId = imageId
-                }));
+                .Returns<Guid>(_ => Task.FromResult(new Product(productId, productName, imageId)));
 
             var service = new ProductService(mockRepository.Object);
 
@@ -87,7 +81,7 @@ namespace ForkEat.Core.Tests.Services
             await service.Invoking(productService => productService.GetProductById(Guid.NewGuid()))
                 .Should().ThrowAsync<ProductNotFoundException>();
         }
-        
+
         [Fact]
         public async Task GetAllProducts_ReturnsList()
         {
@@ -101,7 +95,7 @@ namespace ForkEat.Core.Tests.Services
             };
 
             var mockRepository = new Mock<IProductRepository>();
-            
+
             mockRepository.Setup(mock => mock.FindAllProducts())
                 .Returns(() => Task.FromResult<List<Product>>(products));
 
@@ -110,7 +104,7 @@ namespace ForkEat.Core.Tests.Services
             var result = await service.GetAllProducts();
             result.Should().HaveCount(2);
         }
-        
+
         [Fact]
         public async Task DeleteProduct_WithExistingProduct_ReturnsVoid()
         {
@@ -120,11 +114,7 @@ namespace ForkEat.Core.Tests.Services
             var mockRepository = new Mock<IProductRepository>();
 
             mockRepository.Setup(mock => mock.FindProductById(productId))
-                .Returns<Guid>(_ => Task.FromResult(new Product
-                {
-                    Id = productId,
-                    Name = productName
-                }));
+                .Returns<Guid>(_ => Task.FromResult(new Product(productId, productName, Guid.NewGuid())));
 
             var service = new ProductService(mockRepository.Object);
 
@@ -145,7 +135,7 @@ namespace ForkEat.Core.Tests.Services
             await service.Invoking(productService => productService.DeleteProduct(Guid.NewGuid()))
                 .Should().ThrowAsync<ProductNotFoundException>();
         }
-        
+
         [Fact]
         public async Task UpdateProduct_WithExistingProduct_ReturnsProduct()
         {
@@ -155,13 +145,9 @@ namespace ForkEat.Core.Tests.Services
             var mockRepository = new Mock<IProductRepository>();
 
             Product updatedProduct = null;
-            
+
             mockRepository.Setup(mock => mock.FindProductById(productId))
-                .Returns<Guid>(_ => Task.FromResult(new Product
-                {
-                    Id = productId,
-                    Name = productName
-                }));
+                .Returns<Guid>(_ => Task.FromResult(new Product(productId, productName, Guid.NewGuid())));
 
             mockRepository.Setup(mock => mock.UpdateProduct(It.IsAny<Product>()))
                 .Returns<Product>(product =>
@@ -193,7 +179,7 @@ namespace ForkEat.Core.Tests.Services
             {
                 Name = "carrot updated"
             };
-            
+
             var mockRepository = new Mock<IProductRepository>();
 
             mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
@@ -204,18 +190,13 @@ namespace ForkEat.Core.Tests.Services
             await service.Invoking(productService => productService.UpdateProduct(productId, updateProductRequest))
                 .Should().ThrowAsync<ProductNotFoundException>();
         }
-        
+
         private Product CreateProduct()
         {
             var productName = "carrot";
             var productId = Guid.NewGuid();
-            
-            return new Product
-            {
-                Id = productId,
-                Name = productName + " " +productId,
-                ImageId = Guid.NewGuid()
-            };
+
+            return new Product(productId, productName + " " + productId, Guid.NewGuid());
         }
     }
 }
