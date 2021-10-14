@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
@@ -61,11 +62,7 @@ namespace ForkEat.Core.Tests.Services
             Stock insertedStock = null;
 
             productMockRepository.Setup(mock => mock.FindProductById(productId))
-                .Returns<Guid>(_ => Task.FromResult(new Product()
-                {
-                    Id = productId,
-                    Name = productName
-                }));
+                .Returns<Guid>(_ => Task.FromResult(new Product(productId,productName, Guid.NewGuid())));
 
             unitMockRepository.Setup(mock => mock.FindUnitById(unitId))
                 .Returns<Guid>(_ => Task.FromResult(new Unit()
@@ -79,7 +76,6 @@ namespace ForkEat.Core.Tests.Services
                 .Returns<Stock>(stock =>
                 {
                     insertedStock = stock;
-                    insertedStock.Id = Guid.NewGuid();
                     return Task.FromResult(insertedStock);
                 });
 
@@ -101,6 +97,7 @@ namespace ForkEat.Core.Tests.Services
         [Fact]
         public async Task CreateOrUpdateStock_WithExistingStock_UpdatesStock()
         {
+            // Given
             var stockId = Guid.NewGuid();
             var stockQuantity = 7;
             var stockUpdatedQuantity = 2;
@@ -110,6 +107,8 @@ namespace ForkEat.Core.Tests.Services
             var unitSymbol = "kg";
             var unitId = Guid.NewGuid();
 
+            var product = new Product("Test Product", Guid.NewGuid());
+            
             var stockMockRepository = new Mock<IStockRepository>();
             var productMockRepository = new Mock<IProductRepository>();
             var unitMockRepository = new Mock<IUnitRepository>();
@@ -121,12 +120,9 @@ namespace ForkEat.Core.Tests.Services
                 Symbol = unitSymbol
             };
 
+         
             productMockRepository.Setup(mock => mock.FindProductById(productId))
-                .Returns<Guid>(_ => Task.FromResult(new Product()
-                {
-                    Id = productId,
-                    Name = productName
-                }));
+                .Returns<Guid>(_ => Task.FromResult(new Product(productId,productName, Guid.NewGuid())));
 
             unitMockRepository.Setup(mock => mock.FindUnitById(unitId))
                 .Returns<Guid>(_ => Task.FromResult(new Unit()
@@ -136,31 +132,26 @@ namespace ForkEat.Core.Tests.Services
                     Symbol = unitSymbol
                 }));
 
-            stockMockRepository.Setup(mock => mock.FindStockById(stockId))
-                .Returns<Guid>(_ => Task.FromResult(new Stock()
-                {
-                    Id = stockId,
-                    Quantity = stockQuantity,
-                    Unit = unit
-                }));
+            stockMockRepository
+                .Setup(mock => mock.FindStockByProductId(productId))
+                .Returns<Guid>(_ => Task.FromResult(new Stock(stockId,stockQuantity,unit, product)));
 
-            stockMockRepository.Setup(mock => mock.UpdateStock(It.IsAny<Stock>()))
-                .Returns<Stock>(_ => Task.FromResult(new Stock()
-                {
-                    Id = stockId,
-                    Quantity = stockUpdatedQuantity,
-                    Unit = unit
-                }));
+            stockMockRepository
+                .Setup(mock => mock.UpdateStock(It.IsAny<Stock>()))
+                .Returns<Stock>(_ => Task.FromResult(new Stock(stockId,stockUpdatedQuantity,unit, product)));
 
             var service = new StockService(stockMockRepository.Object, productMockRepository.Object, unitMockRepository.Object);
 
             var stock = new CreateUpdateStockRequest()
             {
-                Id = stockId,
                 Quantity = stockUpdatedQuantity,
                 UnitId = unitId
             };
+            
+            // When
             var result = await service.CreateOrUpdateStock(productId, stock);
+            
+            // Then
             result.Should().NotBeNull();
             result.Id.Should().NotBe(Guid.Empty);
             result.Quantity.Should().Be(stockUpdatedQuantity);
@@ -171,15 +162,17 @@ namespace ForkEat.Core.Tests.Services
         [Fact]
         public async Task CreateOrUpdateStock_With0Quantity_DeletesStock()
         {
+            // Given
             var stockId = Guid.NewGuid();
             var stockQuantity = 7;
             var stockUpdatedQuantity = 0;
-            var productId = Guid.NewGuid();
-            var productName = "carrot";
+ 
             var unitName = "kilogram";
             var unitSymbol = "kg";
             var unitId = Guid.NewGuid();
 
+            var product = new Product("Test Product", Guid.NewGuid());
+            
             var stockMockRepository = new Mock<IStockRepository>();
             var productMockRepository = new Mock<IProductRepository>();
             var unitMockRepository = new Mock<IUnitRepository>();
@@ -191,14 +184,12 @@ namespace ForkEat.Core.Tests.Services
                 Symbol = unitSymbol
             };
 
-            productMockRepository.Setup(mock => mock.FindProductById(productId))
-                .Returns<Guid>(_ => Task.FromResult(new Product()
-                {
-                    Id = productId,
-                    Name = productName
-                }));
+            productMockRepository
+                .Setup(mock => mock.FindProductById(product.Id))
+                .Returns<Guid>(_ => Task.FromResult(product));
 
-            unitMockRepository.Setup(mock => mock.FindUnitById(unitId))
+            unitMockRepository
+                .Setup(mock => mock.FindUnitById(unitId))
                 .Returns<Guid>(_ => Task.FromResult(new Unit()
                 {
                     Id = unitId,
@@ -206,43 +197,38 @@ namespace ForkEat.Core.Tests.Services
                     Symbol = unitSymbol
                 }));
 
-            stockMockRepository.Setup(mock => mock.FindStockById(stockId))
-                .Returns<Guid>(_ => Task.FromResult(new Stock()
-                {
-                    Id = unitId,
-                    Quantity = stockQuantity,
-                    Unit = unit
-                }));
+            stockMockRepository
+                .Setup(mock => mock.FindStockByProductId(product.Id))
+                .Returns<Guid>(_ => Task.FromResult(new Stock(stockId,stockQuantity,unit, product)));
 
             var service = new StockService(stockMockRepository.Object, productMockRepository.Object, unitMockRepository.Object);
-
+            
             var stock = new CreateUpdateStockRequest()
             {
-                Id = stockId,
                 Quantity = stockUpdatedQuantity,
                 UnitId = unitId
             };
 
-            var stocks = await service.GetStocks(productId);
+            // When
+            await service.CreateOrUpdateStock(product.Id, stock);
+            
+            // Then
+            var stocks = await service.GetStocks(product.Id);
             stocks.Should().BeEmpty();
         }
 
         [Fact]
         public async Task GetStocks_ReturnsList()
         {
-            var productId = Guid.NewGuid();
-            var stock = new Stock()
+            var product = new Product("Test Product", Guid.NewGuid());
+
+            var stock = new Stock(Guid.NewGuid(), 3, new Unit()
             {
                 Id = Guid.NewGuid(),
-                Quantity = 3,
-                Unit = new Unit()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "kilogram",
-                    Symbol = "kg"
-                }
-            };
-
+                Name = "kilogram",
+                Symbol = "kg"
+            },product);
+            
             var stocks = new List<Stock>
             {
                 stock
@@ -252,13 +238,65 @@ namespace ForkEat.Core.Tests.Services
             var productMockRepository = new Mock<IProductRepository>();
             var unitMockRepository = new Mock<IUnitRepository>();
 
-            stockMockRepository.Setup(stockRepository => stockRepository.FindAllStocksByProductId(productId))
+            stockMockRepository
+                .Setup(stockRepository => stockRepository.FindAllStocksByProductId(product.Id))
                 .Returns<Guid>(_ => Task.FromResult<IEnumerable<Stock>>(stocks));
 
             var service = new StockService(stockMockRepository.Object, productMockRepository.Object, unitMockRepository.Object);
 
-            var result = await service.GetStocks(productId);
+            var result = await service.GetStocks(product.Id);
             result.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public async Task GetCompleteStock()
+        {
+            // Given
+            var product1 = new Product("Test Product 1", Guid.NewGuid());
+            var product2 = new Product("Test Product 2", Guid.NewGuid());
+            
+            var unit = new Unit()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Kilogramme",
+                Symbol = "kg"
+            };
+
+            var stock1 = new Stock(4, unit, product1){ PurchaseDate = DateTime.Today, BestBeforeDate = DateTime.Today.AddDays(2)};
+            var stock2 = new Stock(2, unit, product2){ PurchaseDate = DateTime.Today, BestBeforeDate = DateTime.Today.AddDays(4)};
+
+            var stockRepoMock = new Mock<IStockRepository>();
+            stockRepoMock.Setup(mock => mock.FindAllStocks())
+                .Returns(() => Task.FromResult(new List<Stock> { stock1, stock2 }));
+
+            IStockService service = new StockService(stockRepoMock.Object, null, null);
+
+            // When
+            List<ProductStockResponse> result = await service.GetCompleteStock();
+            
+            // Then
+            result.Should().HaveCount(2);
+            
+            ProductStockResponse stockProduct1 = result.First(stock => stock.Product.Id == product1.Id);
+            ProductStockResponse stockProduct2 = result.First(stock => stock.Product.Id == product2.Id);
+
+            stockProduct1.Product.Name.Should().Be(product1.Name);
+            stockProduct1.Product.ImageId.Should().Be(product1.ImageId);
+            stockProduct1.Quantity.Should().Be(4);
+            stockProduct1.Unit.Id.Should().Be(unit.Id);
+            stockProduct1.Unit.Name.Should().Be(unit.Name);
+            stockProduct1.Unit.Symbol.Should().Be(unit.Symbol);
+            stockProduct1.BestBeforeDate.Should().Be(DateTime.Today.AddDays(2));
+            stockProduct1.PurchaseDate.Should().Be(DateTime.Today);
+
+            stockProduct2.Product.Name.Should().Be(product2.Name);
+            stockProduct2.Product.ImageId.Should().Be(product2.ImageId);
+            stockProduct2.Quantity.Should().Be(2);
+            stockProduct2.Unit.Id.Should().Be(unit.Id);
+            stockProduct2.Unit.Name.Should().Be(unit.Name);
+            stockProduct2.Unit.Symbol.Should().Be(unit.Symbol);
+            stockProduct2.BestBeforeDate.Should().Be(DateTime.Today.AddDays(4));
+            stockProduct2.PurchaseDate.Should().Be(DateTime.Today);
         }
     }
 }

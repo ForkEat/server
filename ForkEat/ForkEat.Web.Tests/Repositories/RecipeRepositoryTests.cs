@@ -12,7 +12,7 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public class RecipeRepositoryTests : RepositoryTest
     {
-        public RecipeRepositoryTests() : base(new string[] { "Recipes", "Steps", "Ingredients","Products","Units" })
+        public RecipeRepositoryTests() : base(new string[] { "Recipes", "Steps", "Ingredients", "Products", "Units" })
         {
         }
 
@@ -20,7 +20,8 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task InsertRecipe_InsertsInDb()
         {
             // Given
-            var unit = new Unit(){Id = Guid.NewGuid(), Name = "Kilogramme",Symbol = "kg"};
+            var product = await this.dataFactory.CreateAndInsertProduct();
+            var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
             var recipe = new Recipe(
                 Guid.NewGuid(),
                 "Test Name",
@@ -32,10 +33,9 @@ namespace ForkEat.Web.Tests.Repositories
                 },
                 new List<Ingredient>()
                 {
-                    new Ingredient(1,new Product() { Id = Guid.NewGuid(), Name = "Test ingredient" }, unit)
+                    new Ingredient(1, new Product(product.Id, product.Name, product.ImageId), unit)
                 },
                 Guid.NewGuid()
-
             );
 
             var repository = new RecipeRepository(this.context);
@@ -85,7 +85,7 @@ namespace ForkEat.Web.Tests.Repositories
             result.Steps[0].Name.Should().Be("Test Step 1");
             result.Steps[0].Instructions.Should().Be("Test Instructions 1");
             result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
-            
+
             result.Steps[1].Id.Should().Be(recipe.Steps[1].Id);
             result.Steps[1].Name.Should().Be("Test Step 2");
             result.Steps[1].Instructions.Should().Be("Test Instructions 2");
@@ -202,12 +202,12 @@ namespace ForkEat.Web.Tests.Repositories
             result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
             result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
 
-            result.Ingredients[0].Product.Name.Should().Be("Test Product 1");
+            result.Ingredients[0].Product.Name.Should().Be("Product 1");
             result.Ingredients[0].Quantity.Should().Be(1);
             result.Ingredients[0].Unit.Id.Should().Be(recipeEntity1.Ingredients[0].Unit.Id);
             result.Ingredients[0].Unit.Name.Should().Be("Kilogramme");
             result.Ingredients[0].Unit.Symbol.Should().Be("kg");
-            result.Ingredients[1].Product.Name.Should().Be("Test Product 2");
+            result.Ingredients[1].Product.Name.Should().Be("Product 2");
             result.Ingredients[1].Quantity.Should().Be(2);
             result.Ingredients[1].Unit.Id.Should().Be(recipeEntity1.Ingredients[0].Unit.Id);
             result.Ingredients[1].Unit.Name.Should().Be("Kilogramme");
@@ -242,7 +242,7 @@ namespace ForkEat.Web.Tests.Repositories
             // Given
             var (recipeEntity1, _) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
             var repository = new RecipeRepository(this.context);
-            
+
             // When
             var result =
                 await repository.FindRecipesWithIngredients(new List<Guid> { recipeEntity1.Ingredients[1].Product.Id });

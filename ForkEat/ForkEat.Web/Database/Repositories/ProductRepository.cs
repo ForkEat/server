@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
+using ForkEat.Web.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace ForkEat.Web.Database.Repositories
@@ -19,41 +20,57 @@ namespace ForkEat.Web.Database.Repositories
 
         public async Task<Product> InsertProduct(Product product)
         {
-            await dbContext.Products.AddAsync(product);
+            await dbContext.Products.AddAsync(new ProductEntity(product));
             await dbContext.SaveChangesAsync();
             return product;
         }
 
-        public Task<Product> FindProductById(Guid id)
+        public async Task<Product> FindProductById(Guid id)
         {
-            return dbContext
+            var entity = await dbContext
                 .Products
                 .FirstOrDefaultAsync(product => product.Id == id);
+
+            return entity is null ? null : new Product(entity.Id, entity.Name, entity.ImageId);
         }
 
-        public Task<List<Product>> FindAllProducts()
+        public async Task<List<Product>> FindAllProducts()
         {
-            return dbContext.Products.ToListAsync();
+            var recipes = await dbContext.Products.ToListAsync();
+
+            return recipes
+                .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId))
+                .ToList();
         }
 
         public async Task DeleteProduct(Product product)
         {
-            dbContext.Products.Remove(product);
+            ProductEntity entity = await dbContext.Products.FirstAsync(entity => entity.Id == product.Id);
+            dbContext.Products.Remove(entity);
             await dbContext.SaveChangesAsync();
         }
 
         public async Task<Product> UpdateProduct(Product newProduct)
         {
-            dbContext.Products.Update(newProduct);
+            ProductEntity entity = await dbContext.Products.FirstAsync(entity => entity.Id == newProduct.Id);
+            entity.Name = newProduct.Name;
+            entity.ImageId = newProduct.ImageId;
+            
+            dbContext.Products.Update(entity);
             await dbContext.SaveChangesAsync();
             return await FindProductById(newProduct.Id);
         }
 
-        public Task<Dictionary<Guid, Product>> FindProductsByIds(List<Guid> productIds)
+        public async Task<Dictionary<Guid, Product>> FindProductsByIds(List<Guid> productIds)
         {
-            return this.dbContext.Products
+            var products = await this.dbContext
+                .Products
                 .Where(product => productIds.Contains(product.Id))
-                .ToDictionaryAsync(p => p.Id, p => p);
+                .ToListAsync();
+
+            return products
+                .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId))
+                .ToDictionary(p => p.Id, p => p);
         }
     }
 }

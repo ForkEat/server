@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Web.Database.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace ForkEat.Web.Tests.Integration
 {
     public class ProductsTests : AuthenticatedTests
     {
-        public ProductsTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Products","Units"})
+        public ProductsTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Stocks","Products","Units"})
         {
         }
 
@@ -35,7 +36,7 @@ namespace ForkEat.Web.Tests.Integration
 
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.Created);
-            var result = await response.Content.ReadAsAsync<Product>();
+            var result = await response.Content.ReadAsAsync<GetProductResponse>();
             result.Id.Should().NotBe(Guid.Empty);
             result.Name.Should().Be(productName);
         }
@@ -53,7 +54,7 @@ namespace ForkEat.Web.Tests.Integration
             // Given
             
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createProductRequest);
-            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
             var productId = createdProductResult.Id;
             
             // When
@@ -61,7 +62,7 @@ namespace ForkEat.Web.Tests.Integration
             
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = await response.Content.ReadAsAsync<Product>();
+            var result = await response.Content.ReadAsAsync<GetProductResponse>();
             result.Id.Should().Be(productId);
             result.Name.Should().Be(productName);
             result.ImageId.Should().NotBe(Guid.Empty);
@@ -112,7 +113,7 @@ namespace ForkEat.Web.Tests.Integration
 
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = await response.Content.ReadAsAsync<IEnumerable<Product>>();
+            var result = await response.Content.ReadAsAsync<IEnumerable<GetProductResponse>>();
             result.Should().HaveCount(2);
         }
         
@@ -129,7 +130,7 @@ namespace ForkEat.Web.Tests.Integration
             // Given
             
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createProductRequest);
-            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
             var productId = createdProductResult.Id;
             
             // When
@@ -174,7 +175,7 @@ namespace ForkEat.Web.Tests.Integration
             // Given
             
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
-            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
             var productId = createdProductResult.Id;
             
             // When
@@ -188,7 +189,7 @@ namespace ForkEat.Web.Tests.Integration
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var getResponse = await client.GetAsync("/api/products/" + productId);
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = await getResponse.Content.ReadAsAsync<Product>();
+            var getResult = await getResponse.Content.ReadAsAsync<GetProductResponse>();
             getResult.Id.Should().Be(productId);
             getResult.Name.Should().Be(productName + " updated");
         }
@@ -236,7 +237,7 @@ namespace ForkEat.Web.Tests.Integration
             
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
-            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
             var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
             var productId = createdProductResult.Id;
             var unitId = createdUnitResult.Id;
@@ -248,13 +249,12 @@ namespace ForkEat.Web.Tests.Integration
             };
             var response = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", stock);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = await response.Content.ReadAsAsync<Stock>();
+            var result = await response.Content.ReadAsAsync<StockResponse>();
             var stockId = result.Id;
 
             // When
             var updatedStock = new CreateUpdateStockRequest
             {
-                Id = stockId,
                 Quantity = 5,
                 UnitId = unitId
             };
@@ -264,7 +264,7 @@ namespace ForkEat.Web.Tests.Integration
             updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var getResponse = await client.GetAsync("/api/products/" + productId + "/stock");
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = await getResponse.Content.ReadAsAsync<IEnumerable<Stock>>();
+            var getResult = await getResponse.Content.ReadAsAsync<IEnumerable<StockResponse>>();
             getResult.First().Quantity.Should().Be(5);
         }
         
@@ -287,7 +287,7 @@ namespace ForkEat.Web.Tests.Integration
             
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
-            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
             var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
             var productId = createdProductResult.Id;
             var unitId = createdUnitResult.Id;
@@ -304,7 +304,7 @@ namespace ForkEat.Web.Tests.Integration
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var getResponse = await client.GetAsync("/api/products/" + productId + "/stock");
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = await getResponse.Content.ReadAsAsync<IEnumerable<Stock>>();
+            var getResult = await getResponse.Content.ReadAsAsync<IEnumerable<StockResponse>>();
             getResult.First().Id.Should().NotBe(Guid.Empty);
             getResult.First().Quantity.Should().Be(7);
         }
@@ -312,6 +312,7 @@ namespace ForkEat.Web.Tests.Integration
         [Fact]
         public async Task UpdateStock_With0Quantity_Returns200()
         {
+            // Given
             var productName = "carrot";
             var createUpdateProductRequest = new CreateUpdateProductRequest()
             {
@@ -325,37 +326,37 @@ namespace ForkEat.Web.Tests.Integration
                 Symbol = "kg"
             };
 
-            // Given
+            
             
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
-            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
             var productId = createdProductResult.Id;
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
             var unitId = createdUnitResult.Id;
 
             // When
-            var stock = new Stock
+            var stock = new CreateUpdateStockRequest
             {
                 Quantity = 7,
                 UnitId = unitId
             };
             var response = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", stock);
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var createdStockResult = await response.Content.ReadAsAsync<Stock>();
+            var createdStockResult = await response.Content.ReadAsAsync<StockResponse>();
             var stockId = createdStockResult.Id;
             var getResponse = await client.GetAsync("/api/products/" + productId + "/stock" );
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
             //Then
-            var updatedStock = new Stock
+            var updatedStock = new CreateUpdateStockRequest
             {
-                Id = stockId,
                 Quantity = 0,
                 UnitId = unitId
             };
             var updateResponse = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", updatedStock);
             updateResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+            
             var getUpdateResponse = await client.GetAsync("/api/products/" + productId + "/stock" );
             getUpdateResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
@@ -363,6 +364,7 @@ namespace ForkEat.Web.Tests.Integration
         [Fact]
         public async Task GetStocks_Returns200()
         {
+            // Given
             var createUpdateUnitRequest = new CreateUpdateUnitRequest()
             {
                 Name = "kilogram",
@@ -380,26 +382,26 @@ namespace ForkEat.Web.Tests.Integration
                 Name = "carott",
                 ImageId = Guid.NewGuid()
             };
-
-            // Given
             
             var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
             var unitId = createdUnitResult.Id;
+            
             var createdProductResponse = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest);
-            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<Product>();
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
             var productId = createdProductResult.Id;
+            
             var createdProductResponse2 = await client.PostAsJsonAsync("/api/products", createUpdateProductRequest2);
-            var createdProductResult2 = await createdProductResponse2.Content.ReadAsAsync<Product>();
+            var createdProductResult2 = await createdProductResponse2.Content.ReadAsAsync<GetProductResponse>();
             var productId2 = createdProductResult2.Id;
 
-            var stock = new Stock
+            var stock = new CreateUpdateStockRequest
             {
                 Quantity = 7,
                 UnitId = unitId
             };
 
-            var stock2 = new Stock
+            var stock2 = new CreateUpdateStockRequest
             {
                 Quantity = 7,
                 UnitId = unitId
@@ -407,7 +409,7 @@ namespace ForkEat.Web.Tests.Integration
 
             var responsePutStock = await client.PutAsJsonAsync("/api/products/" + productId + "/stock", stock);
             responsePutStock.StatusCode.Should().Be(HttpStatusCode.OK);
-            var createdStockResult = await responsePutStock.Content.ReadAsAsync<Stock>();
+            var createdStockResult = await responsePutStock.Content.ReadAsAsync<StockResponse>();
             var stockId = createdStockResult.Id;
 
             var responsePutStock2 = await client.PutAsJsonAsync("/api/products/" + productId2 + "/stock", stock2);
@@ -421,6 +423,71 @@ namespace ForkEat.Web.Tests.Integration
             var result = await response.Content.ReadAsAsync<IEnumerable<StockResponse>>();
             result.Should().HaveCount(1);
             result.First().Id.Should().Be(stockId);
+        }
+
+        [Fact]
+        public async Task GetStock_ReturnsCurrentStockOfAllProducts()
+        {
+            // Given
+            var unit = this.dataFactory.CreateUnit("Kilogramme","kg");
+
+            await this.context.Units.AddAsync(unit);
+            await this.context.SaveChangesAsync();
+            
+            var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
+
+            var stock1 = new StockEntity()
+            {
+                Id = Guid.NewGuid(), 
+                Product = product1, 
+                Quantity = 2,
+                Unit = unit, 
+                PurchaseDate = DateTime.Today,
+                BestBeforeDate = DateTime.Today.AddDays(4)
+            };
+            
+            var stock2 = new StockEntity()
+            {
+                Id = Guid.NewGuid(), 
+                Product = product2, 
+                Quantity = 4,
+                Unit = unit, 
+                PurchaseDate = DateTime.Today,
+                BestBeforeDate = DateTime.Today.AddDays(1)
+            };
+
+            await this.context.Stocks.AddRangeAsync(stock1, stock2);
+            await this.context.SaveChangesAsync();
+            
+            // When
+            var response = await this.client.GetAsync("/api/products/stock");
+            
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            List<ProductStockResponse> result = await response.Content.ReadAsAsync<List<ProductStockResponse>>();
+
+            result.Should().HaveCount(2);
+
+            ProductStockResponse stockProduct1 = result.First(stock => stock.Product.Id == product1.Id);
+            ProductStockResponse stockProduct2 = result.First(stock => stock.Product.Id == product2.Id);
+
+            stockProduct1.Product.Name.Should().Be(product1.Name);
+            stockProduct1.Product.ImageId.Should().Be(product1.ImageId);
+            stockProduct1.Quantity.Should().Be(2);
+            stockProduct1.Unit.Id.Should().Be(unit.Id);
+            stockProduct1.Unit.Name.Should().Be(unit.Name);
+            stockProduct1.Unit.Symbol.Should().Be(unit.Symbol);
+            stockProduct1.BestBeforeDate.Should().Be(DateTime.Today.AddDays(4));
+            stockProduct1.PurchaseDate.Should().Be(DateTime.Today);
+
+            stockProduct2.Product.Name.Should().Be(product2.Name);
+            stockProduct2.Product.ImageId.Should().Be(product2.ImageId);
+            stockProduct2.Quantity.Should().Be(4);
+            stockProduct2.Unit.Id.Should().Be(unit.Id);
+            stockProduct2.Unit.Name.Should().Be(unit.Name);
+            stockProduct2.Unit.Symbol.Should().Be(unit.Symbol);
+            stockProduct2.BestBeforeDate.Should().Be(DateTime.Today.AddDays(1));
+            stockProduct2.PurchaseDate.Should().Be(DateTime.Today);
         }
     }
 }

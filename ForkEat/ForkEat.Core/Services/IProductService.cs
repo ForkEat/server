@@ -8,10 +8,10 @@ namespace ForkEat.Core.Services
 {
     public interface IProductService
     {
-        Task<Product> CreateProduct(CreateUpdateProductRequest createUpdateProductRequest);
-        Task<Product> GetProductById(Guid id);
-        Task<IList<Product>> GetAllProducts();
+        Task<GetProductResponse> CreateProduct(CreateUpdateProductRequest createUpdateProductRequest);
+        Task<GetProductResponse> GetProductById(Guid id);
+        Task<IList<GetProductResponse>> GetAllProducts();
         Task DeleteProduct(Guid id);
-        Task<Product> UpdateProduct(Guid id, CreateUpdateProductRequest updatedProduct);
+        Task<GetProductResponse> UpdateProduct(Guid id, CreateUpdateProductRequest updatedProduct);
     }
 }
