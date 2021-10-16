@@ -19,7 +19,7 @@ namespace ForkEat.Web.Controllers
         {
             this.repository = repository;
         }
-        
+
         [HttpGet("{fileId:Guid}")]
         [ProducesResponseType(typeof(byte[]), StatusCodes.Status200OK)]
         public async Task<FileContentResult> DownloadFile(Guid fileId)
@@ -29,17 +29,21 @@ namespace ForkEat.Web.Controllers
         }
 
         [HttpPost]
-        public async Task UploadFile(IFormFile file)
+        public async Task<ActionResult<DbFileResponse>> UploadFile(IFormFile file)
         {
             await using var stream = new MemoryStream();
             await file.CopyToAsync(stream);
 
-            await this.repository.InsertFile(new DbFile()
+            var dbFile = new DbFile()
             {
                 Data = stream.ToArray(),
                 Name = file.FileName.Split(".")[0],
                 Type = file.FileName.Split(".")[1]
-            });
+            };
+
+            await this.repository.InsertFile(dbFile);
+
+            return new DbFileResponse() {Id = dbFile.Id, Name = dbFile.Name, Type = dbFile.Type};
         }
     }
 }

@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace ForkEat.Web.Tests
+namespace ForkEat.Web.Tests.Integration
 {
     public class FilesTests : AuthenticatedTests
     {
@@ -41,22 +41,26 @@ namespace ForkEat.Web.Tests
         }
 
         [Fact]
-        public async Task CreateFile_CreateFileInDb()
+        public async Task CreateFile_CreateFileInDbAndReturnsId()
         {
             // Given
-
             var file = await File.ReadAllBytesAsync("TestAssets/test-file.gif");
             var multipartFormDataContent = new MultipartFormDataContent();
             multipartFormDataContent.Add(new StreamContent(new MemoryStream(file)), "file", "test-file.gif");
 
             // When
-
-            var result = await client.PostAsync($"api/files", multipartFormDataContent);
+            var response = await client.PostAsync($"api/files", multipartFormDataContent);
 
             // Then
-            result.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            DbFile dbFile = await this.context.Files.FirstAsync();
+            var result = await response.Content.ReadAsAsync<DbFileResponse>();
+
+            result.Id.Should().NotBeEmpty();
+            result.Name.Should().Be("test-file");
+            result.Type.Should().Be("gif");
+            
+            DbFile dbFile = await this.context.Files.FirstAsync(f => f.Id == result.Id);
             dbFile.Id.Should().NotBeEmpty();
             dbFile.Data.Should().BeEquivalentTo(file);
             dbFile.Name.Should().Be("test-file");
