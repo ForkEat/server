@@ -29,7 +29,6 @@ namespace ForkEat.Web.Tests
             this.dataFactory = new DataFactory(this.context);
             await this.context.Database.MigrateAsync();
         }
-        
 
         public async Task DisposeAsync()
         {

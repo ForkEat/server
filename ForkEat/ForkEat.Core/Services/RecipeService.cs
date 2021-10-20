@@ -64,7 +64,7 @@ namespace ForkEat.Core.Services
                     Guid.NewGuid(),
                     stepRequest.Name,
                     stepRequest.Instructions,
-                    stepRequest.EstimatedTime)
+                    TimeSpan.FromSeconds(stepRequest.EstimatedTime))
                 ).ToList(),
                 request.Ingredients.Select(i => new Ingredient(i.Quantity, products[i.ProductId], dictionary[i.UnitId])).ToList(),
                 request.ImageId);
