@@ -53,7 +53,8 @@ namespace ForkEat.Core.Services
             return new GetRecipeWithStepsAndIngredientsResponse(recipe);
         }
 
-        private static Recipe BuildRecipeFromRequest(CreateRecipeRequest request, Dictionary<Guid, Product> products,
+        private static Recipe BuildRecipeFromRequest(
+            CreateRecipeRequest request, Dictionary<Guid, Product> products,
             Dictionary<Guid, Unit> dictionary)
         {
             return new Recipe(
