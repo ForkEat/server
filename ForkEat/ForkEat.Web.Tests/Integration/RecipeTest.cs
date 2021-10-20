@@ -246,6 +246,8 @@ namespace ForkEat.Web.Tests.Integration
 
             result.Ingredients.Select(ingredient => ingredient.Name).Should().Contain("Product 1");
             result.Ingredients.Select(ingredient => ingredient.Quantity).Should().Contain(1U);
+            result.Ingredients.Select(ingredient => ingredient.Unit.Id).Should().NotBeNullOrEmpty();
+            result.Ingredients.Select(ingredient => ingredient.ImageId).Should().NotBeNullOrEmpty();
 
             result.Ingredients.Select(ingredient => ingredient.Name).Should().Contain("Product 2");
             result.Ingredients.Select(ingredient => ingredient.Quantity).Should().Contain(2U);
