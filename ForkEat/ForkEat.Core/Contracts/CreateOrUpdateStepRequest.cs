@@ -6,6 +6,6 @@ namespace ForkEat.Core.Contracts
     {
         public string Name { get; set; }
         public string Instructions { get; set; }
-        public TimeSpan EstimatedTime { get; set; }
+        public uint EstimatedTime { get; set; }
     }
 }

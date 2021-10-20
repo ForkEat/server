@@ -33,17 +33,17 @@ namespace ForkEat.Core.Tests.Services
                     new CreateOrUpdateStepRequest()
                     {
                         Name = "Test Step 1", Instructions = "Test Step 1 instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 30)
+                        EstimatedTime = 90
                     },
                     new CreateOrUpdateStepRequest()
                     {
                         Name = "Test Step 2", Instructions = "Test Step 2 instructions",
-                        EstimatedTime = new TimeSpan(0, 2, 0)
+                        EstimatedTime = 120
                     },
                     new CreateOrUpdateStepRequest()
                     {
                         Name = "Test Step 3", Instructions = "Test Step 3 instructions",
-                        EstimatedTime = new TimeSpan(0, 1, 0)
+                        EstimatedTime = 60
                     },
                 },
                 Ingredients = new List<CreateOrUpdateIngredientRequest>()
@@ -89,8 +89,7 @@ namespace ForkEat.Core.Tests.Services
             insertedRecipe.Difficulty.Should().Be(3);
             insertedRecipe.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 30));
             insertedRecipe.Steps.Should().HaveCount(3);
-
-
+            
             insertedRecipe.Steps[0].Id.Should().NotBeEmpty();
             insertedRecipe.Steps[0].Name.Should().Be("Test Step 1");
             insertedRecipe.Steps[0].Instructions.Should().Be("Test Step 1 instructions");
@@ -348,22 +347,22 @@ namespace ForkEat.Core.Tests.Services
                     {
                         new CreateOrUpdateStepRequest()
                         {
-                            EstimatedTime = new TimeSpan(0, 2, 30), Instructions = "Test Step 1 Instructions Updated",
+                            EstimatedTime = 150, Instructions = "Test Step 1 Instructions Updated",
                             Name = "Test Step 1 updated"
                         },
                         new CreateOrUpdateStepRequest()
                         {
-                            EstimatedTime = new TimeSpan(0, 3, 30), Instructions = "Test Step 2 Instructions Updated",
+                            EstimatedTime = 210, Instructions = "Test Step 2 Instructions Updated",
                             Name = "Test Step 2 updated"
                         },
                         new CreateOrUpdateStepRequest()
                         {
-                            EstimatedTime = new TimeSpan(0, 4, 30), Instructions = "Test Step 3 Instructions Updated",
+                            EstimatedTime = 270, Instructions = "Test Step 3 Instructions Updated",
                             Name = "Test Step 3 updated"
                         },
                         new CreateOrUpdateStepRequest()
                         {
-                            EstimatedTime = new TimeSpan(1, 0, 0), Instructions = "Test Step 4 Instructions",
+                            EstimatedTime = 3600, Instructions = "Test Step 4 Instructions",
                             Name = "Test Step 4"
                         },
                     }
