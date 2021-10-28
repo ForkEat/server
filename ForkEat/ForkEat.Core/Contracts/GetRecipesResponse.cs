@@ -10,7 +10,8 @@ namespace ForkEat.Core.Contracts
         public Guid ImageId { get; set; }
         public uint Difficulty { get; set; }
         public TimeSpan TotalEstimatedTime { get; set; }
-        
+        public bool IsLiked { get; set; }
+
         public GetRecipesResponse() {}
         
         public GetRecipesResponse(Recipe recipe)

@@ -20,6 +20,7 @@ namespace ForkEat.Core.Contracts
             TotalEstimatedTime = recipe.TotalEstimatedTime;
             Steps = recipe.Steps.Select(step => new GetStepResponse(step)).ToList();
             Ingredients = recipe.Ingredients.Select(i => new GetIngredientResponseWithImage(i)).ToList();
+            IsLiked = recipe.IsLiked;
         }
 
         public Guid Id { get; set; }
@@ -29,5 +30,6 @@ namespace ForkEat.Core.Contracts
         public TimeSpan TotalEstimatedTime { get; set; }
         public List<GetStepResponse> Steps { get; set; }
         public List<GetIngredientResponseWithImage> Ingredients { get; set; }
+        public bool IsLiked { get; set; }
     }
 }

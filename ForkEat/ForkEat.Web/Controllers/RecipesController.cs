@@ -39,8 +39,9 @@ namespace ForkEat.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IList<GetRecipesResponse>>> GetRecipes([FromQuery] Guid[] ingredients)
         {
+            var userId = Guid.Parse(User.Identity.Name);
             var recipes = await (ingredients.Length == 0
-                ? this.service.GetRecipes()
+                ? this.service.GetRecipes(userId)
                 : this.service.SearchRecipeByIngredients(ingredients.ToList()));
             
             return Ok(recipes);
@@ -49,7 +50,8 @@ namespace ForkEat.Web.Controllers
         [HttpGet("{recipeId:guid}")]
         public async Task<ActionResult<GetRecipeWithStepsAndIngredientsResponse>> GetRecipeById(Guid recipeId)
         {
-            GetRecipeWithStepsAndIngredientsResponse recipe = await this.service.GetRecipeById(recipeId);
+            var userId = Guid.Parse(User.Identity.Name);
+            GetRecipeWithStepsAndIngredientsResponse recipe = await this.service.GetRecipeById(recipeId, userId);
             return recipe;
         }
         
@@ -71,6 +73,22 @@ namespace ForkEat.Web.Controllers
         public async Task<ActionResult> DeleteRecipeById(Guid recipeId)
         {
             await this.service.DeleteRecipeById(recipeId);
+            return NoContent();
+        }
+
+        [HttpPost("{recipeId:guid}/like")]
+        public async Task<ActionResult<bool>> LikeRecipe(Guid recipeId)
+        {
+            var userId = Guid.Parse(User.Identity.Name);
+            var isLiked = await service.LikeRecipe(userId, recipeId);
+            return Created("", isLiked);
+        }
+
+        [HttpDelete("{recipeId:guid}/like")]
+        public async Task<ActionResult> UnlikeRecipe(Guid recipeId)
+        {
+            var userId = Guid.Parse(User.Identity.Name);
+            await service.UnlikeRecipe(userId, recipeId);
             return NoContent();
         }
     }
