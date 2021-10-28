@@ -20,6 +20,7 @@ namespace ForkEat.Web.Database
         public DbSet<StockEntity> Stocks { get; set; }
         public DbSet<IngredientEntity> Ingredients { get; set; }
         public DbSet<StepEntity> Steps { get; set; }
+        public DbSet<LikeEntity> Likes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +28,7 @@ namespace ForkEat.Web.Database
             modelBuilder.Entity<User>().Property(user => user.Email);
             modelBuilder.Entity<User>().Property(user => user.Password);
             modelBuilder.Entity<User>().Property(user => user.UserName);
+            modelBuilder.Entity<User>().HasMany<LikeEntity>().WithOne().OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProductEntity>().HasKey(product => product.Id);
             modelBuilder.Entity<ProductEntity>().Property(product => product.Name);
@@ -47,6 +49,7 @@ namespace ForkEat.Web.Database
             modelBuilder.Entity<RecipeEntity>().Property(recipe => recipe.Difficulty);
             modelBuilder.Entity<RecipeEntity>().HasMany<StepEntity>(recipe => recipe.Steps).WithOne().OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<RecipeEntity>().HasMany<IngredientEntity>(recipe => recipe.Ingredients).WithOne().HasForeignKey(i => i.RecipeId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<RecipeEntity>().HasMany<LikeEntity>().WithOne().OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<StepEntity>().HasKey(step => step.Id);
             modelBuilder.Entity<StepEntity>().Property(step => step.Name);
@@ -55,15 +58,19 @@ namespace ForkEat.Web.Database
 
             modelBuilder.Entity<IngredientEntity>().HasKey(ingredient => ingredient.Id);
             modelBuilder.Entity<IngredientEntity>().Property(ingredient => ingredient.Quantity);
-            modelBuilder.Entity<IngredientEntity>().HasOne<ProductEntity>(ingredient => ingredient.Product).WithMany().HasForeignKey(ingredient => ingredient.ProductId);
-            modelBuilder.Entity<IngredientEntity>().HasOne<Unit>(ingredient => ingredient.Unit).WithMany();
+            modelBuilder.Entity<IngredientEntity>().HasOne(ingredient => ingredient.Product).WithMany().HasForeignKey(ingredient => ingredient.ProductId);
+            modelBuilder.Entity<IngredientEntity>().HasOne(ingredient => ingredient.Unit).WithMany();
 
             modelBuilder.Entity<StockEntity>().HasKey(stock => stock.Id);
             modelBuilder.Entity<StockEntity>().Property(stock => stock.Quantity);
-            modelBuilder.Entity<StockEntity>().HasOne<Unit>(stock => stock.Unit).WithMany();
-            modelBuilder.Entity<StockEntity>().HasOne<ProductEntity>(stock => stock.Product).WithMany();
+            modelBuilder.Entity<StockEntity>().HasOne(stock => stock.Unit).WithMany();
+            modelBuilder.Entity<StockEntity>().HasOne(stock => stock.Product).WithMany();
             modelBuilder.Entity<StockEntity>().Property(stock => stock.BestBeforeDate);
             modelBuilder.Entity<StockEntity>().Property(stock => stock.PurchaseDate);
+
+            modelBuilder.Entity<LikeEntity>().HasKey(like => like.Id);
+            modelBuilder.Entity<LikeEntity>().HasOne(like => like.User).WithMany();
+            modelBuilder.Entity<LikeEntity>().HasOne(like => like.Recipe).WithMany();
         }
     }
 }

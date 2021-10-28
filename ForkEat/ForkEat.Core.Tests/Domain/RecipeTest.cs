@@ -90,5 +90,6 @@ namespace ForkEat.Core.Tests.Domain
                 .Should().Throw<ArgumentException>()
                 .WithMessage("Invalid recipe name (null or empty)");
         }
+
     }
 }

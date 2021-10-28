@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Core.Exceptions;
 using ForkEat.Core.Repositories;
 
 namespace ForkEat.Core.Services
@@ -13,6 +14,7 @@ namespace ForkEat.Core.Services
         private readonly IRecipeRepository recipeRepository;
         private readonly IProductRepository productRepository;
         private readonly IUnitRepository unitsRepository;
+        private readonly ILikeRepository likeRepository;
         private readonly IStockRepository stockRepository;
         private readonly IKitchen kitchen;
 
@@ -20,12 +22,14 @@ namespace ForkEat.Core.Services
             IRecipeRepository recipeRepository,
             IProductRepository productRepository,
             IUnitRepository unitsRepository,
+            ILikeRepository likeRepository,
             IStockRepository stockRepository,
             IKitchen kitchen)
         {
             this.recipeRepository = recipeRepository;
             this.productRepository = productRepository;
             this.unitsRepository = unitsRepository;
+            this.likeRepository = likeRepository;
             this.kitchen = kitchen;
             this.stockRepository = stockRepository;
         }
@@ -63,19 +67,29 @@ namespace ForkEat.Core.Services
             return request.Ingredients.Select(i => i.UnitId).ToList();
         }
 
-        public async Task<IList<GetRecipesResponse>> GetRecipes()
+        public async Task<IList<GetRecipesResponse>> GetRecipes(Guid userId)
         {
             var recipes = await recipeRepository.GetAllRecipes();
+            var likes = await likeRepository.GetLikes(userId, recipes.Select(recipe => recipe.Id).ToList());
 
             return recipes
-                    .Select(recipe => new GetRecipesResponse(recipe))
+                    .Select(recipe =>
+                    {
+                        var response = new GetRecipesResponse(recipe);
+                        response.IsLiked = likes.Contains(recipe.Id);
+                        return response;
+                    })
                     .ToList();
         }
 
-        public async Task<GetRecipeWithStepsAndIngredientsResponse> GetRecipeById(Guid recipeId)
+        public async Task<GetRecipeWithStepsAndIngredientsResponse> GetRecipeById(Guid recipeId, Guid userId)
         {
-            var recipe = await this.recipeRepository.GetRecipeById(recipeId);
-            return new GetRecipeWithStepsAndIngredientsResponse(recipe);
+            var recipe = await recipeRepository.GetRecipeById(recipeId);
+            var response = new GetRecipeWithStepsAndIngredientsResponse(recipe)
+            {
+                IsLiked = await likeRepository.GetLike(userId, recipeId)
+            };
+            return response;
         }
 
         private static Recipe BuildRecipeFromRequest(
@@ -123,6 +137,38 @@ namespace ForkEat.Core.Services
             return recipes
                 .Select(recipe => new GetRecipesResponse(recipe))
                 .ToList();
+        }
+
+        public async Task<bool> LikeRecipe(Guid userId, Guid recipeId)
+        {
+            var recipe = await recipeRepository.GetRecipeById(recipeId);
+            if (recipe == null)
+            {
+                throw new RecipeNotFoundException();
+            }
+
+            if (await likeRepository.GetLike(userId, recipeId))
+            {
+                return true;
+            }
+
+            return await likeRepository.LikeRecipe(userId, recipeId);
+        }
+
+        public async Task UnlikeRecipe(Guid userId, Guid recipeId)
+        {
+            var recipe = await recipeRepository.GetRecipeById(recipeId);
+            if (recipe == null)
+            {
+                throw new RecipeNotFoundException();
+            }
+
+            if (!await likeRepository.GetLike(userId, recipeId))
+            {
+                return;
+            }
+
+            await likeRepository.UnlikeRecipe(userId, recipeId);
         }
     }
 }
