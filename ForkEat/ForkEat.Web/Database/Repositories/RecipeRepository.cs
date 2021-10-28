@@ -88,7 +88,6 @@ namespace ForkEat.Web.Database.Repositories
                 .ToList();
         }
 
-
         private async Task<RecipeEntity> GetRecipeEntityById(Guid recipeId)
         {
             RecipeEntity recipeEntity = await this.dbContext
