@@ -3,15 +3,17 @@ using System;
 using ForkEat.Web.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace ForkEat.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211027081601_likes")]
+    partial class likes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,8 +87,8 @@ namespace ForkEat.Web.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
-                    b.Property<double>("Quantity")
-                        .HasColumnType("double precision");
+                    b.Property<long>("Quantity")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid>("RecipeId")
                         .HasColumnType("uuid");
@@ -111,27 +113,13 @@ namespace ForkEat.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("RecipeEntityId")
+                    b.Property<Guid>("RecipeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("RecipeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("UserId1")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RecipeEntityId");
-
-                    b.HasIndex("RecipeId");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("Likes");
                 });
@@ -252,31 +240,6 @@ namespace ForkEat.Web.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Unit");
-                });
-
-            modelBuilder.Entity("ForkEat.Web.Database.Entities.LikeEntity", b =>
-                {
-                    b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", null)
-                        .WithMany()
-                        .HasForeignKey("RecipeEntityId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", "Recipe")
-                        .WithMany()
-                        .HasForeignKey("RecipeId");
-
-                    b.HasOne("ForkEat.Core.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("ForkEat.Core.Domain.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId1")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Recipe");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ForkEat.Web.Database.Entities.StepEntity", b =>

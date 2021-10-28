@@ -46,6 +46,7 @@ namespace ForkEat.Web
             services.AddScoped<IRecipeRepository, RecipeRepository>();
             services.AddScoped<IUnitRepository, UnitRepository>();
             services.AddScoped<IStockRepository, StockRepository>();
+            services.AddScoped<ILikeRepository, LikeRepository>();
             services.AddScoped<IKitchen, Kitchen>();
 
 
