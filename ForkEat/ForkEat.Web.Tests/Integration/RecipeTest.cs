@@ -9,6 +9,7 @@ using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Web.Database.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace ForkEat.Web.Tests.Integration
@@ -377,12 +378,21 @@ namespace ForkEat.Web.Tests.Integration
             };
 
             await this.context.Recipes.AddAsync(recipe);
+            await this.context.SaveChangesAsync();
             
             // When
             var response = await this.client.PostAsync($"/api/recipes/{recipe.Id}/perform", null);
 
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            milkStock = await this.context.Stocks.FirstAsync(stock => stock.Id == milkStock.Id);
+            floorStock = await this.context.Stocks.FirstAsync(stock => stock.Id == floorStock.Id);
+            eggStock = await this.context.Stocks.FirstAsync(stock => stock.Id == eggStock.Id);
+
+            milkStock.Quantity.Should().Be(0.5);
+            floorStock.Quantity.Should().Be(750);
+            eggStock.Quantity.Should().Be(3);
         }
     }
 }
