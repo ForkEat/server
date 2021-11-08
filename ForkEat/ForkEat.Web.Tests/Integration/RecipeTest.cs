@@ -349,7 +349,7 @@ namespace ForkEat.Web.Tests.Integration
 
             await this.context.Units.AddRangeAsync(g, L, n);
 
-            var milkStock = new StockEntity(new Stock(1, g, milk)) {Product = milkEntity};
+            var milkStock = new StockEntity(new Stock(1, L, milk)) {Product = milkEntity};
             var floorStock = new StockEntity(new Stock(1000, g, floor)) {Product = floorEntity};
             var eggStock = new StockEntity(new Stock(6, n, egg)) {Product = eggEntity};
 

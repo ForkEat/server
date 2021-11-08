@@ -446,9 +446,9 @@ namespace ForkEat.Core.Tests.Services
 
             var stockRepoMock = new Mock<IStockRepository>();
             var productIds = recipe.Ingredients.Select(i => i.Product.Id).ToList();
-            stockRepoMock.Setup(mock =>
-                    mock.FindAllStocksByProductIds(productIds))
+            stockRepoMock.Setup(mock => mock.FindAllStocksByProductIds(productIds))
                 .Returns(() => Task.FromResult(stock));
+            stockRepoMock.Setup(mock => mock.UpdateStock(It.IsAny<Stock>()));
 
             var kitchenMock = new Mock<IKitchen>();
             kitchenMock.Setup(mock => mock.CookRecipeFromStock(recipe, stock));
@@ -461,9 +461,8 @@ namespace ForkEat.Core.Tests.Services
 
             // Then
             recipeRepoMock.Verify(mock => mock.GetRecipeById(recipe.Id), Times.Once);
-            stockRepoMock.Verify(
-                mock => mock.FindAllStocksByProductIds(productIds),
-                Times.Once);
+            stockRepoMock.Verify(mock => mock.FindAllStocksByProductIds(productIds), Times.Once);
+            stockRepoMock.Verify(mock => mock.UpdateStock(It.IsAny<Stock>()), Times.Exactly(2));
             kitchenMock.Verify(mock => mock.CookRecipeFromStock(recipe, stock), Times.Once);
         }
     }
