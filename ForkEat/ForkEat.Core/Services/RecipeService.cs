@@ -39,8 +39,12 @@ namespace ForkEat.Core.Services
                 .ToList();
 
             List<Stock> stocks = await this.stockRepository.FindAllStocksByProductIds(recipeIngredientsProductIds);
-            
             this.kitchen.CookRecipeFromStock(recipe, stocks);
+
+            foreach (var stock in stocks)
+            {
+                await this.stockRepository.UpdateStock(stock);
+            }
         }
 
         public async Task<GetRecipeWithStepsAndIngredientsResponse> CreateRecipe(CreateRecipeRequest request)
