@@ -1,19 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ForkEat.Core.Domain
 {
     public class Kitchen : IKitchen
     {
-        private readonly List<Stock> stock;
 
-        public Kitchen(List<Stock> stock)
+        public void CookRecipeFromStock(Recipe recipe,List<Stock> stocks)
         {
-            this.stock = stock;
-        }
+            foreach (Ingredient ingredient in recipe.Ingredients)
+            {
+                Stock stockForCurrentIngredient = stocks.First(stock => stock.Product.Id == ingredient.Product.Id);
 
-        public void CookRecipe(Recipe recipe)
-        {
-            throw new System.NotImplementedException();
+                if (stockForCurrentIngredient.Unit.Id != ingredient.Unit.Id)
+                {
+                    throw new ArgumentException($"Different Units for Ingredient : {ingredient}");
+                }
+                
+                stockForCurrentIngredient.Quantity -= ingredient.Quantity;
+            }
         }
     }
 }

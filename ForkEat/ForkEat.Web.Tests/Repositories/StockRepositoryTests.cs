@@ -15,10 +15,10 @@ namespace ForkEat.Web.Tests.Repositories
 {
     public class StockRepositoryTests : RepositoryTest
     {
-        public StockRepositoryTests() : base(new string[]{"Stocks","Units","Products"})
+        public StockRepositoryTests() : base(new string[] {"Stocks", "Units", "Products"})
         {
         }
-        
+
         [Fact]
         public async Task InsertStock_InsertRecordInDatabase()
         {
@@ -30,11 +30,11 @@ namespace ForkEat.Web.Tests.Repositories
                 Symbol = "kg"
             };
 
-            var (productEntity,_) = await this.dataFactory.CreateAndInsertProducts();
+            var (productEntity, _) = await this.dataFactory.CreateAndInsertProducts();
 
 
             var product = new Product(productEntity.Id, productEntity.Name, productEntity.ImageId);
-            var stockToInsert =  new Stock(2.5, unit, product);
+            var stockToInsert = new Stock(2.5, unit, product);
             var repository = new StockRepository(context);
 
             await context.Units.AddAsync(unit);
@@ -53,12 +53,12 @@ namespace ForkEat.Web.Tests.Repositories
                 .Stocks
                 .Include(stock => stock.Product)
                 .FirstAsync(stock => stock.Id == result.Id);
-            
+
             stockInDb.Id.Should().Be(result.Id);
             stockInDb.Quantity.Should().Be(2.5);
             stockInDb.Product.Id.Should().Be(product.Id);
         }
-        
+
         [Fact]
         public async Task UpdateStock_WithExistingStock_ReturnsUpdatedStock()
         {
@@ -71,8 +71,8 @@ namespace ForkEat.Web.Tests.Repositories
                 Name = "kilogram",
                 Symbol = "kg"
             };
-            
-            var (productEntity,_) = await this.dataFactory.CreateAndInsertProducts();
+
+            var (productEntity, _) = await this.dataFactory.CreateAndInsertProducts();
             var stockEntity = new StockEntity()
             {
                 Id = stockId,
@@ -80,20 +80,21 @@ namespace ForkEat.Web.Tests.Repositories
                 Unit = unit,
                 Product = productEntity
             };
-            
+
             await context.Units.AddAsync(unit);
             await context.Stocks.AddAsync(stockEntity);
             await context.SaveChangesAsync();
-            
-            var stock = new Stock(stockId, 7, unit, new Product(productEntity.Id, productEntity.Name, productEntity.ImageId));
+
+            var stock = new Stock(stockId, 7, unit,
+                new Product(productEntity.Id, productEntity.Name, productEntity.ImageId));
             var repository = new StockRepository(context);
 
             context.Entry(stockEntity).State = EntityState.Detached;
             await context.SaveChangesAsync();
-            
+
             //When
             var result = await repository.UpdateStock(stock);
-            
+
             // Then
             result.Id.Should().Be(stockId);
             result.Quantity.Should().Be(7);
@@ -114,7 +115,7 @@ namespace ForkEat.Web.Tests.Repositories
             };
 
 
-            var (product,_) = await this.dataFactory.CreateAndInsertProducts();
+            var (product, _) = await this.dataFactory.CreateAndInsertProducts();
 
             var stock = new StockEntity()
             {
@@ -134,9 +135,10 @@ namespace ForkEat.Web.Tests.Repositories
             context.Entry(stock).State = EntityState.Detached;
             context.Entry(stock.Product).State = EntityState.Detached;
             await context.SaveChangesAsync();
-            
+
             // Then
-            await repository.DeleteStock(new Stock(stockId, 2.5, unit, new Product(product.Id, product.Name, product.ImageId)));
+            await repository.DeleteStock(new Stock(stockId, 2.5, unit,
+                new Product(product.Id, product.Name, product.ImageId)));
             context.Stocks.Should().BeEmpty();
         }
 
@@ -157,10 +159,10 @@ namespace ForkEat.Web.Tests.Repositories
             await context.Units.AddAsync(unit);
 
             var stockId = Guid.NewGuid();
-            var stock1 = new StockEntity(){Id = stockId,Quantity = 1,Unit = unit,Product = product1};
-            var stock2 = new StockEntity(){Id = Guid.NewGuid(),Quantity = 1,Unit = unit,Product = product2};
+            var stock1 = new StockEntity() {Id = stockId, Quantity = 1, Unit = unit, Product = product1};
+            var stock2 = new StockEntity() {Id = Guid.NewGuid(), Quantity = 1, Unit = unit, Product = product2};
 
-            await context.Stocks.AddRangeAsync(stock1,stock2);
+            await context.Stocks.AddRangeAsync(stock1, stock2);
             await context.SaveChangesAsync();
 
             // When
@@ -171,8 +173,8 @@ namespace ForkEat.Web.Tests.Repositories
             result.Should().HaveCount(1);
             result.First().Id.Should().Be(stockId);
         }
-        
-                [Fact]
+
+        [Fact]
         public async Task FindStocksByProductId_ReturnsExpectedRecords()
         {
             // Given
@@ -189,10 +191,10 @@ namespace ForkEat.Web.Tests.Repositories
             await context.Units.AddAsync(unit);
 
             var stockId = Guid.NewGuid();
-            var stock1 = new StockEntity(){Id = stockId,Quantity = 1,Unit = unit,Product = product1};
-            var stock2 = new StockEntity(){Id = Guid.NewGuid(),Quantity = 1,Unit = unit,Product = product2};
+            var stock1 = new StockEntity() {Id = stockId, Quantity = 1, Unit = unit, Product = product1};
+            var stock2 = new StockEntity() {Id = Guid.NewGuid(), Quantity = 1, Unit = unit, Product = product2};
 
-            await context.Stocks.AddRangeAsync(stock1,stock2);
+            await context.Stocks.AddRangeAsync(stock1, stock2);
             await context.SaveChangesAsync();
 
             // When
@@ -207,41 +209,16 @@ namespace ForkEat.Web.Tests.Repositories
         public async Task FindAllStocks_GetAllStockWithUnitsAndProduct()
         {
             // Given
-            var unit = this.dataFactory.CreateUnit("Kilogramme","kg");
-
-            await this.context.Units.AddAsync(unit);
-            await this.context.SaveChangesAsync();
-            
+            var unit = await this.dataFactory.CreateAndInsertUnit();
             var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
 
-            var stock1 = new StockEntity()
-            {
-                Id = Guid.NewGuid(), 
-                Product = product1, 
-                Quantity = 2,
-                Unit = unit, 
-                PurchaseDate = DateTime.Today,
-                BestBeforeDate = DateTime.Today.AddDays(4)
-            };
-            
-            var stock2 = new StockEntity()
-            {
-                Id = Guid.NewGuid(), 
-                Product = product2, 
-                Quantity = 4,
-                Unit = unit, 
-                PurchaseDate = DateTime.Today,
-                BestBeforeDate = DateTime.Today.AddDays(2)
-            };
-
-            await this.context.Stocks.AddRangeAsync(stock1, stock2);
-            await this.context.SaveChangesAsync();
+            await CreateAndInsertStockEntities(product1, product2, unit);
 
             IStockRepository repository = new StockRepository(this.context);
-            
+
             // When
             List<Stock> result = await repository.FindAllStocks();
-            
+
             // Then
             Stock stockProduct1 = result.First(stock => stock.Product.Id == product1.Id);
             Stock stockProduct2 = result.First(stock => stock.Product.Id == product2.Id);
@@ -264,6 +241,53 @@ namespace ForkEat.Web.Tests.Repositories
             stockProduct2.BestBeforeDate.Should().Be(DateTime.Today.AddDays(2));
             stockProduct2.PurchaseDate.Should().Be(DateTime.Today);
         }
-        
+
+        private async Task<(StockEntity, StockEntity)> CreateAndInsertStockEntities(ProductEntity product1,
+            ProductEntity product2, Unit unit)
+        {
+            var stock1 = new StockEntity()
+            {
+                Id = Guid.NewGuid(),
+                Product = product1,
+                Quantity = 2,
+                Unit = unit,
+                PurchaseDate = DateTime.Today,
+                BestBeforeDate = DateTime.Today.AddDays(4)
+            };
+
+            var stock2 = new StockEntity()
+            {
+                Id = Guid.NewGuid(),
+                Product = product2,
+                Quantity = 4,
+                Unit = unit,
+                PurchaseDate = DateTime.Today,
+                BestBeforeDate = DateTime.Today.AddDays(2)
+            };
+
+            await this.context.Stocks.AddRangeAsync(stock1, stock2);
+            await this.context.SaveChangesAsync();
+
+            return (stock1, stock2);
+        }
+
+        [Fact]
+        public async Task FindAllStocksByProductIds_ReturnsExpectedStocks()
+        {
+            // Given
+            var unit = await this.dataFactory.CreateAndInsertUnit();
+            var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
+            await CreateAndInsertStockEntities(product1, product2, unit);
+            
+            IStockRepository repository = new StockRepository(this.context);
+
+            // When
+            List<Stock> result = await repository.FindAllStocksByProductIds(new List<Guid> {product1.Id});
+            
+            // Then
+            result.Should().ContainSingle();
+            Stock stock = result[0];
+            stock.Product.Id.Should().Be(product1.Id);
+        }
     }
 }

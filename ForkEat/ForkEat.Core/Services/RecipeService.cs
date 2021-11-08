@@ -13,13 +13,34 @@ namespace ForkEat.Core.Services
         private readonly IRecipeRepository recipeRepository;
         private readonly IProductRepository productRepository;
         private readonly IUnitRepository unitsRepository;
+        private readonly IStockRepository stockRepository;
+        private readonly IKitchen kitchen;
 
-        public RecipeService(IRecipeRepository recipeRepository, IProductRepository productRepository,
-            IUnitRepository unitsRepository)
+        public RecipeService(
+            IRecipeRepository recipeRepository,
+            IProductRepository productRepository,
+            IUnitRepository unitsRepository,
+            IStockRepository stockRepository,
+            IKitchen kitchen)
         {
             this.recipeRepository = recipeRepository;
             this.productRepository = productRepository;
             this.unitsRepository = unitsRepository;
+            this.kitchen = kitchen;
+            this.stockRepository = stockRepository;
+        }
+
+        public async Task PerformRecipe(Guid recipeId)
+        {
+            Recipe recipe = await this.recipeRepository.GetRecipeById(recipeId);
+
+            List<Guid> recipeIngredientsProductIds = recipe.Ingredients
+                .Select(ingredient => ingredient.Product.Id)
+                .ToList();
+
+            List<Stock> stocks = await this.stockRepository.FindAllStocksByProductIds(recipeIngredientsProductIds);
+            
+            this.kitchen.CookRecipeFromStock(recipe, stocks);
         }
 
         public async Task<GetRecipeWithStepsAndIngredientsResponse> CreateRecipe(CreateRecipeRequest request)

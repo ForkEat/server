@@ -83,10 +83,8 @@ namespace ForkEat.Web.Tests.TestAssets
         public async Task<(RecipeEntity, RecipeEntity)> CreateAndInsertRecipesWithIngredientsAndSteps()
         {
             var (product1, product2) = await CreateAndInsertProducts();
-            var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
-            
-            await context.Units.AddAsync(unit);
-            await context.SaveChangesAsync();
+            var unit = await CreateAndInsertUnit();
+
 
             var recipeEntity1 = new RecipeEntity()
             {
@@ -144,6 +142,15 @@ namespace ForkEat.Web.Tests.TestAssets
             await this.context.SaveChangesAsync();
 
             return (recipeEntity1, recipeEntity2);
+        }
+
+        public async Task<Unit> CreateAndInsertUnit()
+        {
+            var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
+
+            await context.Units.AddAsync(unit);
+            await context.SaveChangesAsync();
+            return unit;
         }
     }
 }
