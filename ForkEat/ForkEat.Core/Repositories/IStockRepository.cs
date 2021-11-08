@@ -14,5 +14,6 @@ namespace ForkEat.Core.Repositories
         Task<IEnumerable<Stock>> FindAllStocksByProductId(Guid productId);
         Task<Stock> FindStockByProductId(Guid productId);
         Task<List<Stock>> FindAllStocks();
+        Task<List<Stock>> FindAllStocksByProductIds(List<Guid> productIds);
     }
 }

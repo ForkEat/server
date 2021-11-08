@@ -1,7 +1,9 @@
-﻿namespace ForkEat.Core.Domain
+﻿using System.Collections.Generic;
+
+namespace ForkEat.Core.Domain
 {
     public interface IKitchen
     {
-        void CookRecipe(Recipe recipe);
+        void CookRecipeFromStock(Recipe recipe, List<Stock> stocks);
     }
 }

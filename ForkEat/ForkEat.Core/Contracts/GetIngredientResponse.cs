@@ -19,7 +19,7 @@ namespace ForkEat.Core.Contracts
 
         public string Name { get; set; }
         public Guid ProductId { get; set; }
-        public uint Quantity { get; set; }
+        public double Quantity { get; set; }
         public UnitResponse Unit { get; set; }
     }
 }
