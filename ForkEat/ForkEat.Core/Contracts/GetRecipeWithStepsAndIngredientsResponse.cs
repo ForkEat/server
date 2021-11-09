@@ -19,7 +19,7 @@ namespace ForkEat.Core.Contracts
             Difficulty = recipe.Difficulty;
             TotalEstimatedTime = recipe.TotalEstimatedTime;
             Steps = recipe.Steps.Select(step => new GetStepResponse(step)).ToList();
-            Ingredients = recipe.Ingredients.Select(i => new GetIngredientResponse(i)).ToList();
+            Ingredients = recipe.Ingredients.Select(i => new GetIngredientResponseWithImage(i)).ToList();
         }
 
         public Guid Id { get; set; }
@@ -28,6 +28,6 @@ namespace ForkEat.Core.Contracts
         public uint Difficulty { get; set; }
         public TimeSpan TotalEstimatedTime { get; set; }
         public List<GetStepResponse> Steps { get; set; }
-        public List<GetIngredientResponse> Ingredients { get; set; }
+        public List<GetIngredientResponseWithImage> Ingredients { get; set; }
     }
 }
