@@ -31,7 +31,6 @@ namespace ForkEat.Web.Database.Repositories
         {
             StockEntity stockEntity = await dbContext.Stocks.FirstAsync(entity => entity.Id == stock.Id);
 
-            stockEntity.Id = stock.Id;
             stockEntity.Quantity = stock.Quantity;
             stockEntity.Unit = stock.Unit;
             stockEntity.BestBeforeDate = stock.BestBeforeDate;
