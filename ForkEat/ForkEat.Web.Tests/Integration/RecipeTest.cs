@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
@@ -386,13 +387,14 @@ namespace ForkEat.Web.Tests.Integration
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-            milkStock = await this.context.Stocks.FirstAsync(stock => stock.Id == milkStock.Id);
-            floorStock = await this.context.Stocks.FirstAsync(stock => stock.Id == floorStock.Id);
-            eggStock = await this.context.Stocks.FirstAsync(stock => stock.Id == eggStock.Id);
+            var milkStockFromDb = await this.client.GetFromJsonAsync<List<StockResponse>>($"api/products/{milkEntity.Id}/stock");
+            var floorStockFromDb = await this.client.GetFromJsonAsync<List<StockResponse>>($"api/products/{floorEntity.Id}/stock");
+            var eggStockFromDb = await this.client.GetFromJsonAsync<List<StockResponse>>($"api/products/{eggEntity.Id}/stock");
 
-            milkStock.Quantity.Should().Be(0.5);
-            floorStock.Quantity.Should().Be(750);
-            eggStock.Quantity.Should().Be(3);
+            milkStockFromDb.First().Quantity.Should().Be(0.5);
+            floorStockFromDb.First().Quantity.Should().Be(750);
+            eggStockFromDb.First().Quantity.Should().Be(3);
         }
+
     }
 }
