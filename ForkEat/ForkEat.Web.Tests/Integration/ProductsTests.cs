@@ -442,8 +442,8 @@ namespace ForkEat.Web.Tests.Integration
                 Product = product1, 
                 Quantity = 2,
                 Unit = unit, 
-                PurchaseDate = DateTime.Today,
-                BestBeforeDate = DateTime.Today.AddDays(4)
+                PurchaseDate = DateOnly.FromDateTime(DateTime.Today),
+                BestBeforeDate = DateOnly.FromDateTime(DateTime.Today.AddDays(4))
             };
             
             var stock2 = new StockEntity()
@@ -452,8 +452,8 @@ namespace ForkEat.Web.Tests.Integration
                 Product = product2, 
                 Quantity = 4,
                 Unit = unit, 
-                PurchaseDate = DateTime.Today,
-                BestBeforeDate = DateTime.Today.AddDays(1)
+                PurchaseDate = DateOnly.FromDateTime(DateTime.Today),
+                BestBeforeDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1))
             };
 
             await this.context.Stocks.AddRangeAsync(stock1, stock2);
@@ -477,8 +477,8 @@ namespace ForkEat.Web.Tests.Integration
             stockProduct1.Unit.Id.Should().Be(unit.Id);
             stockProduct1.Unit.Name.Should().Be(unit.Name);
             stockProduct1.Unit.Symbol.Should().Be(unit.Symbol);
-            stockProduct1.BestBeforeDate.Should().Be(DateTime.Today.AddDays(4));
-            stockProduct1.PurchaseDate.Should().Be(DateTime.Today);
+            stockProduct1.BestBeforeDate.Should().Be(DateOnly.FromDateTime(DateTime.Today.AddDays(4)));
+            stockProduct1.PurchaseDate.Should().Be(DateOnly.FromDateTime(DateTime.Today));
 
             stockProduct2.Product.Name.Should().Be(product2.Name);
             stockProduct2.Product.ImageId.Should().Be(product2.ImageId);
@@ -486,8 +486,8 @@ namespace ForkEat.Web.Tests.Integration
             stockProduct2.Unit.Id.Should().Be(unit.Id);
             stockProduct2.Unit.Name.Should().Be(unit.Name);
             stockProduct2.Unit.Symbol.Should().Be(unit.Symbol);
-            stockProduct2.BestBeforeDate.Should().Be(DateTime.Today.AddDays(1));
-            stockProduct2.PurchaseDate.Should().Be(DateTime.Today);
+            stockProduct2.BestBeforeDate.Should().Be(DateOnly.FromDateTime(DateTime.Today.AddDays(1)));
+            stockProduct2.PurchaseDate.Should().Be(DateOnly.FromDateTime(DateTime.Today));
         }
     }
 }
