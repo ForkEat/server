@@ -21,8 +21,8 @@ namespace ForkEat.Web.Database.Repositories
         public async Task<Stock> InsertStock(Stock stock)
         {
             ProductEntity productEntity = await dbContext.Products.FirstAsync(p => p.Id == stock.Product.Id);
-            
-            await dbContext.Stocks.AddAsync(new StockEntity(stock) { Product = productEntity});
+
+            await dbContext.Stocks.AddAsync(new StockEntity(stock) {Product = productEntity});
             await dbContext.SaveChangesAsync();
             return stock;
         }
@@ -30,13 +30,12 @@ namespace ForkEat.Web.Database.Repositories
         public async Task<Stock> UpdateStock(Stock stock)
         {
             StockEntity stockEntity = await dbContext.Stocks.FirstAsync(entity => entity.Id == stock.Id);
-            
-            stockEntity.Id = stock.Id;
+
             stockEntity.Quantity = stock.Quantity;
             stockEntity.Unit = stock.Unit;
             stockEntity.BestBeforeDate = stock.BestBeforeDate;
             stockEntity.PurchaseDate = stock.PurchaseDate;
-            
+
             dbContext.Stocks.Update(stockEntity);
             await dbContext.SaveChangesAsync();
             return await FindStockById(stock.Id);
@@ -57,13 +56,13 @@ namespace ForkEat.Web.Database.Repositories
         {
             return new Stock(
                 entity.Id,
-                entity.Quantity, 
+                entity.Quantity,
                 entity.Unit,
                 new Product(
                     entity.Product.Id,
-                    entity.Product.Name, 
+                    entity.Product.Name,
                     entity.Product.ImageId)
-                )
+            )
             {
                 PurchaseDate = entity.PurchaseDate,
                 BestBeforeDate = entity.BestBeforeDate
@@ -105,6 +104,17 @@ namespace ForkEat.Web.Database.Repositories
                 .Stocks
                 .Include(stock => stock.Product)
                 .Include(stock => stock.Unit)
+                .Select(entity => CreateStockFromStockEntity(entity))
+                .ToListAsync();
+        }
+
+        public Task<List<Stock>> FindAllStocksByProductIds(List<Guid> productIds)
+        {
+            return dbContext
+                .Stocks
+                .Include(stock => stock.Product)
+                .Include(stock => stock.Unit)
+                .Where(stock => productIds.Contains(stock.Product.Id))
                 .Select(entity => CreateStockFromStockEntity(entity))
                 .ToListAsync();
         }

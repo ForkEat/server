@@ -18,19 +18,24 @@ namespace ForkEat.Core.Domain
             get => unit;
             set => unit = value ?? throw new ArgumentException("Ingredient Unit should not be null");
         }
-        private uint quantity;
+        private double quantity;
 
-        public uint Quantity
+        public double Quantity
         {
             get => quantity;
             set => quantity = value > 0 ? value : throw new ArgumentException("Ingredient Quantity should be positive");
         }
 
-        public Ingredient(uint quantity, Product product, Unit unit)
+        public Ingredient(double quantity, Product product, Unit unit)
         {
             Quantity = quantity;
             Product = product;
             Unit = unit;
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(Product)}: {Product.Name}, {nameof(Unit)}: {Unit.Name}";
         }
     }
 }
