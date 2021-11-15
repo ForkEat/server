@@ -22,8 +22,8 @@ namespace ForkEat.Core.Domain
 
         private Product product;
         public Product Product { get => product; set => product = value ?? throw new ArgumentException("Stock Product should not be null"); }
-        public DateTime BestBeforeDate { get; set; }
-        public DateTime PurchaseDate { get; set; }
+        public DateOnly BestBeforeDate { get; set; }
+        public DateOnly PurchaseDate { get; set; }
 
         public Stock(Guid id, double quantity, Unit unit, Product product)
         {

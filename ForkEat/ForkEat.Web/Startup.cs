@@ -51,7 +51,7 @@ namespace ForkEat.Web
 
             ConfigureAuth(services);
 
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers();//.AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ForkEat.Web", Version = "v1" });
