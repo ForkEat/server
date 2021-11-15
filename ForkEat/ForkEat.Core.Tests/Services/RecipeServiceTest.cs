@@ -21,7 +21,7 @@ namespace ForkEat.Core.Tests.Services
             var (product1, product2) = CreateProducts();
 
             var imageId = Guid.NewGuid();
-            var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
+            var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
 
 
             var recipeRequest = new CreateRecipeRequest()
@@ -48,8 +48,8 @@ namespace ForkEat.Core.Tests.Services
                 },
                 Ingredients = new List<CreateOrUpdateIngredientRequest>()
                 {
-                    new CreateOrUpdateIngredientRequest() { Quantity = 1, ProductId = product1.Id, UnitId = unit.Id },
-                    new CreateOrUpdateIngredientRequest() { Quantity = 2, ProductId = product2.Id, UnitId = unit.Id }
+                    new CreateOrUpdateIngredientRequest() {Quantity = 1, ProductId = product1.Id, UnitId = unit.Id},
+                    new CreateOrUpdateIngredientRequest() {Quantity = 2, ProductId = product2.Id, UnitId = unit.Id}
                 },
                 ImageId = imageId
             };
@@ -78,7 +78,8 @@ namespace ForkEat.Core.Tests.Services
                     [unit.Id] = unit,
                 }));
 
-            var service = new RecipeService(repoRecipeMock.Object, repoProductMock.Object, repoUnitMock.Object);
+            var service = new RecipeService(repoRecipeMock.Object, repoProductMock.Object, repoUnitMock.Object, null,
+                null);
 
             // When
             var result = await service.CreateRecipe(recipeRequest);
@@ -89,7 +90,7 @@ namespace ForkEat.Core.Tests.Services
             insertedRecipe.Difficulty.Should().Be(3);
             insertedRecipe.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 30));
             insertedRecipe.Steps.Should().HaveCount(3);
-            
+
             insertedRecipe.Steps[0].Id.Should().NotBeEmpty();
             insertedRecipe.Steps[0].Name.Should().Be("Test Step 1");
             insertedRecipe.Steps[0].Instructions.Should().Be("Test Step 1 instructions");
@@ -159,7 +160,7 @@ namespace ForkEat.Core.Tests.Services
             var (product1, product2) = CreateProducts();
             var imageId = Guid.NewGuid();
 
-            var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
+            var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
 
             var recipe1 = new Recipe(Guid.NewGuid(), "Test Recipe 1", 1, new List<Step>()
                 {
@@ -189,9 +190,9 @@ namespace ForkEat.Core.Tests.Services
             var repoRecipeMock = new Mock<IRecipeRepository>();
             repoRecipeMock
                 .Setup(mock => mock.GetAllRecipes())
-                .Returns(() => Task.FromResult(new List<Recipe>() { recipe1, recipe2 }));
+                .Returns(() => Task.FromResult(new List<Recipe>() {recipe1, recipe2}));
 
-            var service = new RecipeService(repoRecipeMock.Object, null, null);
+            var service = new RecipeService(repoRecipeMock.Object, null, null, null, null);
 
             // When
             var result = await service.GetRecipes();
@@ -220,7 +221,7 @@ namespace ForkEat.Core.Tests.Services
             // Given
             var (product1, product2) = CreateProducts();
 
-            var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
+            var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
 
 
             var recipe1 = new Recipe(Guid.NewGuid(), "Test Recipe 1", 1, new List<Step>()
@@ -240,7 +241,7 @@ namespace ForkEat.Core.Tests.Services
                 .Setup(mock => mock.GetRecipeById(recipe1.Id))
                 .Returns(() => Task.FromResult(recipe1));
 
-            var service = new RecipeService(repoRecipeMock.Object, null, null);
+            var service = new RecipeService(repoRecipeMock.Object, null, null, null, null);
 
             // When
             var result = await service.GetRecipeById(recipe1.Id);
@@ -281,7 +282,7 @@ namespace ForkEat.Core.Tests.Services
             var repoRecipeMock = new Mock<IRecipeRepository>();
             repoRecipeMock.Setup(mock => mock.DeleteRecipeById(recipeId));
 
-            var service = new RecipeService(repoRecipeMock.Object, null, null);
+            var service = new RecipeService(repoRecipeMock.Object, null, null, null, null);
 
             // When
             await service.DeleteRecipeById(recipeId);
@@ -296,7 +297,7 @@ namespace ForkEat.Core.Tests.Services
             // Given
             var (product1, product2) = CreateProducts();
 
-            var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
+            var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
 
 
             var recipe1 = new Recipe(Guid.NewGuid(), "Test Recipe 1", 1, new List<Step>()
@@ -330,7 +331,8 @@ namespace ForkEat.Core.Tests.Services
                     [unit.Id] = unit,
                 }));
 
-            var service = new RecipeService(repoRecipeMock.Object, repoProductMock.Object, repoUnitMock.Object);
+            var service = new RecipeService(repoRecipeMock.Object, repoProductMock.Object, repoUnitMock.Object, null,
+                null);
 
             // When
             GetRecipeWithStepsAndIngredientsResponse updatedRecipe = await service.UpdateRecipe(recipe1.Id,
@@ -341,7 +343,7 @@ namespace ForkEat.Core.Tests.Services
                     Ingredients = new List<CreateOrUpdateIngredientRequest>()
                     {
                         new CreateOrUpdateIngredientRequest()
-                            { ProductId = product1.Id, UnitId = unit.Id, Quantity = 3 },
+                            {ProductId = product1.Id, UnitId = unit.Id, Quantity = 3},
                     },
                     Steps = new List<CreateOrUpdateStepRequest>()
                     {
@@ -373,7 +375,7 @@ namespace ForkEat.Core.Tests.Services
             repoRecipeMock.Verify(mock => mock.InsertRecipe(It.IsAny<Recipe>()), Times.Once);
         }
 
-        private static (Product,Product) CreateProducts()
+        private static (Product, Product) CreateProducts()
         {
             var product1 = new Product(Guid.NewGuid(), "Product 1", Guid.NewGuid());
             var product2 = new Product(Guid.NewGuid(), "Product 2", Guid.NewGuid());
@@ -399,17 +401,69 @@ namespace ForkEat.Core.Tests.Services
                 .Returns<IList<Guid>>(ids =>
                 {
                     receivedIds = ids;
-                    return Task.FromResult(new List<Recipe>() { recipe } as IList<Recipe>);
+                    return Task.FromResult(new List<Recipe>() {recipe} as IList<Recipe>);
                 });
 
-            IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null);
+            IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null, null, null);
 
             // When
-            var result = await service.SearchRecipeByIngredients(new List<Guid> { recipe.Id });
-            
+            var result = await service.SearchRecipeByIngredients(new List<Guid> {recipe.Id});
+
             // Then
             result.Should().ContainSingle();
             result[0].Id.Should().Be(recipe.Id);
+        }
+
+        [Fact]
+        public async Task PerformRecipe_QueriesStockAndPassesItToKitchen()
+        {
+            // Given
+            var (product1, product2) = CreateProducts();
+            var imageId = Guid.NewGuid();
+
+            var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
+
+            var recipe = new Recipe(Guid.NewGuid(), "Test Recipe 1", 1, new List<Step>()
+            {
+                new Step(Guid.NewGuid(), "Test Step 1", "Test Step 1 Instructions", new TimeSpan(0, 1, 30)),
+                new Step(Guid.NewGuid(), "Test Step 2", "Test Step 2 Instructions", new TimeSpan(0, 1, 0)),
+                new Step(Guid.NewGuid(), "Test Step 3", "Test Step 3 Instructions", new TimeSpan(0, 1, 30))
+            }, new List<Ingredient>()
+            {
+                new Ingredient(1, product1, unit),
+                new Ingredient(2, product2, unit)
+            }, Guid.NewGuid());
+
+            var stock = new List<Stock>
+            {
+                new Stock(2, unit, product1),
+                new Stock(2, unit, product2)
+            };
+
+            var recipeRepoMock = new Mock<IRecipeRepository>();
+            recipeRepoMock.Setup(mock => mock.GetRecipeById(recipe.Id))
+                .Returns(() => Task.FromResult<Recipe>(recipe));
+
+            var stockRepoMock = new Mock<IStockRepository>();
+            var productIds = recipe.Ingredients.Select(i => i.Product.Id).ToList();
+            stockRepoMock.Setup(mock => mock.FindAllStocksByProductIds(productIds))
+                .Returns(() => Task.FromResult(stock));
+            stockRepoMock.Setup(mock => mock.UpdateStock(It.IsAny<Stock>()));
+
+            var kitchenMock = new Mock<IKitchen>();
+            kitchenMock.Setup(mock => mock.CookRecipeFromStock(recipe, stock));
+
+            IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null, stockRepoMock.Object,
+                kitchenMock.Object);
+
+            // When
+            await service.PerformRecipe(recipe.Id);
+
+            // Then
+            recipeRepoMock.Verify(mock => mock.GetRecipeById(recipe.Id), Times.Once);
+            stockRepoMock.Verify(mock => mock.FindAllStocksByProductIds(productIds), Times.Once);
+            stockRepoMock.Verify(mock => mock.UpdateStock(It.IsAny<Stock>()), Times.Exactly(2));
+            kitchenMock.Verify(mock => mock.CookRecipeFromStock(recipe, stock), Times.Once);
         }
     }
 }

@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Web.Database.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace ForkEat.Web.Tests.Integration
@@ -16,7 +18,7 @@ namespace ForkEat.Web.Tests.Integration
     public class RecipeTest : AuthenticatedTests
     {
         public RecipeTest(WebApplicationFactory<Startup> factory) : base(factory,
-            new string[] {"Stocks", "Recipes", "Steps", "Ingredients", "Products", "Units" })
+            new string[] {"Stocks", "Recipes", "Steps", "Ingredients", "Products", "Units"})
         {
         }
 
@@ -24,14 +26,14 @@ namespace ForkEat.Web.Tests.Integration
         public async Task CreateRecipe_Returns201()
         {
             // Given
-            var unit = new Unit() { Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg" };
+            var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
 
             await context.Units.AddAsync(unit);
             await context.SaveChangesAsync();
-            
+
             var (product1, product2) = await this.dataFactory.CreateAndInsertProducts();
-            
-            
+
+
             var recipeRequest = new CreateRecipeRequest()
             {
                 Name = "Test Recipe",
@@ -56,8 +58,8 @@ namespace ForkEat.Web.Tests.Integration
                 },
                 Ingredients = new List<CreateOrUpdateIngredientRequest>()
                 {
-                    new CreateOrUpdateIngredientRequest() { ProductId = product1.Id, Quantity = 1, UnitId = unit.Id },
-                    new CreateOrUpdateIngredientRequest() { ProductId = product2.Id, Quantity = 2, UnitId = unit.Id }
+                    new CreateOrUpdateIngredientRequest() {ProductId = product1.Id, Quantity = 1, UnitId = unit.Id},
+                    new CreateOrUpdateIngredientRequest() {ProductId = product2.Id, Quantity = 2, UnitId = unit.Id}
                 }
             };
 
@@ -192,15 +194,15 @@ namespace ForkEat.Web.Tests.Integration
             result[1].Difficulty.Should().Be(1);
             result[1].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
         }
-        
-                [Fact]
+
+        [Fact]
         public async Task GetRecipesWithIngredient_ReturnsExpectedRecipes()
         {
             // Given
             var (recipeEntity1, recipeEntity2) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
 
             var productId = recipeEntity1.Ingredients[1].Product.Id;
-            
+
             // When
             var response = await client.GetAsync($"/api/recipes?ingredients={productId}");
 
@@ -330,5 +332,71 @@ namespace ForkEat.Web.Tests.Integration
             result.Steps.Should().HaveCount(4);
             result.Ingredients[0].Quantity.Should().Be(3);
         }
+
+        [Fact]
+        public async Task PerformRecipe_ConsumesStock()
+        {
+            // Given
+            var milk = new Product("Milk", Guid.NewGuid());
+            var floor = new Product("Floor", Guid.NewGuid());
+            var egg = new Product("Eggs", Guid.NewGuid());
+            var milkEntity = new ProductEntity(milk);
+            var floorEntity = new ProductEntity(floor);
+            var eggEntity = new ProductEntity(egg);
+
+            await this.context.Products.AddRangeAsync(milkEntity, floorEntity, eggEntity);
+
+            var g = new Unit() {Id = Guid.NewGuid(), Name = "Gramme", Symbol = "g"};
+            var L = new Unit() {Id = Guid.NewGuid(), Name = "Litre", Symbol = "L"};
+            var n = new Unit() {Id = Guid.NewGuid(), Name = "Number", Symbol = ""};
+
+            await this.context.Units.AddRangeAsync(g, L, n);
+
+            var milkStock = new StockEntity(new Stock(1, L, milk)) {Product = milkEntity};
+            var floorStock = new StockEntity(new Stock(1000, g, floor)) {Product = floorEntity};
+            var eggStock = new StockEntity(new Stock(6, n, egg)) {Product = eggEntity};
+
+            await this.context.Stocks.AddRangeAsync(milkStock, floorStock, eggStock);
+            
+            var recipe = new RecipeEntity()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Pancakes",
+                Difficulty = 1,
+                Steps = new List<StepEntity>(),
+                Ingredients = new List<IngredientEntity>()
+                {
+                    new IngredientEntity()
+                    {
+                        Id = Guid.NewGuid(), Product = milkEntity, Quantity = 0.5, Unit = L, ProductId = milkEntity.Id
+                    },
+                    new IngredientEntity()
+                    {
+                        Id = Guid.NewGuid(), Product = floorEntity, Quantity = 250, Unit = g, ProductId = floorEntity.Id
+                    },
+                    new IngredientEntity()
+                        {Id = Guid.NewGuid(), Product = eggEntity, Quantity = 3, Unit = n, ProductId = eggEntity.Id}
+                },
+                ImageId = Guid.NewGuid()
+            };
+
+            await this.context.Recipes.AddAsync(recipe);
+            await this.context.SaveChangesAsync();
+            
+            // When
+            var response = await this.client.PostAsync($"/api/recipes/{recipe.Id}/perform", null);
+
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+            var milkStockFromDb = await this.client.GetFromJsonAsync<List<StockResponse>>($"api/products/{milkEntity.Id}/stock");
+            var floorStockFromDb = await this.client.GetFromJsonAsync<List<StockResponse>>($"api/products/{floorEntity.Id}/stock");
+            var eggStockFromDb = await this.client.GetFromJsonAsync<List<StockResponse>>($"api/products/{eggEntity.Id}/stock");
+
+            milkStockFromDb.First().Quantity.Should().Be(0.5);
+            floorStockFromDb.First().Quantity.Should().Be(750);
+            eggStockFromDb.First().Quantity.Should().Be(3);
+        }
+
     }
 }
