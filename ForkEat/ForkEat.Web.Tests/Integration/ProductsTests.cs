@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Web.Adapters.Json;
 using ForkEat.Web.Database.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
@@ -464,7 +465,7 @@ namespace ForkEat.Web.Tests.Integration
             
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            List<ProductStockResponse> result = await response.Content.ReadAsAsync<List<ProductStockResponse>>();
+            List<ProductStockResponse> result = await response.Content.ReadAsAsync<List<ProductStockResponse>>(Formatters);
 
             result.Should().HaveCount(2);
 
