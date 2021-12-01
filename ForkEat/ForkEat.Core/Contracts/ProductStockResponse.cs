@@ -10,8 +10,8 @@ namespace ForkEat.Core.Contracts
         public GetProductResponse Product { get; set; }
         public Unit Unit { get; set; }
         public double Quantity { get; set; }
-        public DateTime BestBeforeDate { get; set; }
-        public DateTime PurchaseDate { get; set; }
+        public DateOnly BestBeforeDate { get; set; }
+        public DateOnly PurchaseDate { get; set; }
         
         public ProductStockResponse()
         {
