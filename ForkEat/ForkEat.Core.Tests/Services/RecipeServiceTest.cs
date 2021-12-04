@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Core.Exceptions;
 using ForkEat.Core.Repositories;
 using ForkEat.Core.Services;
 using Moq;
@@ -79,7 +80,7 @@ namespace ForkEat.Core.Tests.Services
                 }));
 
             var service = new RecipeService(repoRecipeMock.Object, repoProductMock.Object, repoUnitMock.Object, null,
-                null);
+                null, null);
 
             // When
             var result = await service.CreateRecipe(recipeRequest);
@@ -159,6 +160,7 @@ namespace ForkEat.Core.Tests.Services
             // Given
             var (product1, product2) = CreateProducts();
             var imageId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
 
             var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
 
@@ -192,10 +194,22 @@ namespace ForkEat.Core.Tests.Services
                 .Setup(mock => mock.GetAllRecipes())
                 .Returns(() => Task.FromResult(new List<Recipe>() {recipe1, recipe2}));
 
-            var service = new RecipeService(repoRecipeMock.Object, null, null, null, null);
+            var repoLikeMock = new Mock<ILikeRepository>();
+            repoLikeMock
+                .Setup(mock => mock.GetLikes(userId, new List<Guid>
+                {
+                    recipe1.Id,
+                    recipe2.Id
+                }))
+                .Returns(() => Task.FromResult(new List<Guid>
+                {
+                    recipe1.Id
+                }));
+
+            var service = new RecipeService(repoRecipeMock.Object, null, null, repoLikeMock.Object, null, null);
 
             // When
-            var result = await service.GetRecipes();
+            var result = await service.GetRecipes(userId);
 
             // Then
             result.Should().HaveCount(2);
@@ -220,6 +234,7 @@ namespace ForkEat.Core.Tests.Services
         {
             // Given
             var (product1, product2) = CreateProducts();
+            var userId = Guid.NewGuid();
 
             var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
 
@@ -241,10 +256,15 @@ namespace ForkEat.Core.Tests.Services
                 .Setup(mock => mock.GetRecipeById(recipe1.Id))
                 .Returns(() => Task.FromResult(recipe1));
 
-            var service = new RecipeService(repoRecipeMock.Object, null, null, null, null);
+            var repoLikeMock = new Mock<ILikeRepository>();
+            repoLikeMock
+                .Setup(mock => mock.GetLike(userId, recipe1.Id))
+                .Returns(() => Task.FromResult(true));
+
+            var service = new RecipeService(repoRecipeMock.Object, null, null, repoLikeMock.Object, null, null);
 
             // When
-            var result = await service.GetRecipeById(recipe1.Id);
+            var result = await service.GetRecipeById(recipe1.Id, userId);
 
             // Then
 
@@ -282,7 +302,7 @@ namespace ForkEat.Core.Tests.Services
             var repoRecipeMock = new Mock<IRecipeRepository>();
             repoRecipeMock.Setup(mock => mock.DeleteRecipeById(recipeId));
 
-            var service = new RecipeService(repoRecipeMock.Object, null, null, null, null);
+            var service = new RecipeService(repoRecipeMock.Object, null, null, null, null, null);
 
             // When
             await service.DeleteRecipeById(recipeId);
@@ -332,7 +352,7 @@ namespace ForkEat.Core.Tests.Services
                 }));
 
             var service = new RecipeService(repoRecipeMock.Object, repoProductMock.Object, repoUnitMock.Object, null,
-                null);
+                null, null);
 
             // When
             GetRecipeWithStepsAndIngredientsResponse updatedRecipe = await service.UpdateRecipe(recipe1.Id,
@@ -404,7 +424,7 @@ namespace ForkEat.Core.Tests.Services
                     return Task.FromResult(new List<Recipe>() {recipe} as IList<Recipe>);
                 });
 
-            IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null, null, null);
+            IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null, null, null, null);
 
             // When
             var result = await service.SearchRecipeByIngredients(new List<Guid> {recipe.Id});
@@ -453,8 +473,7 @@ namespace ForkEat.Core.Tests.Services
             var kitchenMock = new Mock<IKitchen>();
             kitchenMock.Setup(mock => mock.CookRecipeFromStock(recipe, stock));
 
-            IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null, stockRepoMock.Object,
-                kitchenMock.Object);
+            IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null, null, stockRepoMock.Object, kitchenMock.Object);
 
             // When
             await service.PerformRecipe(recipe.Id);
@@ -464,6 +483,84 @@ namespace ForkEat.Core.Tests.Services
             stockRepoMock.Verify(mock => mock.FindAllStocksByProductIds(productIds), Times.Once);
             stockRepoMock.Verify(mock => mock.UpdateStock(It.IsAny<Stock>()), Times.Exactly(2));
             kitchenMock.Verify(mock => mock.CookRecipeFromStock(recipe, stock), Times.Once);
+        }
+
+        [Fact]
+        public async Task LikeRecipe_UpdateIsLiked()
+        {
+            //Given
+            var recipeId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            var repoRecipeMock = new Mock<IRecipeRepository>();
+            var repoLikeMock = new Mock<ILikeRepository>();
+            repoLikeMock.Setup(mock => mock.LikeRecipe(userId, recipeId)).Returns<Guid, Guid>((_, _) => Task.FromResult(true));
+            repoLikeMock.Setup(mock => mock.GetLike(userId, recipeId)).Returns<Guid, Guid>((_, _) => Task.FromResult(true));
+            repoRecipeMock.Setup(mock => mock.GetRecipeById(recipeId)).Returns<Guid>( _ =>
+                Task.FromResult(new Recipe(recipeId, "recipe", 0, new List<Step>(), new List<Ingredient>(), Guid.Empty)));
+
+            var service = new RecipeService(repoRecipeMock.Object, null, null, repoLikeMock.Object, null, null);
+
+            // When
+            var result = await service.LikeRecipe(userId, recipeId);
+
+            // Then
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task LikeRecipe_WithUnExistingRecipe_ThrowsException()
+        {
+            //Given
+            var recipeId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            var repoRecipeMock = new Mock<IRecipeRepository>();
+            var repoLikeMock = new Mock<ILikeRepository>();
+            repoRecipeMock.Setup(mock => mock.GetRecipeById(recipeId)).Returns<Guid>( _ => Task.FromResult<Recipe>(null));
+
+            var service = new RecipeService(repoRecipeMock.Object, null, null, repoLikeMock.Object, null, null);
+
+            // When / Then
+            repoLikeMock.Verify(mock => mock.LikeRecipe(userId, recipeId), Times.Never);
+            await service.Invoking(_ => service.LikeRecipe(userId, recipeId))
+                .Should().ThrowAsync<RecipeNotFoundException>();
+        }
+
+        [Fact]
+        public async Task UnlikeRecipe_UpdateIsUnliked()
+        {
+            //Given
+            var recipeId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            var repoLikeMock = new Mock<ILikeRepository>();
+            var repoRecipeMock = new Mock<IRecipeRepository>();
+            repoLikeMock.Setup(mock => mock.UnlikeRecipe(userId, recipeId)).Returns<Guid, Guid>((_, _) => Task.CompletedTask);
+            repoLikeMock.Setup(mock => mock.GetLike(userId, recipeId)).Returns<Guid, Guid>((_, _) => Task.FromResult<bool>(true));
+            repoRecipeMock.Setup(mock => mock.GetRecipeById(recipeId)).Returns<Guid>( _ =>
+                Task.FromResult(new Recipe(recipeId, "recipe", 0, new List<Step>(), new List<Ingredient>(), Guid.Empty)));
+            var service = new RecipeService(repoRecipeMock.Object, null, null, repoLikeMock.Object, null, null);
+
+            // When
+            await service.UnlikeRecipe(userId, recipeId);
+
+            // Then
+            repoLikeMock.Verify(mock => mock.UnlikeRecipe(userId, recipeId), Times.Once);
+        }
+
+        [Fact]
+        public async Task UnlikeRecipe_WithUnExistingRecipe_ThrowsException()
+        {
+            //Given
+            var recipeId = Guid.NewGuid();
+            var repoRecipeMock = new Mock<IRecipeRepository>();
+            var repoLikeMock = new Mock<ILikeRepository>();
+            repoRecipeMock.Setup(mock => mock.GetRecipeById(recipeId)).Returns<Guid>( _ => Task.FromResult<Recipe>(null));
+            var service = new RecipeService(repoRecipeMock.Object, null, null, repoLikeMock.Object, null, null);
+            var userId = Guid.NewGuid();
+
+            // When / Then
+            repoLikeMock.Verify(mock => mock.UnlikeRecipe(userId, recipeId), Times.Never);
+            await service.Invoking(_ => service.UnlikeRecipe(userId, recipeId))
+                .Should().ThrowAsync<RecipeNotFoundException>();
         }
     }
 }

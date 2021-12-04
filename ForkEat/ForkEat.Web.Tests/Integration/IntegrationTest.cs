@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Threading.Tasks;
 using ForkEat.Core.Contracts;
+using ForkEat.Web.Adapters.Json;
 using ForkEat.Web.Database;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,10 +16,12 @@ namespace ForkEat.Web.Tests.Integration
     {
         protected HttpClient client;
         private readonly WebApplicationFactory<Startup> factory;
-
+        protected readonly MediaTypeFormatterCollection Formatters = new MediaTypeFormatterCollection(); 
+        
         protected IntegrationTest(WebApplicationFactory<Startup> factory, IList<string> tableToClear) : base(tableToClear)
         {
             this.factory = factory;
+            Formatters.JsonFormatter.SerializerSettings.Converters.Add(new DateOnlyJsonConverter());
         }
 
         public override ApplicationDbContext GetDbContext()

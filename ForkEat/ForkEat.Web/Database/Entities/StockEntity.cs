@@ -11,8 +11,8 @@ namespace ForkEat.Web.Database.Entities
         public double Quantity { get; set; }
         public Unit Unit { get; set; }
         public ProductEntity Product { get; set; }
-        public DateTime BestBeforeDate { get; set; }
-        public DateTime PurchaseDate { get; set; }
+        public DateOnly BestBeforeDate { get; set; }
+        public DateOnly PurchaseDate { get; set; }
 
         public StockEntity()
         {

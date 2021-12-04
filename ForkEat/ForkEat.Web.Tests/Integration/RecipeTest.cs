@@ -18,7 +18,7 @@ namespace ForkEat.Web.Tests.Integration
     public class RecipeTest : AuthenticatedTests
     {
         public RecipeTest(WebApplicationFactory<Startup> factory) : base(factory,
-            new string[] {"Stocks", "Recipes", "Steps", "Ingredients", "Products", "Units"})
+            new string[] {"Likes", "Stocks", "Recipes", "Steps", "Ingredients", "Products", "Units"})
         {
         }
 
@@ -334,6 +334,41 @@ namespace ForkEat.Web.Tests.Integration
         }
 
         [Fact]
+        public async Task LikeRecipe_UpdatesIsLiked()
+        {
+            // Given
+            var (recipeEntity1, _) = await dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
+
+            // When
+            var likeResponse = await client.PostAsync($"/api/recipes/{recipeEntity1.Id}/like", null!);
+
+            // Then
+            likeResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+            var getResponse = await client.GetAsync($"/api/recipes/{recipeEntity1.Id}");
+            var getResult = await getResponse.Content.ReadAsAsync<GetRecipeWithStepsAndIngredientsResponse>();
+            getResult.IsLiked.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task UnlikeRecipe_UpdatesIsLiked()
+        {
+            // Given
+            var (recipeEntity1, _) = await dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
+            await client.PostAsync($"/api/recipes/{recipeEntity1.Id}/like", null!);
+
+            // When
+            var unlikeResponse = await client.DeleteAsync($"/api/recipes/{recipeEntity1.Id}/like");
+
+            // Then
+            unlikeResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            var getResponse = await client.GetAsync($"/api/recipes/{recipeEntity1.Id}");
+            var getResult = await getResponse.Content.ReadAsAsync<GetRecipeWithStepsAndIngredientsResponse>();
+            getResult.IsLiked.Should().BeFalse();
+        }
+
+        [Fact]
         public async Task PerformRecipe_ConsumesStock()
         {
             // Given
@@ -357,7 +392,7 @@ namespace ForkEat.Web.Tests.Integration
             var eggStock = new StockEntity(new Stock(6, n, egg)) {Product = eggEntity};
 
             await this.context.Stocks.AddRangeAsync(milkStock, floorStock, eggStock);
-            
+
             var recipe = new RecipeEntity()
             {
                 Id = Guid.NewGuid(),
@@ -382,7 +417,7 @@ namespace ForkEat.Web.Tests.Integration
 
             await this.context.Recipes.AddAsync(recipe);
             await this.context.SaveChangesAsync();
-            
+
             // When
             var response = await this.client.PostAsync($"/api/recipes/{recipe.Id}/perform", null);
 

@@ -262,8 +262,8 @@ namespace ForkEat.Core.Tests.Services
                 Symbol = "kg"
             };
 
-            var stock1 = new Stock(4, unit, product1){ PurchaseDate = DateTime.Today, BestBeforeDate = DateTime.Today.AddDays(2)};
-            var stock2 = new Stock(2, unit, product2){ PurchaseDate = DateTime.Today, BestBeforeDate = DateTime.Today.AddDays(4)};
+            var stock1 = new Stock(4, unit, product1){ PurchaseDate = DateOnly.FromDateTime(DateTime.Today), BestBeforeDate = DateOnly.FromDateTime(DateTime.Today.AddDays(2))};
+            var stock2 = new Stock(2, unit, product2){ PurchaseDate = DateOnly.FromDateTime(DateTime.Today), BestBeforeDate = DateOnly.FromDateTime(DateTime.Today.AddDays(4))};
 
             var stockRepoMock = new Mock<IStockRepository>();
             stockRepoMock.Setup(mock => mock.FindAllStocks())
@@ -286,8 +286,8 @@ namespace ForkEat.Core.Tests.Services
             stockProduct1.Unit.Id.Should().Be(unit.Id);
             stockProduct1.Unit.Name.Should().Be(unit.Name);
             stockProduct1.Unit.Symbol.Should().Be(unit.Symbol);
-            stockProduct1.BestBeforeDate.Should().Be(DateTime.Today.AddDays(2));
-            stockProduct1.PurchaseDate.Should().Be(DateTime.Today);
+            stockProduct1.BestBeforeDate.Should().Be(DateOnly.FromDateTime(DateTime.Today.AddDays(2)));
+            stockProduct1.PurchaseDate.Should().Be(DateOnly.FromDateTime(DateTime.Today.Date));
 
             stockProduct2.Product.Name.Should().Be(product2.Name);
             stockProduct2.Product.ImageId.Should().Be(product2.ImageId);
@@ -295,8 +295,8 @@ namespace ForkEat.Core.Tests.Services
             stockProduct2.Unit.Id.Should().Be(unit.Id);
             stockProduct2.Unit.Name.Should().Be(unit.Name);
             stockProduct2.Unit.Symbol.Should().Be(unit.Symbol);
-            stockProduct2.BestBeforeDate.Should().Be(DateTime.Today.AddDays(4));
-            stockProduct2.PurchaseDate.Should().Be(DateTime.Today);
+            stockProduct2.BestBeforeDate.Should().Be(DateOnly.FromDateTime(DateTime.Today.AddDays(4)));
+            stockProduct2.PurchaseDate.Should().Be(DateOnly.FromDateTime(DateTime.Today));
         }
     }
 }
