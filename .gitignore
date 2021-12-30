@@ -5,3 +5,4 @@ ForkEat/ForkEat.sln.DotSettings.user
 ForkEat/ForkEat.Web/Properties/launchSettings.json
 ForkEat/.sonarqube
 ForkEat/.vs
+ForkEat/ForkEat.MassImporter/RAW_recipes.csv
