@@ -34,10 +34,6 @@ namespace ForkEat.Core.Domain
             set => difficulty = value <= 5 ? value : throw new ArgumentException("Recipe difficulty should be between 0 and 5");
         }
 
-        public Recipe()
-        {
-        }
-
         public Recipe(Guid id, string name,uint difficulty, IList<Step> steps, List<Ingredient> ingredients, Guid imageId)
         {
             this.Id = id;
