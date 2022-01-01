@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ForkEat.Core.Domain;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Repositories;
 using ForkEat.Web.Database.Entities;

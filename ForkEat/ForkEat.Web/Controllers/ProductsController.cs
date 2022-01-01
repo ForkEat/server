@@ -7,7 +7,6 @@ using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
-using ForkEat.Web.Adapters;
 using ForkEat.Web.Adapters.Files;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

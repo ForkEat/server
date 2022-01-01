@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
-using ForkEat.Web.Database;
 using ForkEat.Web.Database.Entities;
 using ForkEat.Web.Database.Repositories;
 using Microsoft.EntityFrameworkCore;

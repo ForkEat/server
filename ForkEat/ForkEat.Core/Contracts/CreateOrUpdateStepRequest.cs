@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ForkEat.Core.Contracts
+﻿namespace ForkEat.Core.Contracts
 {
     public class CreateOrUpdateStepRequest
     {

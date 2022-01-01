@@ -10,7 +10,6 @@ using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Web.Database.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace ForkEat.Web.Tests.Integration

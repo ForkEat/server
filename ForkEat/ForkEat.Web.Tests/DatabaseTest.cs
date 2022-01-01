@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using ForkEat.Web.Database;
 using ForkEat.Web.Tests.TestAssets;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Xunit;
 
 namespace ForkEat.Web.Tests

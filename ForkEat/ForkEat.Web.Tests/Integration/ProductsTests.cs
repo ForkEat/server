@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,11 +8,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
-using ForkEat.Web.Adapters.Json;
 using ForkEat.Web.Database.Entities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using Newtonsoft.Json;
 using Xunit;
 
