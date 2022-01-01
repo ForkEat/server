@@ -2,11 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BrunoZell.ModelBinding;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
+using ForkEat.Web.Adapters;
+using ForkEat.Web.Adapters.Files;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForkEat.Web.Controllers
@@ -17,21 +21,29 @@ namespace ForkEat.Web.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService productService;
-
         private readonly IStockService stockService;
+        private readonly DbFileService dbFileService;
 
-        public ProductsController(IProductService productService, IStockService stockService)
+        public ProductsController(IProductService productService, IStockService stockService, DbFileService dbFileService)
         {
             this.productService = productService;
             this.stockService = stockService;
+            this.dbFileService = dbFileService;
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct([FromBody] CreateUpdateProductRequest createUpdateProductRequest)
+        public async Task<ActionResult<Product>> CreateProduct(
+            [ModelBinder(BinderType = typeof(JsonModelBinder))]
+            CreateUpdateProductRequest payload,
+            IFormFile image
+        )
         {
-            return Created("", await productService.CreateProduct(createUpdateProductRequest));
+            DbFileResponse dbImage = await dbFileService.InsertFileInDb(image);
+            payload.ImageId = dbImage.Id;
+            
+            return Created("", await productService.CreateProduct(payload));
         }
-        
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<Product>> DeleteProduct(Guid id)
         {
@@ -46,9 +58,10 @@ namespace ForkEat.Web.Controllers
 
             return Ok();
         }
-        
+
         [HttpPut("{id}")]
-        public async Task<ActionResult<GetProductResponse>> UpdateProduct(Guid id, [FromBody] CreateUpdateProductRequest product)
+        public async Task<ActionResult<GetProductResponse>> UpdateProduct(Guid id,
+            [FromBody] CreateUpdateProductRequest product)
         {
             try
             {
@@ -59,9 +72,8 @@ namespace ForkEat.Web.Controllers
             {
                 return NotFound("Product with id: " + id + " was not found");
             }
-
         }
-        
+
         [HttpGet("{id}")]
         public async Task<ActionResult<GetProductResponse>> GetProductById(Guid id)
         {
@@ -76,15 +88,16 @@ namespace ForkEat.Web.Controllers
                 return NotFound("Product with id: " + id + " was not found");
             }
         }
-        
+
         [HttpGet]
-        public async Task<IList<GetProductResponse >> GetAllProducts()
+        public async Task<IList<GetProductResponse>> GetAllProducts()
         {
             return await productService.GetAllProducts();
         }
 
         [HttpPut("{id}/stock")]
-        public async Task<ActionResult<StockResponse>> CreateOrUpdateStock(Guid id, [FromBody] CreateUpdateStockRequest stock)
+        public async Task<ActionResult<StockResponse>> CreateOrUpdateStock(Guid id,
+            [FromBody] CreateUpdateStockRequest stock)
         {
             try
             {

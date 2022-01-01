@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using ForkEat.Core.Domain;
 using ForkEat.Core.Repositories;
@@ -49,6 +50,7 @@ namespace ForkEat.Web
             services.AddScoped<IStockRepository, StockRepository>();
             services.AddScoped<ILikeRepository, LikeRepository>();
             services.AddScoped<IKitchen, Kitchen>();
+            services.AddScoped<DbFileService>();
 
 
             ConfigureAuth(services);
@@ -58,9 +60,34 @@ namespace ForkEat.Web
                 {
                     options.SerializerSettings.Converters.Add(new DateOnlyJsonConverter());
                 });
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(swaggerGenOptions =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ForkEat.Web", Version = "v1" });
+                swaggerGenOptions.SwaggerDoc("v1", new OpenApiInfo {Title = "ForkEat.Web", Version = "v1"});
+                swaggerGenOptions.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Description = "JWT Bearer Authorization",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+                swaggerGenOptions.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 
