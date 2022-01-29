@@ -201,10 +201,10 @@ public class RecipeTest : AuthenticatedTests
         // Given
         var (recipeEntity1, recipeEntity2) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
 
-        var productId = recipeEntity1.Ingredients[1].Product.Id;
+        var product = recipeEntity1.Ingredients[1].Product.Name;
 
         // When
-        var response = await client.GetAsync($"/api/recipes?ingredients={productId}");
+        var response = await client.GetAsync($"/api/recipes?ingredients={product}");
 
         // Then
         response.StatusCode.Should().Be(HttpStatusCode.OK);
