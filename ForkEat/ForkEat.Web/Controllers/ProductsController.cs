@@ -33,7 +33,7 @@ namespace ForkEat.Web.Controllers
         }
         
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Product>> DeleteProduct(Guid id)
+        public async Task<IActionResult> DeleteProduct(Guid id)
         {
             try
             {
