@@ -1,25 +1,24 @@
 ﻿using System;
 using ForkEat.Core.Domain;
 
-namespace ForkEat.Core.Contracts
+namespace ForkEat.Core.Contracts;
+
+public class GetProductResponse
 {
-    public class GetProductResponse
+
+
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public Guid ImageId { get; set; }
+
+    public GetProductResponse()
     {
+    }
 
-
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public Guid ImageId { get; set; }
-
-        public GetProductResponse()
-        {
-        }
-
-        public GetProductResponse(Product product)
-        {
-            Id = product.Id;
-            Name = product.Name;
-            ImageId = product.ImageId;
-        }
+    public GetProductResponse(Product product)
+    {
+        Id = product.Id;
+        Name = product.Name;
+        ImageId = product.ImageId;
     }
 }

@@ -6,106 +6,105 @@ using ForkEat.Web.Database.Entities;
 using ForkEat.Web.Database.Repositories;
 using Xunit;
 
-namespace ForkEat.Web.Tests.Repositories
+namespace ForkEat.Web.Tests.Repositories;
+
+public class LikeRepositoryTests : RepositoryTest
 {
-    public class LikeRepositoryTests : RepositoryTest
+    public LikeRepositoryTests() : base(new string[] { "Likes", "Recipes", "Users"})
     {
-        public LikeRepositoryTests() : base(new string[] { "Likes", "Recipes", "Users"})
+    }
+
+    [Fact]
+    public async Task LikeRecipe_ReturnsTrue()
+    {
+        // Given
+        var userId = Guid.NewGuid();
+        var recipeId = Guid.NewGuid();
+
+        var user = new User()
         {
-        }
+            Id = userId
+        };
 
-        [Fact]
-        public async Task LikeRecipe_ReturnsTrue()
+        var recipe = new RecipeEntity()
         {
-            // Given
-            var userId = Guid.NewGuid();
-            var recipeId = Guid.NewGuid();
+            Id = recipeId
+        };
 
-            var user = new User()
-            {
-                Id = userId
-            };
+        await context.Users.AddAsync(user);
+        await context.Recipes.AddAsync(recipe);
+        await context.SaveChangesAsync();
 
-            var recipe = new RecipeEntity()
-            {
-                Id = recipeId
-            };
+        var repository = new LikeRepository(context);
 
-            await context.Users.AddAsync(user);
-            await context.Recipes.AddAsync(recipe);
-            await context.SaveChangesAsync();
+        // When
+        var result = await repository.LikeRecipe(userId, recipeId);
 
-            var repository = new LikeRepository(context);
+        // Then
+        result.Should().BeTrue();
+    }
 
-            // When
-            var result = await repository.LikeRecipe(userId, recipeId);
+    [Fact]
+    public async Task UnlikeRecipe_Ok()
+    {
+        // Given
+        var userId = Guid.NewGuid();
+        var recipeId = Guid.NewGuid();
 
-            // Then
-            result.Should().BeTrue();
-        }
-
-        [Fact]
-        public async Task UnlikeRecipe_Ok()
+        var user = new User()
         {
-            // Given
-            var userId = Guid.NewGuid();
-            var recipeId = Guid.NewGuid();
+            Id = userId
+        };
 
-            var user = new User()
-            {
-                Id = userId
-            };
-
-            var recipe = new RecipeEntity()
-            {
-                Id = recipeId
-            };
-
-            await context.Users.AddAsync(user);
-            await context.Recipes.AddAsync(recipe);
-            await context.SaveChangesAsync();
-
-            var repository = new LikeRepository(context);
-            await repository.LikeRecipe(userId, recipeId);
-            context.Likes.Should().HaveCount(1);
-
-            // When
-            await repository.UnlikeRecipe(userId, recipeId);
-
-            // Then
-            context.Likes.Should().BeEmpty();
-        }
-
-        [Fact]
-        public async Task IsRecipeAlreadyLiked_ReturnsTrue()
+        var recipe = new RecipeEntity()
         {
-            // Given
-            var userId = Guid.NewGuid();
-            var recipeId = Guid.NewGuid();
+            Id = recipeId
+        };
 
-            var user = new User()
-            {
-                Id = userId
-            };
+        await context.Users.AddAsync(user);
+        await context.Recipes.AddAsync(recipe);
+        await context.SaveChangesAsync();
 
-            var recipe = new RecipeEntity()
-            {
-                Id = recipeId
-            };
+        var repository = new LikeRepository(context);
+        await repository.LikeRecipe(userId, recipeId);
+        context.Likes.Should().HaveCount(1);
 
-            await context.Users.AddAsync(user);
-            await context.Recipes.AddAsync(recipe);
-            await context.SaveChangesAsync();
+        // When
+        await repository.UnlikeRecipe(userId, recipeId);
 
-            var repository = new LikeRepository(context);
-            await repository.LikeRecipe(userId, recipeId);
-            context.Likes.Should().HaveCount(1);
+        // Then
+        context.Likes.Should().BeEmpty();
+    }
 
-            // When
-            var result = await repository.GetLike(userId, recipeId);
+    [Fact]
+    public async Task IsRecipeAlreadyLiked_ReturnsTrue()
+    {
+        // Given
+        var userId = Guid.NewGuid();
+        var recipeId = Guid.NewGuid();
 
-            // Then
-            result.Should().BeTrue();
-        }
+        var user = new User()
+        {
+            Id = userId
+        };
+
+        var recipe = new RecipeEntity()
+        {
+            Id = recipeId
+        };
+
+        await context.Users.AddAsync(user);
+        await context.Recipes.AddAsync(recipe);
+        await context.SaveChangesAsync();
+
+        var repository = new LikeRepository(context);
+        await repository.LikeRecipe(userId, recipeId);
+        context.Likes.Should().HaveCount(1);
+
+        // When
+        var result = await repository.GetLike(userId, recipeId);
+
+        // Then
+        result.Should().BeTrue();
     }
 }

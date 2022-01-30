@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace ForkEat.Core.Contracts
+namespace ForkEat.Core.Contracts;
+
+public class UpdateRecipeRequest : CreateRecipeRequest
 {
-    public class UpdateRecipeRequest : CreateRecipeRequest
-    {
-        public Guid Id { get; set; }
+    public Guid Id { get; set; }
         
-    }
 }

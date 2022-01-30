@@ -9,221 +9,220 @@ using ForkEat.Core.Domain;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace ForkEat.Web.Tests.Integration
-{
-    public class UnitTests : AuthenticatedTests
-    {
-        public UnitTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Stocks","Units"})
-        {
-        }
+namespace ForkEat.Web.Tests.Integration;
 
-        [Fact]
-        public async Task CreateUnit_withValidParams_Returns201()
+public class UnitTests : AuthenticatedTests
+{
+    public UnitTests(WebApplicationFactory<Startup> factory) : base(factory, new string[]{"Stocks","Units"})
+    {
+    }
+
+    [Fact]
+    public async Task CreateUnit_withValidParams_Returns201()
+    {
+        var unitName = "kilogram";
+        var unitSymbol = "kg";
+            
+        // Given
+            
+        var createUpdateUnitRequest = new CreateUpdateUnitRequest()
         {
-            var unitName = "kilogram";
-            var unitSymbol = "kg";
-            
-            // Given
-            
-            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
-            {
-                Name = unitName,
-                Symbol = unitSymbol
-            };
+            Name = unitName,
+            Symbol = unitSymbol
+        };
         
-            // When
-            var response = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+        // When
+        var response = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
         
-            // Then
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
-            var result = await response.Content.ReadAsAsync<Unit>();
-            result.Id.Should().NotBe(Guid.Empty);
-            result.Name.Should().Be(unitName);
-            result.Symbol.Should().Be(unitSymbol);
-        }
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var result = await response.Content.ReadAsAsync<Unit>();
+        result.Id.Should().NotBe(Guid.Empty);
+        result.Name.Should().Be(unitName);
+        result.Symbol.Should().Be(unitSymbol);
+    }
         
-        [Fact]
-        public async Task GetUnitById_WithExistingUnit_Returns200()
+    [Fact]
+    public async Task GetUnitById_WithExistingUnit_Returns200()
+    {
+        var unitName = "kilogram";
+        var unitSymbol = "kg";
+        var createUpdateUnitRequest = new CreateUpdateUnitRequest()
         {
-            var unitName = "kilogram";
-            var unitSymbol = "kg";
-            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
-            {
-                Name = unitName,
-                Symbol = unitSymbol
-            };
+            Name = unitName,
+            Symbol = unitSymbol
+        };
             
-            // Given
+        // Given
             
-            var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
-            var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
-            var unitId = createdUnitResult.Id;
+        var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+        var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
+        var unitId = createdUnitResult.Id;
             
-            // When
-            var response = await client.GetAsync("/api/units/" + unitId);
+        // When
+        var response = await client.GetAsync("/api/units/" + unitId);
             
-            // Then
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = await response.Content.ReadAsAsync<Unit>();
-            result.Id.Should().Be(unitId);
-            result.Name.Should().Be(unitName);
-            result.Symbol.Should().Be(unitSymbol);
-        }
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var result = await response.Content.ReadAsAsync<Unit>();
+        result.Id.Should().Be(unitId);
+        result.Name.Should().Be(unitName);
+        result.Symbol.Should().Be(unitSymbol);
+    }
         
-        [Fact]
-        public async Task GetUnitById_WithNonExistingUnit_Returns404()
+    [Fact]
+    public async Task GetUnitById_WithNonExistingUnit_Returns404()
+    {
+        var unitName = "kilogram";
+        var unitSymbol = "kg";
+        var createUpdateUnitRequest = new CreateUpdateUnitRequest()
         {
-            var unitName = "kilogram";
-            var unitSymbol = "kg";
-            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
-            {
-                Name = unitName,
-                Symbol = unitSymbol
-            };
+            Name = unitName,
+            Symbol = unitSymbol
+        };
             
-            // Given
+        // Given
             
-            await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+        await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             
-            // When
-            var response = await client.GetAsync("/api/units/" + Guid.NewGuid());
+        // When
+        var response = await client.GetAsync("/api/units/" + Guid.NewGuid());
             
-            // Then
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
         
-        [Fact]
-        public async Task GetAllUnit_Returns200()
+    [Fact]
+    public async Task GetAllUnit_Returns200()
+    {
+        var createUpdateUnitRequest = new CreateUpdateUnitRequest()
         {
-            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
-            {
-                Name = "kilogram",
-                Symbol = "kg"
-            };
+            Name = "kilogram",
+            Symbol = "kg"
+        };
             
-            var createUpdateUnitRequest2 = new CreateUpdateUnitRequest()
-            {
-                Name = "unit",
-                Symbol = "ut"
-            };
+        var createUpdateUnitRequest2 = new CreateUpdateUnitRequest()
+        {
+            Name = "unit",
+            Symbol = "ut"
+        };
             
-            // Given
+        // Given
             
-            await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
-            await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest2);
+        await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+        await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest2);
             
-            // When
-            var response = await client.GetAsync("/api/units");
+        // When
+        var response = await client.GetAsync("/api/units");
             
-            // Then
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = await response.Content.ReadAsAsync<IEnumerable<Unit>>();
-            result.Should().HaveCount(2);
-        }
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var result = await response.Content.ReadAsAsync<IEnumerable<Unit>>();
+        result.Should().HaveCount(2);
+    }
         
-        [Fact]
-        public async Task DeleteUnit_WithExistingUnit_Returns200()
+    [Fact]
+    public async Task DeleteUnit_WithExistingUnit_Returns200()
+    {
+        var unitName = "kilogram";
+        var unitSymbol = "kg";
+        var createUpdateUnitRequest = new CreateUpdateUnitRequest()
         {
-            var unitName = "kilogram";
-            var unitSymbol = "kg";
-            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
-            {
-                Name = unitName,
-                Symbol = unitSymbol
-            };
+            Name = unitName,
+            Symbol = unitSymbol
+        };
             
-            // Given
+        // Given
             
-            var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
-            var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
-            var unitId = createdUnitResult.Id;
+        var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+        var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
+        var unitId = createdUnitResult.Id;
             
-            // When
-            var response = await client.DeleteAsync("/api/units/" + unitId);
+        // When
+        var response = await client.DeleteAsync("/api/units/" + unitId);
             
-            // Then
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResponse = await client.GetAsync("/api/unit/" + unitId);
-            getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var getResponse = await client.GetAsync("/api/unit/" + unitId);
+        getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
         
-        [Fact]
-        public async Task DeleteUnit_WithNonExistingUnit_Returns404()
+    [Fact]
+    public async Task DeleteUnit_WithNonExistingUnit_Returns404()
+    {
+        var unitName = "kilogram";
+        var unitSymbol = "kg";
+        var createUpdateUnitRequest = new CreateUpdateUnitRequest()
         {
-            var unitName = "kilogram";
-            var unitSymbol = "kg";
-            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
-            {
-                Name = unitName,
-                Symbol = unitSymbol
-            };
+            Name = unitName,
+            Symbol = unitSymbol
+        };
             
-            // Given
+        // Given
             
-            await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+        await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             
-            // When
-            var response = await client.DeleteAsync("/api/units/" + Guid.NewGuid());
+        // When
+        var response = await client.DeleteAsync("/api/units/" + Guid.NewGuid());
             
-            // Then
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
         
-        [Fact]
-        public async Task UpdateUnit_WithExistingUnit_Returns200()
+    [Fact]
+    public async Task UpdateUnit_WithExistingUnit_Returns200()
+    {
+        var unitName = "kilogram";
+        var unitSymbol = "kg";
+        var createUpdateUnitRequest = new CreateUpdateUnitRequest()
         {
-            var unitName = "kilogram";
-            var unitSymbol = "kg";
-            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
-            {
-                Name = unitName,
-                Symbol = unitSymbol
-            };
+            Name = unitName,
+            Symbol = unitSymbol
+        };
             
-            // Given
+        // Given
             
-            var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
-            var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
-            var unitId = createdUnitResult.Id;
+        var createdUnitResponse = await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+        var createdUnitResult = await createdUnitResponse.Content.ReadAsAsync<Unit>();
+        var unitId = createdUnitResult.Id;
             
-            // When
-            var createUpdateUnitRequestUpdated = new CreateUpdateUnitRequest()
-            {
-                Name = unitName + " updated"
-            };
-            var response = await client.PutAsJsonAsync("/api/units/" + unitId, createUpdateUnitRequestUpdated);
+        // When
+        var createUpdateUnitRequestUpdated = new CreateUpdateUnitRequest()
+        {
+            Name = unitName + " updated"
+        };
+        var response = await client.PutAsJsonAsync("/api/units/" + unitId, createUpdateUnitRequestUpdated);
             
-            // Then
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResponse = await client.GetAsync("/api/units/" + unitId);
-            getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            var getResult = await getResponse.Content.ReadAsAsync<Unit>();
-            getResult.Id.Should().Be(unitId);
-            getResult.Name.Should().Be(unitName + " updated");
-            getResult.Symbol.Should().Be(unitSymbol);
-        }
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var getResponse = await client.GetAsync("/api/units/" + unitId);
+        getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var getResult = await getResponse.Content.ReadAsAsync<Unit>();
+        getResult.Id.Should().Be(unitId);
+        getResult.Name.Should().Be(unitName + " updated");
+        getResult.Symbol.Should().Be(unitSymbol);
+    }
         
-        [Fact]
-        public async Task UpdateUnit_WithNonExistingUnit_Returns404()
+    [Fact]
+    public async Task UpdateUnit_WithNonExistingUnit_Returns404()
+    {
+        var createUpdateUnitRequest = new CreateUpdateUnitRequest()
         {
-            var createUpdateUnitRequest = new CreateUpdateUnitRequest()
-            {
-                Name = "kilogram"
-            };
+            Name = "kilogram"
+        };
             
-            // Given
+        // Given
             
-            await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
+        await client.PostAsJsonAsync("/api/units", createUpdateUnitRequest);
             
-            // When
-            var createUpdateUnitRequestUpdated = new CreateUpdateUnitRequest()
-            {
-                Name = "kilogram updated"
-            };
-            var response = await client.PutAsJsonAsync("/api/units/" + Guid.NewGuid(), createUpdateUnitRequestUpdated);
+        // When
+        var createUpdateUnitRequestUpdated = new CreateUpdateUnitRequest()
+        {
+            Name = "kilogram updated"
+        };
+        var response = await client.PutAsJsonAsync("/api/units/" + Guid.NewGuid(), createUpdateUnitRequestUpdated);
             
-            // Then
-            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        }
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }

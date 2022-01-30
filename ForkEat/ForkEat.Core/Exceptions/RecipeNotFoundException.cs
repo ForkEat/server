@@ -1,9 +1,8 @@
 using System;
 
-namespace ForkEat.Core.Exceptions
-{
-    public class RecipeNotFoundException : Exception
-    {
+namespace ForkEat.Core.Exceptions;
 
-    }
+public class RecipeNotFoundException : Exception
+{
+
 }

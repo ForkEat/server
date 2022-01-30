@@ -7,46 +7,45 @@ using ForkEat.Core.Exceptions;
 using ForkEat.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ForkEat.Web.Controllers
+namespace ForkEat.Web.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AuthController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+
+    private readonly IAuthenticationService authenticationService;
+
+    public AuthController(IAuthenticationService authenticationService)
     {
+        this.authenticationService = authenticationService;
+    }
 
-        private readonly IAuthenticationService authenticationService;
-
-        public AuthController(IAuthenticationService authenticationService)
+    [HttpPost("register")]
+    public async Task<ActionResult<RegisterUserResponse>> Register([FromBody] RegisterUserRequest request)
+    {
+        try
         {
-            this.authenticationService = authenticationService;
+            var registerUserResponse = await authenticationService.Register(request);
+            return Created("", registerUserResponse);
         }
-
-        [HttpPost("register")]
-        public async Task<ActionResult<RegisterUserResponse>> Register([FromBody] RegisterUserRequest request)
+        catch (ArgumentException e)
         {
-            try
-            {
-                var registerUserResponse = await authenticationService.Register(request);
-                return Created("", registerUserResponse);
-            }
-            catch (ArgumentException e)
-            {
-                return BadRequest(e.Message);
-            }
+            return BadRequest(e.Message);
         }
+    }
 
-        [HttpPost("login")]
-        public async Task<ActionResult<LoginUserResponse>> Login([FromBody] LoginUserRequest request)
+    [HttpPost("login")]
+    public async Task<ActionResult<LoginUserResponse>> Login([FromBody] LoginUserRequest request)
+    {
+        try
         {
-            try
-            {
-                var result = await authenticationService.Login(request);
-                return result;
-            }
-            catch (InvalidCredentialsException)
-            {
-                return Unauthorized();
-            }
+            var result = await authenticationService.Login(request);
+            return result;
+        }
+        catch (InvalidCredentialsException)
+        {
+            return Unauthorized();
         }
     }
 }

@@ -1,8 +1,7 @@
-namespace ForkEat.Core.Contracts
+namespace ForkEat.Core.Contracts;
+
+public class CreateUpdateUnitRequest
 {
-    public class CreateUpdateUnitRequest
-    {
-        public string Name { get; set; }
-        public string Symbol { get; set; }
-    }
+    public string Name { get; set; }
+    public string Symbol { get; set; }
 }

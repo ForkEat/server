@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace ForkEat.Web.Adapters.Files
+namespace ForkEat.Web.Adapters.Files;
+
+public interface IFilesRepository
 {
-    public interface IFilesRepository
-    {
-        Task<DbFile> GetFile(Guid fileId);
-        Task<DbFile> InsertFile(DbFile dbFile);
-    }
+    Task<DbFile> GetFile(Guid fileId);
+    Task<DbFile> InsertFile(DbFile dbFile);
 }

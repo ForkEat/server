@@ -1,9 +1,8 @@
 using System;
 
-namespace ForkEat.Core.Exceptions
+namespace ForkEat.Core.Exceptions;
+
+public class UnitNotFoundException : Exception
 {
-    public class UnitNotFoundException : Exception
-    {
         
-    }
 }

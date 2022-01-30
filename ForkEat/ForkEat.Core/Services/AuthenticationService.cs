@@ -9,107 +9,106 @@ using ForkEat.Core.Exceptions;
 using ForkEat.Core.Repositories;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ForkEat.Core.Services
+namespace ForkEat.Core.Services;
+
+public class AuthenticationService : IAuthenticationService
 {
-    public class AuthenticationService : IAuthenticationService
+    private readonly IUserRepository repository;
+
+    private readonly IPasswordValidator passwordValidator;
+
+    public AuthenticationService(IUserRepository repository, IPasswordValidator passwordValidator)
     {
-        private readonly IUserRepository repository;
+        this.repository = repository;
+        this.passwordValidator = passwordValidator;
+    }
 
-        private readonly IPasswordValidator passwordValidator;
+    public async Task<LoginUserResponse> Login(LoginUserRequest request)
+    {
+        User user = await repository.FindUserByEmail(request.Email);
 
-        public AuthenticationService(IUserRepository repository, IPasswordValidator passwordValidator)
+        EnsureUserFoundAndPasswordMatch(request, user);
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = GetJwtSecretFromEnv();
+
+        SecurityTokenDescriptor tokenDescriptor = BuildTokenDescriptor(user, key);
+        SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+
+        var response = new LoginUserResponse()
         {
-            this.repository = repository;
-            this.passwordValidator = passwordValidator;
-        }
+            UserName = user.UserName,
+            Email = user.Email,
+            Token = tokenHandler.WriteToken(token)
+        };
 
-        public async Task<LoginUserResponse> Login(LoginUserRequest request)
+        return response;
+    }
+
+    private static SecurityTokenDescriptor BuildTokenDescriptor(User user, byte[] key)
+    {
+        return new SecurityTokenDescriptor()
         {
-            User user = await repository.FindUserByEmail(request.Email);
-
-            EnsureUserFoundAndPasswordMatch(request, user);
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = GetJwtSecretFromEnv();
-
-            SecurityTokenDescriptor tokenDescriptor = BuildTokenDescriptor(user, key);
-            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
-
-            var response = new LoginUserResponse()
+            Subject = new ClaimsIdentity(new Claim[]
             {
-                UserName = user.UserName,
-                Email = user.Email,
-                Token = tokenHandler.WriteToken(token)
-            };
+                new Claim(ClaimTypes.Name, user.Id.ToString())
+            }),
+            Expires = DateTime.UtcNow.AddDays(7),
+            SigningCredentials =
+                new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+        };
+    }
 
-            return response;
-        }
+    private static byte[] GetJwtSecretFromEnv()
+    {
+        return Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ??
+                                       throw new ArgumentException("JWT_SECRET Env variable is not set"));
+    }
 
-        private static SecurityTokenDescriptor BuildTokenDescriptor(User user, byte[] key)
+    private static void EnsureUserFoundAndPasswordMatch(LoginUserRequest request, User user)
+    {
+        if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
         {
-            return new SecurityTokenDescriptor()
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.Id.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials =
-                    new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
-            };
+            throw new InvalidCredentialsException();
         }
+    }
 
-        private static byte[] GetJwtSecretFromEnv()
-        {
-            return Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ??
-                                           throw new ArgumentException("JWT_SECRET Env variable is not set"));
-        }
-
-        private static void EnsureUserFoundAndPasswordMatch(LoginUserRequest request, User user)
-        {
-            if (user is null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-            {
-                throw new InvalidCredentialsException();
-            }
-        }
-
-        public async Task<RegisterUserResponse> Register(RegisterUserRequest request)
-        {
-            await EnsureUserDoesntExists(request);
+    public async Task<RegisterUserResponse> Register(RegisterUserRequest request)
+    {
+        await EnsureUserDoesntExists(request);
             
-            var user = new User()
-            {
-                UserName = request.UserName,
-                Email = request.Email,
-                Password = request.Password
-            };
-
-            EnsurePasswordIsValid(user);
-
-            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            
-            user = await repository.InsertUser(user);
-            
-            return new RegisterUserResponse(user);
-        }
-
-        private void EnsurePasswordIsValid(User user)
+        var user = new User()
         {
-            var validationResult = passwordValidator.Validate(user);
+            UserName = request.UserName,
+            Email = request.Email,
+            Password = request.Password
+        };
 
-            if (!validationResult.IsValid)
-            {
-                throw new PasswordValidationException("Email invalid / Password does not match the specified requirements");
-            }
-        }
+        EnsurePasswordIsValid(user);
 
-        private async Task EnsureUserDoesntExists(RegisterUserRequest request)
+        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            
+        user = await repository.InsertUser(user);
+            
+        return new RegisterUserResponse(user);
+    }
+
+    private void EnsurePasswordIsValid(User user)
+    {
+        var validationResult = passwordValidator.Validate(user);
+
+        if (!validationResult.IsValid)
         {
-            bool userExists = await this.repository.UserExistsByEmail(request.Email);
-            if (userExists)
-            {
-                throw new ArgumentException($"A user with email \"{request.Email}\" already exists");
-            }
+            throw new PasswordValidationException("Email invalid / Password does not match the specified requirements");
+        }
+    }
+
+    private async Task EnsureUserDoesntExists(RegisterUserRequest request)
+    {
+        bool userExists = await this.repository.UserExistsByEmail(request.Email);
+        if (userExists)
+        {
+            throw new ArgumentException($"A user with email \"{request.Email}\" already exists");
         }
     }
 }
