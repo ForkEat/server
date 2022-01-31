@@ -13,7 +13,7 @@ steps:
   pull: always
   environment:
     JWT_SECRET: rdtfyguhijgfrdtyg45678
-    TEST_DATABASE_URL: postgres://user:nopassword@localhost:5432/test
+    TEST_DATABASE_URL: postgres://user:password@localhost:5432/test
     # DATABASE_URL:
     #   from_secret: test_database_url
   commands:
@@ -53,6 +53,7 @@ services:
   image: postgres:13
   environment:
     POSTGRES_USER: user
+    POSTGRES_PASSWORD: password
     POSTGRES_DB: test
 
 ---
