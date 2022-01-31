@@ -14,9 +14,9 @@ services:
   ports: 
     - 80:80
     - 443:443
-  depends_on:
+  depends_on: 
     - postgres
-  network:
+  network: 
     - external
     - internal
 
@@ -33,7 +33,7 @@ services:
     - POSTGRES_USER=${POSTGRES_USER}
   volumes: 
     - ./postgresql:/var/lib/postgresql/data
-  networks:
+  networks: 
     - internal
   depends_on: 
     - traefik
