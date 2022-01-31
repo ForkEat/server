@@ -78,15 +78,15 @@ public class RecipeTest : AuthenticatedTests
 
         result.Steps[0].Name.Should().Be("Test Step 1");
         result.Steps[0].Instructions.Should().Be("Test Step 1 instructions");
-        result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
+        result.Steps[0].EstimatedTime.Should().Be(90);
 
         result.Steps[1].Name.Should().Be("Test Step 2");
         result.Steps[1].Instructions.Should().Be("Test Step 2 instructions");
-        result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+        result.Steps[1].EstimatedTime.Should().Be(120);
 
         result.Steps[2].Name.Should().Be("Test Step 3");
         result.Steps[2].Instructions.Should().Be("Test Step 3 instructions");
-        result.Steps[2].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+        result.Steps[2].EstimatedTime.Should().Be(60);
 
         result.Ingredients.Should().HaveCount(2);
 
@@ -185,13 +185,13 @@ public class RecipeTest : AuthenticatedTests
         result[0].Name.Should().Be("Test Recipe 1");
         result[0].ImageId.Should().NotBe(Guid.Empty);
         result[0].Difficulty.Should().Be(1);
-        result[0].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+        result[0].TotalEstimatedTime.Should().Be(120);
 
         result[1].Id.Should().Be(recipeEntity2.Id);
         result[1].Name.Should().Be("Test Recipe 2");
         result[1].ImageId.Should().NotBe(Guid.Empty);
         result[1].Difficulty.Should().Be(1);
-        result[1].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+        result[1].TotalEstimatedTime.Should().Be(120);
     }
 
     [Fact]
@@ -214,7 +214,7 @@ public class RecipeTest : AuthenticatedTests
         result[0].Name.Should().Be("Test Recipe 1");
         result[0].ImageId.Should().NotBe(Guid.Empty);
         result[0].Difficulty.Should().Be(1);
-        result[0].TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+        result[0].TotalEstimatedTime.Should().Be(120);
     }
 
     [Fact]
@@ -235,15 +235,15 @@ public class RecipeTest : AuthenticatedTests
         result.Name.Should().Be("Test Recipe 1");
         result.Ingredients.Should().HaveCount(2);
         result.Steps.Should().HaveCount(2);
-        result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+        result.TotalEstimatedTime.Should().Be(new TimeSpan(0,2,0));
 
         result.Steps[0].Name.Should().Be("Test Step 1");
         result.Steps[0].Instructions.Should().Be("Test Step 1 Instructions");
-        result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+        result.Steps[0].EstimatedTime.Should().Be(60);
 
         result.Steps[1].Name.Should().Be("Test Step 2");
         result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
-        result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+        result.Steps[1].EstimatedTime.Should().Be(60);
 
         result.Ingredients.Select(ingredient => ingredient.Name).Should().Contain("Product 1");
         result.Ingredients.Select(ingredient => ingredient.Quantity).Should().Contain(1U);

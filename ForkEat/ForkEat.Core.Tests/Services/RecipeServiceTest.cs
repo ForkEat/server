@@ -129,15 +129,15 @@ public class RecipeServiceTest
 
         result.Steps[0].Name.Should().Be("Test Step 1");
         result.Steps[0].Instructions.Should().Be("Test Step 1 instructions");
-        result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
+        result.Steps[0].EstimatedTime.Should().Be(90);
 
         result.Steps[1].Name.Should().Be("Test Step 2");
         result.Steps[1].Instructions.Should().Be("Test Step 2 instructions");
-        result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+        result.Steps[1].EstimatedTime.Should().Be(120);
 
         result.Steps[2].Name.Should().Be("Test Step 3");
         result.Steps[2].Instructions.Should().Be("Test Step 3 instructions");
-        result.Steps[2].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+        result.Steps[2].EstimatedTime.Should().Be(60);
 
         result.Ingredients.Should().HaveCount(2);
 
@@ -220,13 +220,13 @@ public class RecipeServiceTest
         recipe1Result.Name.Should().Be("Test Recipe 1");
         recipe1Result.ImageId.Should().NotBe(Guid.Empty);
         recipe1Result.Difficulty.Should().Be(1);
-        recipe1Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
+        recipe1Result.TotalEstimatedTime.Should().Be(240);
 
         recipe2Result.Id.Should().Be(recipe2.Id);
         recipe2Result.Name.Should().Be("Test Recipe 2");
         recipe2Result.ImageId.Should().NotBe(Guid.Empty);
         recipe2Result.Difficulty.Should().Be(1);
-        recipe2Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
+        recipe2Result.TotalEstimatedTime.Should().Be(240);
     }
 
     [Fact]
@@ -284,13 +284,13 @@ public class RecipeServiceTest
         result.Steps.Should().HaveCount(3);
         result.Steps[0].Name.Should().Be("Test Step 1");
         result.Steps[0].Instructions.Should().Be("Test Step 1 Instructions");
-        result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
+        result.Steps[0].EstimatedTime.Should().Be(90);
         result.Steps[1].Name.Should().Be("Test Step 2");
         result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
-        result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+        result.Steps[1].EstimatedTime.Should().Be(60);
         result.Steps[2].Name.Should().Be("Test Step 3");
         result.Steps[2].Instructions.Should().Be("Test Step 3 Instructions");
-        result.Steps[2].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
+        result.Steps[2].EstimatedTime.Should().Be(90);
     }
 
     [Fact]

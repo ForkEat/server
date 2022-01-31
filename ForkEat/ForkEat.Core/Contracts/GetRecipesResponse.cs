@@ -9,7 +9,7 @@ public class GetRecipesResponse
     public string Name { get; set; }
     public Guid ImageId { get; set; }
     public uint Difficulty { get; set; }
-    public TimeSpan TotalEstimatedTime { get; set; }
+    public uint TotalEstimatedTime { get; set; }
     public bool IsLiked { get; set; }
 
     public GetRecipesResponse() {}
@@ -20,6 +20,6 @@ public class GetRecipesResponse
         Name = recipe.Name;
         ImageId = recipe.ImageId;
         Difficulty = recipe.Difficulty;
-        TotalEstimatedTime = recipe.TotalEstimatedTime;
+        TotalEstimatedTime = (uint) recipe.TotalEstimatedTime.TotalSeconds;
     }
 }

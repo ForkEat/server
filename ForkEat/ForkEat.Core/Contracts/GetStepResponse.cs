@@ -10,11 +10,11 @@ public class GetStepResponse
     public GetStepResponse(Step step)
     {
         Name = step.Name;
-        EstimatedTime = step.EstimatedTime;
+        EstimatedTime = (uint) step.EstimatedTime.TotalSeconds;
         Instructions = step.Instructions;
     }
 
     public string Name { get; set; }
     public string Instructions { get; set; }
-    public TimeSpan EstimatedTime { get; set; }
+    public uint EstimatedTime { get; set; }
 }
