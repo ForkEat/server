@@ -152,4 +152,15 @@ public class DataFactory
         await context.SaveChangesAsync();
         return unit;
     }
+
+    public ProductType CreateProductType(string name)
+    {
+        var id = Guid.NewGuid();
+
+        return new ProductType
+        {
+            Id = id,
+            Name = name
+        };
+    }
 }

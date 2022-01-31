@@ -21,6 +21,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<IngredientEntity> Ingredients { get; set; }
     public DbSet<StepEntity> Steps { get; set; }
     public DbSet<LikeEntity> Likes { get; set; }
+    public DbSet<ProductType> ProductTypes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,5 +77,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<LikeEntity>().HasKey(like => like.Id);
         modelBuilder.Entity<LikeEntity>().HasOne(like => like.User).WithMany().HasForeignKey(like => like.UserId);
         modelBuilder.Entity<LikeEntity>().HasOne(like => like.Recipe).WithMany().HasForeignKey(like => like.RecipeId);
+
+        modelBuilder.Entity<ProductType>().HasKey(productType => productType.Id);
+        modelBuilder.Entity<ProductType>().Property(productType => productType.Name);
     }
 }
