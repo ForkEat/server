@@ -63,10 +63,20 @@ public class RecipesController : ControllerBase
     }
         
     [HttpPut("{recipeId:guid}")]
-    public async Task<ActionResult<GetRecipeWithStepsAndIngredientsResponse>> UpdateRecipe(Guid recipeId,[FromBody] UpdateRecipeRequest request)
+    public async Task<ActionResult<GetRecipeWithStepsAndIngredientsResponse>> UpdateRecipe(
+            Guid recipeId,
+            [FromBody] UpdateRecipeRequest request
+        )
     {
-        GetRecipeWithStepsAndIngredientsResponse recipe = await this.service.UpdateRecipe(recipeId,request);
-        return recipe;
+        try
+        {
+            GetRecipeWithStepsAndIngredientsResponse recipe = await this.service.UpdateRecipe(recipeId, request);
+            return recipe;
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpDelete("{recipeId:guid}")]

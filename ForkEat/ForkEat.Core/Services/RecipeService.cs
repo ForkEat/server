@@ -121,6 +121,11 @@ public class RecipeService : IRecipeService
     public async Task<GetRecipeWithStepsAndIngredientsResponse> UpdateRecipe(Guid recipeId,
         UpdateRecipeRequest request)
     {
+        if (recipeId != request.Id)
+        {
+            throw new ArgumentException("Invalid Id");
+        }
+        
         await this.recipeRepository.DeleteRecipeById(recipeId);
         var products = await productRepository.FindProductsByIds(ExtractProductIds(request));
         var units = await unitsRepository.FindUnitsByIds(ExtractUnitIds(request));

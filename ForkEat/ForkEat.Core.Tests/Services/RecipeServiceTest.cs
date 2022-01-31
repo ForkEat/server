@@ -332,9 +332,14 @@ public class RecipeServiceTest
         }, Guid.NewGuid());
 
         var repoRecipeMock = new Mock<IRecipeRepository>();
+        Recipe updatedRecipeSentToRepo = null;
         repoRecipeMock.Setup(mock => mock.DeleteRecipeById(recipe1.Id));
-        repoRecipeMock.Setup(mock => mock.InsertRecipe(It.IsAny<Recipe>())).Returns<Recipe>(Task.FromResult);
-        ;
+        repoRecipeMock.Setup(mock => mock.InsertRecipe(It.IsAny<Recipe>())).Returns<Recipe>(recipe =>
+        {
+            updatedRecipeSentToRepo = recipe;
+            return Task.FromResult(recipe);
+        });
+        
 
         var repoProductMock = new Mock<IProductRepository>();
         repoProductMock.Setup(mock => mock.FindProductsByIds(It.IsAny<List<Guid>>()))
@@ -358,6 +363,7 @@ public class RecipeServiceTest
         GetRecipeWithStepsAndIngredientsResponse updatedRecipe = await service.UpdateRecipe(recipe1.Id,
             new UpdateRecipeRequest()
             {
+                Id = recipe1.Id,
                 Name = "Test Recipe 1 Updated",
                 Difficulty = 2,
                 Ingredients = new List<CreateOrUpdateIngredientRequest>()
@@ -391,6 +397,7 @@ public class RecipeServiceTest
             });
 
         // Then
+        updatedRecipeSentToRepo.Id.Should().Be(recipe1.Id);
         repoRecipeMock.Verify(mock => mock.DeleteRecipeById(recipe1.Id), Times.Once);
         repoRecipeMock.Verify(mock => mock.InsertRecipe(It.IsAny<Recipe>()), Times.Once);
     }
