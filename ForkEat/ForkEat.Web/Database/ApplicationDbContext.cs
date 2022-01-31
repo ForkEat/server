@@ -28,7 +28,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<User>().Property(user => user.Email);
         modelBuilder.Entity<User>().Property(user => user.Password);
         modelBuilder.Entity<User>().Property(user => user.UserName);
-        modelBuilder.Entity<User>().HasMany<LikeEntity>().WithOne().OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<User>().HasMany<LikeEntity>().WithOne().HasForeignKey(like => like.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ProductEntity>().HasKey(product => product.Id);
         modelBuilder.Entity<ProductEntity>().Property(product => product.Name);
@@ -47,9 +48,12 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<RecipeEntity>().Property(recipe => recipe.Name);
         modelBuilder.Entity<RecipeEntity>().Property(recipe => recipe.ImageId);
         modelBuilder.Entity<RecipeEntity>().Property(recipe => recipe.Difficulty);
-        modelBuilder.Entity<RecipeEntity>().HasMany<StepEntity>(recipe => recipe.Steps).WithOne().OnDelete(DeleteBehavior.Cascade);
-        modelBuilder.Entity<RecipeEntity>().HasMany<IngredientEntity>(recipe => recipe.Ingredients).WithOne().HasForeignKey(i => i.RecipeId).OnDelete(DeleteBehavior.Cascade);
-        modelBuilder.Entity<RecipeEntity>().HasMany<LikeEntity>().WithOne().OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<RecipeEntity>().HasMany<StepEntity>(recipe => recipe.Steps).WithOne()
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<RecipeEntity>().HasMany<IngredientEntity>(recipe => recipe.Ingredients).WithOne()
+            .HasForeignKey(i => i.RecipeId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<RecipeEntity>().HasMany<LikeEntity>().WithOne().HasForeignKey(like => like.RecipeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<StepEntity>().HasKey(step => step.Id);
         modelBuilder.Entity<StepEntity>().Property(step => step.Name);
@@ -58,7 +62,8 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<IngredientEntity>().HasKey(ingredient => ingredient.Id);
         modelBuilder.Entity<IngredientEntity>().Property(ingredient => ingredient.Quantity);
-        modelBuilder.Entity<IngredientEntity>().HasOne(ingredient => ingredient.Product).WithMany().HasForeignKey(ingredient => ingredient.ProductId);
+        modelBuilder.Entity<IngredientEntity>().HasOne(ingredient => ingredient.Product).WithMany()
+            .HasForeignKey(ingredient => ingredient.ProductId);
         modelBuilder.Entity<IngredientEntity>().HasOne(ingredient => ingredient.Unit).WithMany();
 
         modelBuilder.Entity<StockEntity>().HasKey(stock => stock.Id);
@@ -69,7 +74,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<StockEntity>().Property(stock => stock.PurchaseDate);
 
         modelBuilder.Entity<LikeEntity>().HasKey(like => like.Id);
-        modelBuilder.Entity<LikeEntity>().HasOne(like => like.User).WithMany();
-        modelBuilder.Entity<LikeEntity>().HasOne(like => like.Recipe).WithMany();
+        modelBuilder.Entity<LikeEntity>().HasOne(like => like.User).WithMany().HasForeignKey(like => like.UserId);
+        modelBuilder.Entity<LikeEntity>().HasOne(like => like.Recipe).WithMany().HasForeignKey(like => like.RecipeId);
     }
 }

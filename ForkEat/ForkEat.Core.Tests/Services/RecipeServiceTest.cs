@@ -415,19 +415,23 @@ public class RecipeServiceTest
             Guid.NewGuid()
         );
 
-        IList<Guid> receivedIds = null;
-        var recipeRepoMock = new Mock<IRecipeRepository>();
-        recipeRepoMock.Setup(mock => mock.FindRecipesWithIngredients(It.IsAny<IList<Guid>>()))
-            .Returns<IList<Guid>>(ids =>
-            {
-                receivedIds = ids;
-                return Task.FromResult(new List<Recipe>() {recipe} as IList<Recipe>);
-            });
+            IList<Guid> receivedIds = null;
+            var recipeRepoMock = new Mock<IRecipeRepository>();
+            var productRepoMock = new Mock<IProductRepository>();
+            recipeRepoMock.Setup(mock => mock.FindRecipesWithIngredients(It.IsAny<List<Guid>>()))
+                .Returns<IList<Guid>>(ids =>
+                {
+                    receivedIds = ids;
+                    return Task.FromResult(new List<Recipe> {recipe} as IList<Recipe>);
+                });
 
-        IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null, null, null, null);
+            productRepoMock.Setup(mock => mock.FindProductIdWithFullTextSearch(It.IsAny<string[]>()))
+                .Returns<string[]>(ids => Task.FromResult(new List<Guid> { Guid.Empty }));
 
-        // When
-        var result = await service.SearchRecipeByIngredients(new List<Guid> {recipe.Id});
+            IRecipeService service = new RecipeService(recipeRepoMock.Object, productRepoMock.Object, null, null, null, null);
+
+            // When
+            var result = await service.SearchRecipeByIngredientsText(new [] {""});
 
         // Then
         result.Should().ContainSingle();
