@@ -6,4 +6,4 @@ ForkEat/ForkEat.Web/Properties/launchSettings.json
 ForkEat/.sonarqube
 ForkEat/.vs
 ForkEat/ForkEat.MassImporter/RAW_recipes.csv
-*.csv
+ForkEat/ForkEat.MassImporter/RAW_recipes_fixed.csv

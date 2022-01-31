@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Web.Database;
 using ForkEat.Web.Database.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -18,7 +20,7 @@ namespace ForkEat.Web.Tests.Integration
     public class ProductsTests : AuthenticatedTests
     {
         public ProductsTests(WebApplicationFactory<Startup> factory) : base(factory,
-            new string[] {"Stocks", "Products", "Units"})
+            new string[] {"Stocks", "Products", "Units","Files"})
         {
         }
 
@@ -42,8 +44,10 @@ namespace ForkEat.Web.Tests.Integration
             var resultData = await fileData.Content.ReadAsByteArrayAsync();
             resultData.Should().BeEquivalentTo(file);
         }
+        
+        
 
-
+        
         [Fact]
         public async Task GetProductById_WithExistingProduct_Returns200()
         {
@@ -66,16 +70,6 @@ namespace ForkEat.Web.Tests.Integration
         [Fact]
         public async Task GetProductById_WithNonExistingProduct_Returns404()
         {
-            var createProductRequest = new CreateUpdateProductRequest()
-            {
-                Name = "carrot",
-                ImageId = Guid.NewGuid()
-            };
-
-            // Given
-
-            await client.PostAsJsonAsync("/api/products", createProductRequest);
-
             // When
             var response = await client.GetAsync("/api/products/" + Guid.NewGuid());
 
@@ -124,16 +118,6 @@ namespace ForkEat.Web.Tests.Integration
         [Fact]
         public async Task DeleteProduct_WithNonExistingProduct_Returns404()
         {
-            var createProductRequest = new CreateUpdateProductRequest()
-            {
-                Name = "carrot",
-                ImageId = Guid.NewGuid()
-            };
-
-            // Given
-
-            await client.PostAsJsonAsync("/api/products", createProductRequest);
-
             // When
             var response = await client.DeleteAsync("/api/products/" + Guid.NewGuid());
 
@@ -142,7 +126,7 @@ namespace ForkEat.Web.Tests.Integration
         }
 
         [Fact]
-        public async Task UpdateProduct_WithExistingProduct_Returns200()
+        public async Task UpdateProduct_WithExistingProductAndNewImage_Returns200()
         {
 
             // Given
@@ -151,38 +135,70 @@ namespace ForkEat.Web.Tests.Integration
             var createdProductResponse = await client.PostAsync("/api/products", createUpdateProductRequest);
             var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
             var productId = createdProductResult.Id;
+            ProductEntity productEntity = await context.Products.FirstAsync(record => record.Id == productId);
+            Guid imageId = productEntity.ImageId;
 
             // When
-            var createUpdateProductRequestUpdated = new CreateUpdateProductRequest()
-            {
-                Name = $"{productName} updated"
-            };
-            var response = await client.PutAsJsonAsync("/api/products/" + productId, createUpdateProductRequestUpdated);
+            var createUpdateProductRequestUpdated = UpdateProductRequestContent($"{productName} updated");
+            var response = await client.PutAsync("/api/products/" + productId, createUpdateProductRequestUpdated);
 
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var getResponse = await client.GetAsync("/api/products/" + productId);
+            
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             var getResult = await getResponse.Content.ReadAsAsync<GetProductResponse>();
             getResult.Id.Should().Be(productId);
             getResult.Name.Should().Be($"{productName} updated");
+
+            await using var specialContext = new ApplicationDbContext(this.GetOptionsForOtherDbContext());
+            ProductEntity productEntityUpdated = await specialContext.Products.FirstAsync(record => record.Id == productId);
+            productEntityUpdated.Name.Should().Be($"{productName} updated");
+            productEntityUpdated.ImageId.Should().NotBe(imageId);
+
+            int filesCount = await specialContext.Files.CountAsync();
+            filesCount.Should().Be(1);
         }
+
+        [Fact]
+        public async Task UpdateProduct_WithoutImage_UpdatesDataButDoesntModifyImage()
+        {
+            // Given
+            var productName = "carrot";
+            var createUpdateProductRequest = CreateProductRequestContent(productName);
+            var createdProductResponse = await client.PostAsync("/api/products", createUpdateProductRequest);
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
+            var productId = createdProductResult.Id;
+            ProductEntity productEntity = await context.Products.FirstAsync(record => record.Id == productId);
+            Guid imageId = productEntity.ImageId;
+
+            // When
+            var createUpdateProductRequestUpdated = UpdateProductRequestContentNoImage($"{productName} updated");
+            var response = await client.PutAsync("/api/products/" + productId, createUpdateProductRequestUpdated);
+
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            
+            await using var specialContext = new ApplicationDbContext(this.GetOptionsForOtherDbContext());
+            ProductEntity productEntityUpdated = await specialContext.Products.FirstAsync(record => record.Id == productId);
+            productEntityUpdated.Name.Should().Be($"{productName} updated");
+            productEntityUpdated.ImageId.Should().Be(imageId);
+
+            int filesCount = await specialContext.Files.CountAsync();
+            filesCount.Should().Be(1);
+        }
+
+
 
         [Fact]
         public async Task UpdateProduct_WithNonExistingProduct_Returns404()
         {
-
             // Given
-            using var createCarrotProductContent = CreateProductRequestContent("carrot");
-            await client.PostAsync("/api/products", createCarrotProductContent);
-
+            var createUpdateProductRequestUpdated = UpdateProductRequestContentNoImage("carrot");
+            
             // When
-            var createUpdateProductRequestUpdated = new CreateUpdateProductRequest()
-            {
-                Name = "carrot updated"
-            };
             var response =
-                await client.PutAsJsonAsync("/api/products/" + Guid.NewGuid(), createUpdateProductRequestUpdated);
+                await client.PutAsync("/api/products/" + Guid.NewGuid(), createUpdateProductRequestUpdated);
 
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -436,12 +452,11 @@ namespace ForkEat.Web.Tests.Integration
             stockProduct2.PurchaseDate.Should().Be(DateOnly.FromDateTime(DateTime.Today));
         }
 
-        private static MultipartFormDataContent CreateProductRequestContent(string productName)
+        private static MultipartFormDataContent UpdateProductRequestContent(string productName)
         {
             var createProductRequest = new CreateUpdateProductRequest()
             {
-                Name = productName,
-                ImageId = Guid.NewGuid()
+                Name = productName
             };
 
 
@@ -454,6 +469,41 @@ namespace ForkEat.Web.Tests.Integration
             streamContent.Headers.Add("Content-Type", "application/octet-stream");
 
             formDataContent.Add(streamContent, "image", Path.GetFileName("TestAssets/test-file.gif"));
+            return formDataContent;
+        }
+        
+        private static MultipartFormDataContent CreateProductRequestContent(string productName)
+        {
+            var createProductRequest = new CreateUpdateProductRequest()
+            {
+                Name = productName
+            };
+
+
+            var formDataContent = new MultipartFormDataContent(Guid.NewGuid().ToString());
+
+            var stringContent = new StringContent(JsonConvert.SerializeObject(createProductRequest));
+            formDataContent.Add(stringContent, "payload");
+
+            var streamContent = new StreamContent(File.OpenRead("TestAssets/test-file.gif"));
+            streamContent.Headers.Add("Content-Type", "application/octet-stream");
+
+            formDataContent.Add(streamContent, "image", Path.GetFileName("TestAssets/test-file.gif"));
+            return formDataContent;
+        }
+        
+        private HttpContent UpdateProductRequestContentNoImage(string productName)
+        {
+            var createProductRequest = new CreateUpdateProductRequest()
+            {
+                Name = productName
+            };
+
+
+            var formDataContent = new MultipartFormDataContent(Guid.NewGuid().ToString());
+
+            var stringContent = new StringContent(JsonConvert.SerializeObject(createProductRequest));
+            formDataContent.Add(stringContent, "payload");
             return formDataContent;
         }
     }
