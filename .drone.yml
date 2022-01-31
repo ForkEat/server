@@ -8,12 +8,6 @@ platform:
 
 
 steps:
-- name: test db
-  image: postgres:alpine3.15
-  commands:
-  - sleep 15
-  - psql -U user -d test -h database
-
 - name: test
   image: mcr.microsoft.com/dotnet/sdk:6.0
   pull: always
