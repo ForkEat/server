@@ -73,7 +73,7 @@ public class RecipeTest : AuthenticatedTests
         result.Id.Should().NotBeEmpty();
         result.Name.Should().Be("Test Recipe");
         result.Difficulty.Should().Be(3);
-        result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 30));
+        result.TotalEstimatedTime.Should().Be(270);
         result.Steps.Should().HaveCount(3);
 
         result.Steps[0].Name.Should().Be("Test Step 1");
@@ -235,7 +235,7 @@ public class RecipeTest : AuthenticatedTests
         result.Name.Should().Be("Test Recipe 1");
         result.Ingredients.Should().HaveCount(2);
         result.Steps.Should().HaveCount(2);
-        result.TotalEstimatedTime.Should().Be(new TimeSpan(0,2,0));
+        result.TotalEstimatedTime.Should().Be(60);
 
         result.Steps[0].Name.Should().Be("Test Step 1");
         result.Steps[0].Instructions.Should().Be("Test Step 1 Instructions");
@@ -326,7 +326,7 @@ public class RecipeTest : AuthenticatedTests
         result.Id.Should().Be(recipeEntity1.Id);
         result.Name.Should().Be("Test Recipe 1 Updated");
         result.Difficulty.Should().Be(2);
-        result.TotalEstimatedTime.Should().Be(new TimeSpan(1, 10, 30));
+        result.TotalEstimatedTime.Should().Be(4230);
         result.Ingredients.Should().HaveCount(1);
         result.Steps.Should().HaveCount(4);
         result.Ingredients[0].Quantity.Should().Be(3);
