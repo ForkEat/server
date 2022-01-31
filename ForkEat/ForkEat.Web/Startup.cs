@@ -40,6 +40,7 @@ namespace ForkEat.Web
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IUnitService, UnitService>();
             services.AddScoped<IStockService, StockService>();
+            services.AddScoped<IProductTypeService, ProductTypeService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordValidator, PasswordValidator>();
             services.AddScoped<IProductRepository, ProductRepository>();
@@ -49,6 +50,7 @@ namespace ForkEat.Web
             services.AddScoped<IUnitRepository, UnitRepository>();
             services.AddScoped<IStockRepository, StockRepository>();
             services.AddScoped<ILikeRepository, LikeRepository>();
+            services.AddScoped<IProductTypeRepository, ProductTypeRepository>();
             services.AddScoped<IKitchen, Kitchen>();
             services.AddScoped<DbFileService>();
 

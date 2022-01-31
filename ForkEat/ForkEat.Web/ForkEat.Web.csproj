@@ -6,31 +6,31 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BCrypt.Net-Core" Version="1.6.0"/>
-        <PackageReference Include="JsonModelBinder" Version="2.1.1"/>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.0"/>
+        <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
+        <PackageReference Include="JsonModelBinder" Version="2.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0"/>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3"/>
-        <PackageReference Include="System.Text.Json" Version="6.0.0"/>
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+        <PackageReference Include="System.Text.Json" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\ForkEat.Core\ForkEat.Core.csproj"/>
+        <ProjectReference Include="..\ForkEat.Core\ForkEat.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Migrations"/>
+        <Folder Include="Migrations" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Migrations\20211217182101_FullTextSearch.cs"/>
-        <Compile Remove="Migrations\20211217182101_FullTextSearch.Designer.cs"/>
+        <Compile Remove="Migrations\20211217182101_FullTextSearch.cs" />
+        <Compile Remove="Migrations\20211217182101_FullTextSearch.Designer.cs" />
     </ItemGroup>
 
 </Project>
