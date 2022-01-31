@@ -59,8 +59,12 @@ namespace ForkEat.Web.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<GetProductResponse>> UpdateProduct(Guid id,
-            [FromBody] CreateUpdateProductRequest product)
+        public async Task<ActionResult<GetProductResponse>> UpdateProduct(
+            Guid id,
+            [ModelBinder(BinderType = typeof(JsonModelBinder))]
+            [FromBody] CreateUpdateProductRequest product,            
+            IFormFile image
+            )
         {
             try
             {

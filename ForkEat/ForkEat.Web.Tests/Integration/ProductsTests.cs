@@ -42,8 +42,14 @@ namespace ForkEat.Web.Tests.Integration
             var resultData = await fileData.Content.ReadAsByteArrayAsync();
             resultData.Should().BeEquivalentTo(file);
         }
-
-
+        
+        
+        [Fact]
+        public async Task UpdateProduct_WithoutImage_UpdatesDataButDoesntModifyImage()
+        {
+            
+        }
+        
         [Fact]
         public async Task GetProductById_WithExistingProduct_Returns200()
         {
