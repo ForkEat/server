@@ -124,7 +124,7 @@ public class RecipeServiceTest
         result.Id.Should().Be(insertedRecipe.Id);
         result.Name.Should().Be("Test Recipe");
         result.Difficulty.Should().Be(3);
-        result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 30));
+        result.TotalEstimatedTime.Should().Be(270);
         result.Steps.Should().HaveCount(3);
 
         result.Steps[0].Name.Should().Be("Test Step 1");
@@ -271,7 +271,7 @@ public class RecipeServiceTest
         result.Id.Should().Be(recipe1.Id);
         result.Name.Should().Be("Test Recipe 1");
         result.Difficulty.Should().Be(1);
-        result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
+        result.TotalEstimatedTime.Should().Be(240);
 
         result.Ingredients.Should().HaveCount(2);
         result.Ingredients[0].Name.Should().Be("Product 1");
