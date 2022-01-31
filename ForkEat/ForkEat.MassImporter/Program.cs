@@ -104,7 +104,7 @@ List<RecipeEntity> recipes = lines
     .Skip(1)
     .Select(line => line.Split(";"))
     .Where(IsLineValid)
-    .Select(line => ParseRecipe(line))
+    .Select(line => ParseRecipe(line, products))
     .ToList();
 
 Console.WriteLine($"Processed {recipes.Count} records");
@@ -124,11 +124,19 @@ var options = new DbContextOptionsBuilder()
 await using var migrationContext = new ApplicationDbContext(options);
 await migrationContext.Database.MigrateAsync();
 
+await Task.WhenAll(products.Values.Chunk(5000)
+    .Select(async chunk =>
+    {
+        await using var context = new ApplicationDbContext(options);
+        await context.Products.AddRangeAsync(chunk);
+    }));
+
+
 await Task.WhenAll(recipes.Chunk(5000)
     .Select(async chunk =>
     {
         await using var context = new ApplicationDbContext(options);
         await context.Recipes.AddRangeAsync(chunk);
         await context.SaveChangesAsync();
-        Console.WriteLine("Inserted one chunk");
+        Console.WriteLine("Inserted one chunk of Recipe");
     }));
