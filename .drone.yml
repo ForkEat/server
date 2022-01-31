@@ -12,12 +12,10 @@ steps:
   image: mcr.microsoft.com/dotnet/sdk:6.0
   pull: always
   environment:
-    JWT_SECRET:
-      from_secret: jwt_secret
-    TEST_DATABASE_URL:
-      from_secret: test_database_url
-    DATABASE_URL:
-      from_secret: test_database_url
+    JWT_SECRET: rdtfyguhijgfrdtyg45678
+    TEST_DATABASE_URL: postgres://user:nopassword@localhost:5432/test
+    # DATABASE_URL:
+    #   from_secret: test_database_url
   commands:
     - cd ForkEat/
     - dotnet test --logger "console;verbosity=detailed" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
@@ -50,6 +48,12 @@ steps:
     - master
     - main
 
+services:
+- name: database
+  image: postgres:13
+  environment:
+    POSTGRES_USER: user
+    POSTGRES_DB: test
 
 ---
 kind: pipeline
