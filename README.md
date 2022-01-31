@@ -18,5 +18,22 @@ $ docker run -d \
 ```
 ### 🐳 Option 2: Run from Docker-compose
 
+Clone latest version
+```bash
+$ git clone https://github.com/ForkEat/server
+$ cd docker
+```
+
+Generate configuration
+```bash
+$ chmod +x generate_config.sh
+$ bash generate_config.sh
+```
+
+You'r ready to launch
+```bash
+$ docker-compose up -d
+````
+
 **See [here](https://github.com/ForkEat/server/blob/main/docker/docker-compose.yml)** 
 
