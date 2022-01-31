@@ -34,42 +34,51 @@ public class ProductRepository : IProductRepository
         return entity is null ? null : new Product(entity.Id, entity.Name, entity.ImageId);
     }
 
-    public async Task<List<Product>> FindAllProducts()
-    {
-        var recipes = await dbContext.Products.ToListAsync();
+        public async Task<List<Guid>> FindProductIdWithFullTextSearch(string[] words)
+        {
+            var products = await dbContext.Products.ToListAsync();
+            return products
+                .Where(p => words.Any(w => p.Name.ToLower().Contains(w.ToLower())))
+                .Select(p => p.Id)
+                .ToList();
+        }
 
-        return recipes
-            .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId))
-            .ToList();
-    }
+        public async Task<List<Product>> FindAllProducts()
+        {
+            var products = await dbContext.Products.ToListAsync();
+            var recipes = await dbContext.Products.ToListAsync();
+            return recipes
+                .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId))
+                .ToList();
+        }
 
-    public async Task DeleteProduct(Product product)
-    {
-        ProductEntity entity = await dbContext.Products.FirstAsync(entity => entity.Id == product.Id);
-        dbContext.Products.Remove(entity);
-        await dbContext.SaveChangesAsync();
-    }
+        public async Task DeleteProduct(Product product)
+        {
+            ProductEntity entity = await dbContext.Products.FirstAsync(entity => entity.Id == product.Id);
+            dbContext.Products.Remove(entity);
+            await dbContext.SaveChangesAsync();
+        }
 
-    public async Task<Product> UpdateProduct(Product newProduct)
-    {
-        ProductEntity entity = await dbContext.Products.FirstAsync(entity => entity.Id == newProduct.Id);
-        entity.Name = newProduct.Name;
-        entity.ImageId = newProduct.ImageId;
-            
-        dbContext.Products.Update(entity);
-        await dbContext.SaveChangesAsync();
-        return await FindProductById(newProduct.Id);
-    }
+        public async Task<Product> UpdateProduct(Product newProduct)
+        {
+            ProductEntity entity = await dbContext.Products.FirstAsync(entity => entity.Id == newProduct.Id);
+            entity.Name = newProduct.Name;
+            entity.ImageId = newProduct.ImageId;
 
-    public async Task<Dictionary<Guid, Product>> FindProductsByIds(List<Guid> productIds)
-    {
-        var products = await this.dbContext
-            .Products
-            .Where(product => productIds.Contains(product.Id))
-            .ToListAsync();
+            dbContext.Products.Update(entity);
+            await dbContext.SaveChangesAsync();
+            return await FindProductById(newProduct.Id);
+        }
 
-        return products
-            .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId))
-            .ToDictionary(p => p.Id, p => p);
-    }
+        public async Task<Dictionary<Guid, Product>> FindProductsByIds(List<Guid> productIds)
+        {
+            var products = await this.dbContext
+                .Products
+                .Where(product => productIds.Contains(product.Id))
+                .ToListAsync();
+
+            return products
+                .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId))
+                .ToDictionary(p => p.Id, p => p);
+        }
 }

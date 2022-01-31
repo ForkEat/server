@@ -17,7 +17,7 @@ namespace ForkEat.Web.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "6.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -114,27 +114,17 @@ namespace ForkEat.Web.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("RecipeEntityId")
+                    b.Property<Guid>("RecipeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("RecipeId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("UserId1")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RecipeEntityId");
-
                     b.HasIndex("RecipeId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("Likes");
                 });
@@ -259,23 +249,17 @@ namespace ForkEat.Web.Migrations
 
             modelBuilder.Entity("ForkEat.Web.Database.Entities.LikeEntity", b =>
                 {
-                    b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", null)
-                        .WithMany()
-                        .HasForeignKey("RecipeEntityId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("ForkEat.Web.Database.Entities.RecipeEntity", "Recipe")
                         .WithMany()
-                        .HasForeignKey("RecipeId");
+                        .HasForeignKey("RecipeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ForkEat.Core.Domain.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("ForkEat.Core.Domain.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId1")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Recipe");
 

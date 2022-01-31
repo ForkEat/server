@@ -124,20 +124,20 @@ public class RecipeServiceTest
         result.Id.Should().Be(insertedRecipe.Id);
         result.Name.Should().Be("Test Recipe");
         result.Difficulty.Should().Be(3);
-        result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 30));
+        result.TotalEstimatedTime.Should().Be(270);
         result.Steps.Should().HaveCount(3);
 
         result.Steps[0].Name.Should().Be("Test Step 1");
         result.Steps[0].Instructions.Should().Be("Test Step 1 instructions");
-        result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
+        result.Steps[0].EstimatedTime.Should().Be(90);
 
         result.Steps[1].Name.Should().Be("Test Step 2");
         result.Steps[1].Instructions.Should().Be("Test Step 2 instructions");
-        result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 2, 0));
+        result.Steps[1].EstimatedTime.Should().Be(120);
 
         result.Steps[2].Name.Should().Be("Test Step 3");
         result.Steps[2].Instructions.Should().Be("Test Step 3 instructions");
-        result.Steps[2].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+        result.Steps[2].EstimatedTime.Should().Be(60);
 
         result.Ingredients.Should().HaveCount(2);
 
@@ -220,13 +220,13 @@ public class RecipeServiceTest
         recipe1Result.Name.Should().Be("Test Recipe 1");
         recipe1Result.ImageId.Should().NotBe(Guid.Empty);
         recipe1Result.Difficulty.Should().Be(1);
-        recipe1Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
+        recipe1Result.TotalEstimatedTime.Should().Be(240);
 
         recipe2Result.Id.Should().Be(recipe2.Id);
         recipe2Result.Name.Should().Be("Test Recipe 2");
         recipe2Result.ImageId.Should().NotBe(Guid.Empty);
         recipe2Result.Difficulty.Should().Be(1);
-        recipe2Result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
+        recipe2Result.TotalEstimatedTime.Should().Be(240);
     }
 
     [Fact]
@@ -271,7 +271,7 @@ public class RecipeServiceTest
         result.Id.Should().Be(recipe1.Id);
         result.Name.Should().Be("Test Recipe 1");
         result.Difficulty.Should().Be(1);
-        result.TotalEstimatedTime.Should().Be(new TimeSpan(0, 4, 0));
+        result.TotalEstimatedTime.Should().Be(240);
 
         result.Ingredients.Should().HaveCount(2);
         result.Ingredients[0].Name.Should().Be("Product 1");
@@ -284,13 +284,13 @@ public class RecipeServiceTest
         result.Steps.Should().HaveCount(3);
         result.Steps[0].Name.Should().Be("Test Step 1");
         result.Steps[0].Instructions.Should().Be("Test Step 1 Instructions");
-        result.Steps[0].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
+        result.Steps[0].EstimatedTime.Should().Be(90);
         result.Steps[1].Name.Should().Be("Test Step 2");
         result.Steps[1].Instructions.Should().Be("Test Step 2 Instructions");
-        result.Steps[1].EstimatedTime.Should().Be(new TimeSpan(0, 1, 0));
+        result.Steps[1].EstimatedTime.Should().Be(60);
         result.Steps[2].Name.Should().Be("Test Step 3");
         result.Steps[2].Instructions.Should().Be("Test Step 3 Instructions");
-        result.Steps[2].EstimatedTime.Should().Be(new TimeSpan(0, 1, 30));
+        result.Steps[2].EstimatedTime.Should().Be(90);
     }
 
     [Fact]
@@ -415,19 +415,23 @@ public class RecipeServiceTest
             Guid.NewGuid()
         );
 
-        IList<Guid> receivedIds = null;
-        var recipeRepoMock = new Mock<IRecipeRepository>();
-        recipeRepoMock.Setup(mock => mock.FindRecipesWithIngredients(It.IsAny<IList<Guid>>()))
-            .Returns<IList<Guid>>(ids =>
-            {
-                receivedIds = ids;
-                return Task.FromResult(new List<Recipe>() {recipe} as IList<Recipe>);
-            });
+            IList<Guid> receivedIds = null;
+            var recipeRepoMock = new Mock<IRecipeRepository>();
+            var productRepoMock = new Mock<IProductRepository>();
+            recipeRepoMock.Setup(mock => mock.FindRecipesWithIngredients(It.IsAny<List<Guid>>()))
+                .Returns<IList<Guid>>(ids =>
+                {
+                    receivedIds = ids;
+                    return Task.FromResult(new List<Recipe> {recipe} as IList<Recipe>);
+                });
 
-        IRecipeService service = new RecipeService(recipeRepoMock.Object, null, null, null, null, null);
+            productRepoMock.Setup(mock => mock.FindProductIdWithFullTextSearch(It.IsAny<string[]>()))
+                .Returns<string[]>(ids => Task.FromResult(new List<Guid> { Guid.Empty }));
 
-        // When
-        var result = await service.SearchRecipeByIngredients(new List<Guid> {recipe.Id});
+            IRecipeService service = new RecipeService(recipeRepoMock.Object, productRepoMock.Object, null, null, null, null);
+
+            // When
+            var result = await service.SearchRecipeByIngredientsText(new [] {""});
 
         // Then
         result.Should().ContainSingle();

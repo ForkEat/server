@@ -1,6 +1,6 @@
 kind: pipeline
 type: docker
-name: linux-amd64
+name: linux-amd64 - tests,coverage, publish image
 
 platform:
   arch: amd64
@@ -12,13 +12,11 @@ steps:
   image: mcr.microsoft.com/dotnet/sdk:6.0
   pull: always
   environment:
-    JWT_SECRET:
-      from_secret: jwt_secret
-    TEST_DATABASE_URL:
-      from_secret: test_database_url
-    DATABASE_URL:
-      from_secret: test_database_url
+    JWT_SECRET: rdtfyguhijgfrdtyg45678
+    TEST_DATABASE_URL: postgres://user:password@database:5432/test
+    DATABASE_URL: postgres://user:password@database:5432/test
   commands:
+    - sleep 15
     - cd ForkEat/
     - dotnet test --logger "console;verbosity=detailed" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
@@ -49,47 +47,21 @@ steps:
     branch:
     - master
     - main
----
-kind: pipeline
-type: docker
-name: linux-arm64
 
-platform:
-  arch: arm64
-  os: linux
-
-steps:
-- name: test
-  image: mcr.microsoft.com/dotnet/sdk:6.0
+services:
+- name: database
+  image: postgres:alpine3.15
   environment:
-    JWT_SECRET:
-      from_secret: jwt_secret
-    TEST_DATABASE_URL:
-      from_secret: test_database_url
-  commands:
-    - cd ForkEat
-    - dotnet test
+    POSTGRES_USER: user
+    POSTGRES_PASSWORD: password
+    POSTGRES_DB: test
 
-- name: publish image
-  image: plugins/docker
-  settings:
-    auto_tag: true
-    auto_tag_suffix: linux-arm64
-    repo: thomaslacaze/forkeat-server
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-    dockerfile: ForkEat/ForkEat.Web/Dockerfile
-
-
-trigger:
-  event:
-  - tag
 ---
 kind: pipeline
 type: docker
 name: deploy readme
+depends_on:
+  - linux-amd64 - tests,coverage, publish image
 
 platform:
   arch: amd64
@@ -112,5 +84,42 @@ trigger:
   - master
   - main
   event:
-  - push
-  - tag
+
+
+# ---
+# kind: pipeline
+# type: docker
+# name: linux-arm64
+
+# platform:
+#   arch: arm64
+#   os: linux
+
+# steps:
+# - name: test
+#   image: mcr.microsoft.com/dotnet/sdk:6.0
+#   environment:
+#     JWT_SECRET:
+#       from_secret: jwt_secret
+#     TEST_DATABASE_URL:
+#       from_secret: test_database_url
+#   commands:
+#     - cd ForkEat
+#     - dotnet test
+
+# - name: publish image
+#   image: plugins/docker
+#   settings:
+#     auto_tag: true
+#     auto_tag_suffix: linux-arm64
+#     repo: thomaslacaze/forkeat-server
+#     username:
+#       from_secret: docker_username
+#     password:
+#       from_secret: docker_password
+#     dockerfile: ForkEat/ForkEat.Web/Dockerfile
+
+
+# trigger:
+#   event:
+#   - tag

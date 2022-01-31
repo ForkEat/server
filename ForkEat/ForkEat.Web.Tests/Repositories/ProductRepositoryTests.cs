@@ -169,5 +169,20 @@ public class ProductRepositoryTests : RepositoryTest
         result[productIds[1]].Name.Should().Be("Carrot");
     }
 
+        [Fact]
+        public async Task FindProductIdWithFullTextSearch_ReturnsDesired()
+        {
+            var productId3 = Guid.NewGuid();
+            var productEntities = new ProductEntity[]
+            {
+                new (){Id = Guid.NewGuid(), Name = "Potatoes",ImageId =   Guid.NewGuid() },
+                new (){Id = Guid.NewGuid(), Name = "Carrot",  ImageId = Guid.NewGuid() },
+                new (){Id = productId3, Name = "Cabbage", ImageId = Guid.NewGuid()},
+            };
+            await context.Products.AddRangeAsync(productEntities);
+            await context.SaveChangesAsync();
 
+            var repository = new ProductRepository(context);
+
+    }
 }

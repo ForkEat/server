@@ -17,7 +17,7 @@ public class GetRecipeWithStepsAndIngredientsResponse
         Name = recipe.Name;
         ImageId = recipe.ImageId;
         Difficulty = recipe.Difficulty;
-        TotalEstimatedTime = recipe.TotalEstimatedTime;
+        TotalEstimatedTime = (uint) recipe.TotalEstimatedTime.TotalSeconds;
         Steps = recipe.Steps.Select(step => new GetStepResponse(step)).ToList();
         Ingredients = recipe.Ingredients.Select(i => new GetIngredientResponseWithImage(i)).ToList();
         IsLiked = recipe.IsLiked;
@@ -27,7 +27,7 @@ public class GetRecipeWithStepsAndIngredientsResponse
     public string Name { get; set; }
     public Guid ImageId { get; set; }
     public uint Difficulty { get; set; }
-    public TimeSpan TotalEstimatedTime { get; set; }
+    public uint TotalEstimatedTime { get; set; }
     public List<GetStepResponse> Steps { get; set; }
     public List<GetIngredientResponseWithImage> Ingredients { get; set; }
     public bool IsLiked { get; set; }
