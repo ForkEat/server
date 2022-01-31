@@ -8,14 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ForkEat.Core\ForkEat.Core.csproj" />
-      <ProjectReference Include="..\ForkEat.Web\ForkEat.Web.csproj" />
+        <ProjectReference Include="..\ForkEat.Core\ForkEat.Core.csproj"/>
+        <ProjectReference Include="..\ForkEat.Web\ForkEat.Web.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="RAW_recipes_fixed.csv">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Update="RAW_recipes_fixed.csv">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

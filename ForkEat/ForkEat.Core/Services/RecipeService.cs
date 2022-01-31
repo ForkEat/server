@@ -139,13 +139,19 @@ public class RecipeService : IRecipeService
             .ToList();
     }
 
-    public async Task<bool> LikeRecipe(Guid userId, Guid recipeId)
-    {
-        var recipe = await recipeRepository.GetRecipeById(recipeId);
-        if (recipe == null)
+        public async Task<IList<GetRecipesResponse>> SearchRecipeByIngredientsText(string[] ingredientNames)
         {
-            throw new RecipeNotFoundException();
+            var productIds = await productRepository.FindProductIdWithFullTextSearch(ingredientNames);
+            return await SearchRecipeByIngredients(productIds);
         }
+
+        public async Task<bool> LikeRecipe(Guid userId, Guid recipeId)
+        {
+            var recipe = await recipeRepository.GetRecipeById(recipeId);
+            if (recipe == null)
+            {
+                throw new RecipeNotFoundException();
+            }
 
         if (await likeRepository.GetLike(userId, recipeId))
         {

@@ -37,13 +37,13 @@ public class RecipesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IList<GetRecipesResponse>>> GetRecipes([FromQuery] Guid[] ingredients)
+    public async Task<ActionResult<IList<GetRecipesResponse>>> GetRecipes([FromQuery] string[] ingredients)
     {
         var userId = Guid.Parse(User.Identity.Name);
         var recipes = await (ingredients.Length == 0
-            ? this.service.GetRecipes(userId)
-            : this.service.SearchRecipeByIngredients(ingredients.ToList()));
-            
+            ? service.GetRecipes(userId)
+            : service.SearchRecipeByIngredientsText(ingredients));
+
         return Ok(recipes);
     }
 
