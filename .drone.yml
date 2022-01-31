@@ -11,6 +11,7 @@ steps:
 - name: test db
   image: postgres:13
   commands:
+  - sleep 15
   - psql -U user -d test
 
 - name: test
