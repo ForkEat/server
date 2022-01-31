@@ -235,7 +235,7 @@ public class RecipeTest : AuthenticatedTests
         result.Name.Should().Be("Test Recipe 1");
         result.Ingredients.Should().HaveCount(2);
         result.Steps.Should().HaveCount(2);
-        result.TotalEstimatedTime.Should().Be(60);
+        result.TotalEstimatedTime.Should().Be(120);
 
         result.Steps[0].Name.Should().Be("Test Step 1");
         result.Steps[0].Instructions.Should().Be("Test Step 1 Instructions");
