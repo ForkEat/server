@@ -60,15 +60,15 @@ namespace ForkEat.Web.Controllers
 
         [HttpPut("{id}")]
         public async Task<ActionResult<GetProductResponse>> UpdateProduct(
-            Guid id,
-            [ModelBinder(BinderType = typeof(JsonModelBinder))]
-            [FromBody] CreateUpdateProductRequest product,            
-            IFormFile image
+                Guid id,
+                [ModelBinder(BinderType = typeof(JsonModelBinder))]
+                CreateUpdateProductRequest payload,            
+                IFormFile image
             )
         {
             try
             {
-                GetProductResponse updatedProduct = await productService.UpdateProduct(id, product);
+                GetProductResponse updatedProduct = await productService.UpdateProduct(id, payload);
                 return updatedProduct;
             }
             catch (ProductNotFoundException)
