@@ -9,13 +9,17 @@ platform:
 
 steps:
 - name: test
+  image: postgres:9-alpine
+  commands:
+  - psql -U user -d test
+
+- name: test
   image: mcr.microsoft.com/dotnet/sdk:6.0
   pull: always
   environment:
     JWT_SECRET: rdtfyguhijgfrdtyg45678
     TEST_DATABASE_URL: postgres://user:password@localhost:5432/test
-    # DATABASE_URL:
-    #   from_secret: test_database_url
+    DATABASE_URL:postgres://user:password@localhost:5432/test
   commands:
     - sleep 15
     - cd ForkEat/
