@@ -39,7 +39,6 @@ namespace ForkEat.Web.Controllers
         {
             DbFileResponse dbImage = await dbFileService.InsertFileInDb(image);
             payload.ImageId = dbImage.Id;
-            
             return Created("", await productService.CreateProduct(payload));
         }
 
@@ -68,6 +67,14 @@ namespace ForkEat.Web.Controllers
         {
             try
             {
+                if (image is not null)
+                {
+                    Guid oldImageId = (await productService.GetProductById(id)).ImageId;
+                    await dbFileService.DeleteFile(oldImageId);
+                    DbFileResponse newImage = await dbFileService.InsertFileInDb(image);
+                    payload.ImageId = newImage.Id;
+                }
+
                 GetProductResponse updatedProduct = await productService.UpdateProduct(id, payload);
                 return updatedProduct;
             }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -29,6 +30,11 @@ namespace ForkEat.Web.Adapters.Files
 
             return new DbFileResponse() {Id = dbFile.Id, Name = dbFile.Name, Type = dbFile.Type};
 
+        }
+
+        public async Task DeleteFile(Guid oldImageId)
+        {
+            await this.repository.DeleteFile(oldImageId);
         }
     }
 }

@@ -7,5 +7,6 @@ namespace ForkEat.Web.Adapters.Files
     {
         Task<DbFile> GetFile(Guid fileId);
         Task<DbFile> InsertFile(DbFile dbFile);
+        Task DeleteFile(Guid oldImageId);
     }
 }

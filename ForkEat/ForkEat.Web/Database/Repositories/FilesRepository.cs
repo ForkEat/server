@@ -25,5 +25,12 @@ namespace ForkEat.Web.Database
             await this.context.SaveChangesAsync();
             return dbFile;
         }
+
+        public async Task DeleteFile(Guid oldImageId)
+        {
+            DbFile file = await this.context.Files.FirstAsync(file => file.Id == oldImageId);
+            this.context.Remove(file);
+            await this.context.SaveChangesAsync();
+        }
     }
 }
