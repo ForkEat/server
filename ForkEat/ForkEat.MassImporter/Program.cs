@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
+using ForkEat.Core.Domain;
 using ForkEat.Web.Database;
 using ForkEat.Web.Database.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -29,53 +25,97 @@ bool IsLineValid(string[] line)
     }
 }
 
-RecipeEntity ParseRecipe(string[] line)
+List<StepEntity>? GetSteps(string stepsJsonString, TimeSpan stepTime)
 {
-    string name = line[0];
-    string stepsJsonString = line[8]
-        .Replace("'", "\"")
-        .Replace("\n", "")
-        .Trim('\"');
-
-    TimeSpan stepTime = TimeSpan.FromMinutes(double.Parse(line[2]) / int.Parse(line[7]));
-    List<StepEntity>? steps = null;
     try
     {
         string[] stepsLines = JsonSerializer.Deserialize<string[]>(stepsJsonString);
         uint i = 0;
-        steps = stepsLines
-            .Select(step => new StepEntity {Instructions = step, Order = i++, EstimatedTime = stepTime })
+        List<StepEntity>? steps = stepsLines
+            .Select(step => new StepEntity {Instructions = step, Order = i++, EstimatedTime = stepTime})
             .ToList();
+
+        return steps;
     }
     catch (Exception e)
     {
         Console.Error.WriteLine(e.Message);
+        return null;
     }
+}
+
+Dictionary<string, ProductEntity> GetProducts(IEnumerable<string> line) =>
+    line.Select(l => l.Split(";"))
+        .Select(l => l[10])
+        .Select(ingredientColumn => ingredientColumn.Replace("'", "\"")
+            .Replace("\n", "")
+            .Trim('\"'))
+        .SelectMany(ingredientColumn => JsonSerializer.Deserialize<string[]>(ingredientColumn))
+        .Select(ingredientName => new ProductEntity() {Id = Guid.NewGuid(), Name = ingredientName})
+        .ToDictionary(product => product.Name, product => product);
+
+
+string SanitizeJsonColumn(string json) => json
+    .Replace("'", "\"")
+    .Replace("\n", "")
+    .Trim('\"');
+
+List<IngredientEntity> GetIngredients(string[] ingredientNames, Dictionary<string, ProductEntity> products)
+{
+    return ingredientNames.Select(ingredientName =>
+    {
+        ProductEntity product = null;
+        if (products.ContainsKey(ingredientName))
+        {
+            product = products[ingredientName];
+        }
+        else
+        {
+            product = new ProductEntity() {Id = Guid.NewGuid(), Name = ingredientName};
+            products[ingredientName] = product;
+        }
+
+        return new IngredientEntity() {Id = Guid.NewGuid(), ProductId = product.Id};
+    }).ToList();
+}
+
+RecipeEntity ParseRecipe(string[] line, Dictionary<string, ProductEntity> products)
+{
+    string name = line[0];
+    string stepsJsonString = SanitizeJsonColumn(line[8]);
+    string ingredientsJsonString = SanitizeJsonColumn(line[10]);
+
+    string[] ingredientNames = JsonSerializer.Deserialize<string[]>(ingredientsJsonString);
+    TimeSpan stepTime = TimeSpan.FromMinutes(double.Parse(line[2]) / int.Parse(line[7]));
+
 
     return new RecipeEntity()
     {
         Name = name,
         Difficulty = 2,
-        Steps = steps ?? new List<StepEntity>(),
+        Steps = GetSteps(stepsJsonString, stepTime),
+        Ingredients = GetIngredients(ingredientNames, products)
     };
 }
+
+Dictionary<string, ProductEntity> products = GetProducts(lines);
 
 List<RecipeEntity> recipes = lines
     .Skip(1)
     .Select(line => line.Split(";"))
     .Where(IsLineValid)
-    .Select(ParseRecipe)
+    .Select(line => ParseRecipe(line))
     .ToList();
 
 Console.WriteLine($"Processed {recipes.Count} records");
 
 var npgsqlConnectionStringBuilder = new NpgsqlConnectionStringBuilder
 {
-    Host = "localhost",
+    Host = "arsenelapostolet.fr",
     Port = 5432,
     Username = "postgres",
-    Password = "mysecretpassword",
-    Database = "forkeat"
+    Password = "arsene10091999",
+    Database = "forkeat-ml"
 };
 var options = new DbContextOptionsBuilder()
     .UseNpgsql(npgsqlConnectionStringBuilder.ToString())
