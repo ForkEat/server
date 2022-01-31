@@ -8,8 +8,8 @@ platform:
 
 
 steps:
-- name: test
-  image: postgres:9-alpine
+- name: test db
+  image: postgres:13
   commands:
   - psql -U user -d test
 
