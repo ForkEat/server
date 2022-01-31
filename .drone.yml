@@ -17,6 +17,7 @@ steps:
     # DATABASE_URL:
     #   from_secret: test_database_url
   commands:
+    - sleep 15
     - cd ForkEat/
     - dotnet test --logger "console;verbosity=detailed" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
