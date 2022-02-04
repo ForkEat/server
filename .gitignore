@@ -7,3 +7,10 @@ ForkEat/.sonarqube
 ForkEat/.vs
 ForkEat/ForkEat.MassImporter/RAW_recipes.csv
 ForkEat/ForkEat.MassImporter/RAW_recipes_fixed.csv
+deploy/terraform/.terraform.lock.hcl
+deploy/terraform/.terraform.tfstate.lock.info
+deploy/terraform/id_rsa
+deploy/terraform/id_rsa.pub
+deploy/terraform/terraform.tfstate
+deploy/terraform/terraform.tfstate.backup
+deploy/terraform/.terraform/
