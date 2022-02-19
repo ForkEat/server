@@ -20,18 +20,19 @@ public class ProductServiceTests
         var productName = "carrot";
         var imageId = Guid.NewGuid();
 
-        var mockRepository = new Mock<IProductRepository>();
+        var mockProductRepository = new Mock<IProductRepository>();
+        var mockProductTypeRepository = new Mock<IProductTypeRepository>();
 
         Product insertedProduct = null;
 
-        mockRepository.Setup(mock => mock.InsertProduct(It.IsAny<Product>()))
+        mockProductRepository.Setup(mock => mock.InsertProduct(It.IsAny<Product>()))
             .Returns<Product>(product =>
             {
                 insertedProduct = product;
                 return Task.FromResult(insertedProduct);
             });
 
-        var service = new ProductService(mockRepository.Object);
+        var service = new ProductService(mockProductRepository.Object, mockProductTypeRepository.Object);
 
         var productRequest = new CreateUpdateProductRequest()
         {
@@ -53,12 +54,13 @@ public class ProductServiceTests
         var productId = Guid.NewGuid();
         var imageId = Guid.NewGuid();
 
-        var mockRepository = new Mock<IProductRepository>();
+        var mockProductRepository = new Mock<IProductRepository>();
+        var mockProductTypeRepository = new Mock<IProductTypeRepository>();
 
-        mockRepository.Setup(mock => mock.FindProductById(productId))
-            .Returns<Guid>(_ => Task.FromResult(new Product(productId, productName, imageId)));
+        mockProductRepository.Setup(mock => mock.FindProductById(productId))
+            .Returns<Guid>(_ => Task.FromResult(new Product(productId, productName, imageId, null)));
 
-        var service = new ProductService(mockRepository.Object);
+        var service = new ProductService(mockProductRepository.Object, mockProductTypeRepository.Object);
 
         var result = await service.GetProductById(productId);
 
@@ -71,12 +73,13 @@ public class ProductServiceTests
     [Fact]
     public async Task GetProductById_WithNonExistingProduct_ThrowsException()
     {
-        var mockRepository = new Mock<IProductRepository>();
+        var mockProductRepository = new Mock<IProductRepository>();
+        var mockProductTypeRepository = new Mock<IProductTypeRepository>();
 
-        mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
+        mockProductRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
             .Returns<Guid>(_ => Task.FromResult<Product>(null));
 
-        var service = new ProductService(mockRepository.Object);
+        var service = new ProductService(mockProductRepository.Object, mockProductTypeRepository.Object);
 
         await service.Invoking(productService => productService.GetProductById(Guid.NewGuid()))
             .Should().ThrowAsync<ProductNotFoundException>();
@@ -94,12 +97,13 @@ public class ProductServiceTests
             product2
         };
 
-        var mockRepository = new Mock<IProductRepository>();
+        var mockProductRepository = new Mock<IProductRepository>();
+        var mockProductTypeRepository = new Mock<IProductTypeRepository>();
 
-        mockRepository.Setup(mock => mock.FindAllProducts())
+        mockProductRepository.Setup(mock => mock.FindAllProducts())
             .Returns(() => Task.FromResult<List<Product>>(products));
 
-        var service = new ProductService(mockRepository.Object);
+        var service = new ProductService(mockProductRepository.Object, mockProductTypeRepository.Object);
 
         var result = await service.GetAllProducts();
         result.Should().HaveCount(2);
@@ -111,12 +115,13 @@ public class ProductServiceTests
         var productName = "carrot";
         var productId = Guid.NewGuid();
 
-        var mockRepository = new Mock<IProductRepository>();
+        var mockProductRepository = new Mock<IProductRepository>();
+        var mockProductTypeRepository = new Mock<IProductTypeRepository>();
 
-        mockRepository.Setup(mock => mock.FindProductById(productId))
-            .Returns<Guid>(_ => Task.FromResult(new Product(productId, productName, Guid.NewGuid())));
+        mockProductRepository.Setup(mock => mock.FindProductById(productId))
+            .Returns<Guid>(_ => Task.FromResult(new Product(productId, productName, Guid.NewGuid(), null)));
 
-        var service = new ProductService(mockRepository.Object);
+        var service = new ProductService(mockProductRepository.Object, mockProductTypeRepository.Object);
 
         await service.Invoking(productService => productService.DeleteProduct(productId))
             .Should().NotThrowAsync<Exception>();
@@ -125,12 +130,13 @@ public class ProductServiceTests
     [Fact]
     public async Task DeleteProduct_WithNonExistingProduct_ThrowsException()
     {
-        var mockRepository = new Mock<IProductRepository>();
+        var mockProductRepository = new Mock<IProductRepository>();
+        var mockProductTypeRepository = new Mock<IProductTypeRepository>();
 
-        mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
+        mockProductRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
             .Returns<Guid>(_ => Task.FromResult<Product>(null));
 
-        var service = new ProductService(mockRepository.Object);
+        var service = new ProductService(mockProductRepository.Object, mockProductTypeRepository.Object);
 
         await service.Invoking(productService => productService.DeleteProduct(Guid.NewGuid()))
             .Should().ThrowAsync<ProductNotFoundException>();
@@ -142,21 +148,22 @@ public class ProductServiceTests
         var productName = "carrot";
         var productId = Guid.NewGuid();
 
-        var mockRepository = new Mock<IProductRepository>();
+        var mockProductRepository = new Mock<IProductRepository>();
+        var mockProductTypeRepository = new Mock<IProductTypeRepository>();
 
         Product updatedProduct = null;
 
-        mockRepository.Setup(mock => mock.FindProductById(productId))
-            .Returns<Guid>(_ => Task.FromResult(new Product(productId, productName, Guid.NewGuid())));
+        mockProductRepository.Setup(mock => mock.FindProductById(productId))
+            .Returns<Guid>(_ => Task.FromResult(new Product(productId, productName, Guid.NewGuid(), null)));
 
-        mockRepository.Setup(mock => mock.UpdateProduct(It.IsAny<Product>()))
+        mockProductRepository.Setup(mock => mock.UpdateProduct(It.IsAny<Product>()))
             .Returns<Product>(product =>
             {
                 updatedProduct = product;
                 return Task.FromResult(updatedProduct);
             });
 
-        var service = new ProductService(mockRepository.Object);
+        var service = new ProductService(mockProductRepository.Object, mockProductTypeRepository.Object);
 
         var updateProductRequest = new CreateUpdateProductRequest()
         {
@@ -180,12 +187,13 @@ public class ProductServiceTests
             Name = "carrot updated"
         };
 
-        var mockRepository = new Mock<IProductRepository>();
+        var mockProductRepository = new Mock<IProductRepository>();
+        var mockProductTypeRepository = new Mock<IProductTypeRepository>();
 
-        mockRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
+        mockProductRepository.Setup(mock => mock.FindProductById(It.IsAny<Guid>()))
             .Returns<Guid>(_ => Task.FromResult<Product>(null));
 
-        var service = new ProductService(mockRepository.Object);
+        var service = new ProductService(mockProductRepository.Object, mockProductTypeRepository.Object);
 
         await service.Invoking(productService => productService.UpdateProduct(productId, updateProductRequest))
             .Should().ThrowAsync<ProductNotFoundException>();
@@ -196,6 +204,6 @@ public class ProductServiceTests
         var productName = "carrot";
         var productId = Guid.NewGuid();
 
-        return new Product(productId, productName + " " + productId, Guid.NewGuid());
+        return new Product(productId, productName + " " + productId, Guid.NewGuid(), null);
     }
 }

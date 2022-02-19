@@ -32,7 +32,7 @@ public class StockRepositoryTests : RepositoryTest
         var (productEntity, _) = await this.dataFactory.CreateAndInsertProducts();
 
 
-        var product = new Product(productEntity.Id, productEntity.Name, productEntity.ImageId);
+        var product = new Product(productEntity.Id, productEntity.Name, productEntity.ImageId, productEntity.ProductType);
         var stockToInsert = new Stock(2.5, unit, product);
         var repository = new StockRepository(context);
 
@@ -85,7 +85,7 @@ public class StockRepositoryTests : RepositoryTest
         await context.SaveChangesAsync();
 
         var stock = new Stock(stockId, 7, unit,
-            new Product(productEntity.Id, productEntity.Name, productEntity.ImageId));
+            new Product(productEntity.Id, productEntity.Name, productEntity.ImageId, productEntity.ProductType));
         var repository = new StockRepository(context);
 
         context.Entry(stockEntity).State = EntityState.Detached;
@@ -137,7 +137,7 @@ public class StockRepositoryTests : RepositoryTest
 
         // Then
         await repository.DeleteStock(new Stock(stockId, 2.5, unit,
-            new Product(product.Id, product.Name, product.ImageId)));
+            new Product(product.Id, product.Name, product.ImageId, product.ProductType)));
         context.Stocks.Should().BeEmpty();
     }
 

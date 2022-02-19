@@ -31,7 +31,7 @@ public class ProductRepository : IProductRepository
             .Products
             .FirstOrDefaultAsync(product => product.Id == id);
 
-        return entity is null ? null : new Product(entity.Id, entity.Name, entity.ImageId);
+        return entity is null ? null : new Product(entity.Id, entity.Name, entity.ImageId, entity.ProductType);
     }
 
         public async Task<List<Guid>> FindProductIdWithFullTextSearch(string[] words)
@@ -46,15 +46,14 @@ public class ProductRepository : IProductRepository
         public async Task<List<Product>> FindAllProducts()
         {
             var products = await dbContext.Products.ToListAsync();
-            var recipes = await dbContext.Products.ToListAsync();
-            return recipes
-                .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId))
+            return products
+                .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId, entity.ProductType))
                 .ToList();
         }
 
         public async Task DeleteProduct(Product product)
         {
-            ProductEntity entity = await dbContext.Products.FirstAsync(entity => entity.Id == product.Id);
+            var entity = await dbContext.Products.FirstAsync(entity => entity.Id == product.Id);
             dbContext.Products.Remove(entity);
             await dbContext.SaveChangesAsync();
         }
@@ -78,7 +77,7 @@ public class ProductRepository : IProductRepository
                 .ToListAsync();
 
             return products
-                .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId))
+                .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId, entity.ProductType))
                 .ToDictionary(p => p.Id, p => p);
         }
 }

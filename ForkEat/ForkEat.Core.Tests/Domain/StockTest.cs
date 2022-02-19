@@ -8,7 +8,7 @@ namespace ForkEat.Core.Tests.Domain;
 public class StockTest
 {
     private readonly Unit unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
-    private readonly Product product = new Product(Guid.NewGuid(), "Test Product", Guid.NewGuid());
+    private readonly Product product = new Product(Guid.NewGuid(), "Test Product", Guid.NewGuid(), null);
 
         
     [Fact]

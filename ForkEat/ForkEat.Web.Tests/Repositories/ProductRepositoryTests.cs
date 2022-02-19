@@ -95,7 +95,7 @@ public class ProductRepositoryTests : RepositoryTest
         var productEntity = await this.dataFactory.CreateAndInsertProduct();
         var repository = new ProductRepository(context);
 
-        var product = new Product(productEntity.Id, productEntity.Name, productEntity.ImageId);
+        var product = new Product(productEntity.Id, productEntity.Name, productEntity.ImageId, productEntity.ProductType);
             
         // Then
         await repository
@@ -119,7 +119,7 @@ public class ProductRepositoryTests : RepositoryTest
 
         var repository = new ProductRepository(context);
 
-        var product = new Product(productId, "Carrot updated", imageId);
+        var product = new Product(productId, "Carrot updated", imageId, null);
 
         //When
             
@@ -184,5 +184,17 @@ public class ProductRepositoryTests : RepositoryTest
 
             var repository = new ProductRepository(context);
 
+            var productNames = productEntities
+                .Take(2)
+                .Select(product => product.Name)
+                .ToArray();
+
+            // When
+            var result = await repository.FindProductIdWithFullTextSearch(productNames);
+
+            // Then
+            result.Should().HaveCount(2);
+            result.Should().Contain(productEntities[0].Id);
+            result.Should().Contain(productEntities[1].Id);
     }
 }

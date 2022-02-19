@@ -12,7 +12,7 @@ public class IngredientTest
     {
         // Given
         var ingredient = new Ingredient(
-            1, new Product(Guid.NewGuid(),"Test product", Guid.NewGuid()),
+            1, new Product(Guid.NewGuid(),"Test product", Guid.NewGuid(), null),
             new Unit()
             {
                 Id = Guid.NewGuid(),
@@ -30,7 +30,7 @@ public class IngredientTest
     {
         // Given
         var ingredient = new Ingredient(
-            1,new Product(Guid.NewGuid(),"Test product", Guid.NewGuid()),
+            1,new Product(Guid.NewGuid(),"Test product", Guid.NewGuid(), null),
             new Unit()
             {
                 Id = Guid.NewGuid(),
@@ -48,7 +48,7 @@ public class IngredientTest
     {
         // Given
         var ingredient = new Ingredient(
-            1, new Product(Guid.NewGuid(),"Test product", Guid.NewGuid()),
+            1, new Product(Guid.NewGuid(),"Test product", Guid.NewGuid(), null),
             new Unit()
             {
                 Id = Guid.NewGuid(),

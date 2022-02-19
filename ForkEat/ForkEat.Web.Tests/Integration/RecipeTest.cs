@@ -371,9 +371,9 @@ public class RecipeTest : AuthenticatedTests
     public async Task PerformRecipe_ConsumesStock()
     {
         // Given
-        var milk = new Product("Milk", Guid.NewGuid());
-        var floor = new Product("Floor", Guid.NewGuid());
-        var egg = new Product("Eggs", Guid.NewGuid());
+        var milk = new Product("Milk", Guid.NewGuid(), null);
+        var floor = new Product("Floor", Guid.NewGuid(), null);
+        var egg = new Product("Eggs", Guid.NewGuid(), null);
         var milkEntity = new ProductEntity(milk);
         var floorEntity = new ProductEntity(floor);
         var eggEntity = new ProductEntity(egg);

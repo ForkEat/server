@@ -12,10 +12,10 @@ public class KitchenTest
     public void CookRecipe_RemovesIngredientsFromStock()
     {
         // Given
-        var milk = new Product("Milk", Guid.NewGuid());
-        var floor = new Product("Floor", Guid.NewGuid());
-        var egg = new Product("Eggs", Guid.NewGuid());
-        var tomatoes = new Product("Tomatoes", Guid.NewGuid());
+        var milk = new Product("Milk", Guid.NewGuid(), null);
+        var floor = new Product("Floor", Guid.NewGuid(), null);
+        var egg = new Product("Eggs", Guid.NewGuid(), null);
+        var tomatoes = new Product("Tomatoes", Guid.NewGuid(), null);
 
         var g = new Unit() {Id = Guid.NewGuid(), Name = "Gramme", Symbol = "g"};
         var L = new Unit() {Id = Guid.NewGuid(), Name = "Litre", Symbol = "L"};
@@ -56,10 +56,10 @@ public class KitchenTest
     public void CookRecipe_DifferentUnit_ThrowsException()
     {
         // Given
-        var milk = new Product("Milk", Guid.NewGuid());
-        var floor = new Product("Floor", Guid.NewGuid());
-        var egg = new Product("Eggs", Guid.NewGuid());
-        var tomatoes = new Product("Tomatoes", Guid.NewGuid());
+        var milk = new Product("Milk", Guid.NewGuid(), null);
+        var floor = new Product("Floor", Guid.NewGuid(), null);
+        var egg = new Product("Eggs", Guid.NewGuid(), null);
+        var tomatoes = new Product("Tomatoes", Guid.NewGuid(), null);
 
         var g = new Unit() {Id = Guid.NewGuid(), Name = "Gramme", Symbol = "g"};
         var L = new Unit() {Id = Guid.NewGuid(), Name = "Litre", Symbol = "L"};
