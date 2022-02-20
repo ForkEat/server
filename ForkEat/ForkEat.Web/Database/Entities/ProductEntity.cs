@@ -8,6 +8,8 @@ public class ProductEntity
     public Guid Id { get; set; }
     public string Name { get; set; }
     public Guid ImageId { get; set; }
+    public Guid? ProductTypeId { get; set; }
+    public ProductType? ProductType { get; set; }
 
     public ProductEntity()
     {
@@ -19,5 +21,6 @@ public class ProductEntity
         Id = product.Id;
         Name = product.Name;
         ImageId = product.ImageId;
+        ProductType = product.ProductType;
     }
 }

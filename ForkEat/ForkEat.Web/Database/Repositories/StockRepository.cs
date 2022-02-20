@@ -61,7 +61,8 @@ public class StockRepository : IStockRepository
             new Product(
                 entity.Product.Id,
                 entity.Product.Name,
-                entity.Product.ImageId)
+                entity.Product.ImageId,
+                entity.Product.ProductType)
         )
         {
             PurchaseDate = entity.PurchaseDate,

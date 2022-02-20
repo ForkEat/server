@@ -35,6 +35,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<ProductEntity>().HasKey(product => product.Id);
         modelBuilder.Entity<ProductEntity>().Property(product => product.Name);
         modelBuilder.Entity<ProductEntity>().Property(product => product.ImageId);
+        modelBuilder.Entity<ProductEntity>().HasOne(product => product.ProductType).WithMany()
+            .HasForeignKey(product => product.ProductTypeId);
 
         modelBuilder.Entity<DbFile>().HasKey(file => file.Id);
         modelBuilder.Entity<DbFile>().Property(file => file.Type);
@@ -80,5 +82,7 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ProductType>().HasKey(productType => productType.Id);
         modelBuilder.Entity<ProductType>().Property(productType => productType.Name);
+        modelBuilder.Entity<ProductType>().HasMany<ProductEntity>().WithOne().HasForeignKey(product => product.ProductTypeId);
+
     }
 }

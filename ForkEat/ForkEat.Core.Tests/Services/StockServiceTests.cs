@@ -62,7 +62,7 @@ public class StockServiceTests
         Stock insertedStock = null;
 
         productMockRepository.Setup(mock => mock.FindProductById(productId))
-            .Returns<Guid>(_ => Task.FromResult(new Product(productId,productName, Guid.NewGuid())));
+            .Returns<Guid>(_ => Task.FromResult(new Product(productId,productName, Guid.NewGuid(), null)));
 
         unitMockRepository.Setup(mock => mock.FindUnitById(unitId))
             .Returns<Guid>(_ => Task.FromResult(new Unit()
@@ -107,7 +107,7 @@ public class StockServiceTests
         var unitSymbol = "kg";
         var unitId = Guid.NewGuid();
 
-        var product = new Product("Test Product", Guid.NewGuid());
+        var product = new Product("Test Product", Guid.NewGuid(), null);
             
         var stockMockRepository = new Mock<IStockRepository>();
         var productMockRepository = new Mock<IProductRepository>();
@@ -122,7 +122,7 @@ public class StockServiceTests
 
          
         productMockRepository.Setup(mock => mock.FindProductById(productId))
-            .Returns<Guid>(_ => Task.FromResult(new Product(productId,productName, Guid.NewGuid())));
+            .Returns<Guid>(_ => Task.FromResult(new Product(productId,productName, Guid.NewGuid(), null)));
 
         unitMockRepository.Setup(mock => mock.FindUnitById(unitId))
             .Returns<Guid>(_ => Task.FromResult(new Unit()
@@ -171,7 +171,7 @@ public class StockServiceTests
         var unitSymbol = "kg";
         var unitId = Guid.NewGuid();
 
-        var product = new Product("Test Product", Guid.NewGuid());
+        var product = new Product("Test Product", Guid.NewGuid(), null);
             
         var stockMockRepository = new Mock<IStockRepository>();
         var productMockRepository = new Mock<IProductRepository>();
@@ -220,7 +220,7 @@ public class StockServiceTests
     [Fact]
     public async Task GetStocks_ReturnsList()
     {
-        var product = new Product("Test Product", Guid.NewGuid());
+        var product = new Product("Test Product", Guid.NewGuid(), null);
 
         var stock = new Stock(Guid.NewGuid(), 3, new Unit()
         {
@@ -252,8 +252,8 @@ public class StockServiceTests
     public async Task GetCompleteStock()
     {
         // Given
-        var product1 = new Product("Test Product 1", Guid.NewGuid());
-        var product2 = new Product("Test Product 2", Guid.NewGuid());
+        var product1 = new Product("Test Product 1", Guid.NewGuid(), null);
+        var product2 = new Product("Test Product 2", Guid.NewGuid(), null);
             
         var unit = new Unit()
         {

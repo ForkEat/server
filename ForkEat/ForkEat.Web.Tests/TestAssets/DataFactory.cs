@@ -18,8 +18,8 @@ public class DataFactory
 
     public (Product, Product) CreateProducts()
     {
-        var product1 = new Product(Guid.NewGuid(), "Product 1", Guid.NewGuid());
-        var product2 = new Product(Guid.NewGuid(), "Product 2", Guid.NewGuid());
+        var product1 = new Product(Guid.NewGuid(), "Product 1", Guid.NewGuid(), null);
+        var product2 = new Product(Guid.NewGuid(), "Product 2", Guid.NewGuid(), null);
         return (product1, product2);
     }
         
@@ -76,7 +76,8 @@ public class DataFactory
         (
             productId,
             productName,
-            Guid.NewGuid()
+            Guid.NewGuid(),
+            null
         );
     }
 

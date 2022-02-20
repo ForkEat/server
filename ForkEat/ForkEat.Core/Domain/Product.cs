@@ -8,6 +8,8 @@ public class Product
 
     private string name;
 
+    public ProductType? ProductType { get; set; }
+
     public string Name
     {
         get => name;
@@ -24,14 +26,15 @@ public class Product
         set => imageId = value != Guid.Empty ? value : throw new ArgumentException("Product Image Id should not be empty");
     }
 
-    public Product(Guid id, string name, Guid imageId)
+    public Product(Guid id, string name, Guid imageId, ProductType productType)
     {
         Id = id != Guid.Empty ? id : throw new ArgumentException("Product Id should not be empty") ;
         Name = name;
         ImageId = imageId;
+        ProductType = productType;
     }
 
-    public Product(string name, Guid imageId) : this(Guid.NewGuid(), name, imageId)
+    public Product(string name, Guid imageId, ProductType productType) : this(Guid.NewGuid(), name, imageId, productType)
     {
     }
 }

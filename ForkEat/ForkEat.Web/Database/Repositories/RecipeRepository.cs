@@ -116,7 +116,7 @@ public class RecipeRepository : IRecipeRepository
             entity.Ingredients.Select(ingredientEntity =>
                 new Ingredient(
                     ingredientEntity.Quantity,
-                    new Product(ingredientEntity.Product.Id, ingredientEntity.Product.Name, ingredientEntity.Product.ImageId),
+                    new Product(ingredientEntity.Product.Id, ingredientEntity.Product.Name, ingredientEntity.Product.ImageId, ingredientEntity.Product.ProductType),
                     ingredientEntity.Unit
                 )
             ).ToList(), entity.ImageId);

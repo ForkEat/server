@@ -33,7 +33,7 @@ public class RecipeRepositoryTests : RepositoryTest
             },
             new List<Ingredient>()
             {
-                new Ingredient(1, new Product(product.Id, product.Name, product.ImageId), unit)
+                new Ingredient(1, new Product(product.Id, product.Name, product.ImageId, product.ProductType), unit)
             },
             Guid.NewGuid()
         );
