@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -8,8 +9,12 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Core.Domain;
+using ForkEat.Web.Adapters.Files;
+using ForkEat.Web.Database;
 using ForkEat.Web.Database.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace ForkEat.Web.Tests.Integration;
@@ -17,12 +22,12 @@ namespace ForkEat.Web.Tests.Integration;
 public class RecipeTest : AuthenticatedTests
 {
     public RecipeTest(WebApplicationFactory<Startup> factory) : base(factory,
-        new string[] {"Likes", "Stocks", "Recipes", "Steps", "Ingredients", "Products", "Units"})
+        new string[] {"Likes", "Stocks", "Recipes", "Steps", "Ingredients", "Products", "Units","Files"})
     {
     }
 
     [Fact]
-    public async Task CreateRecipe_Returns201()
+    public async Task CreateRecipe_WithValidData_Returns201InsertsRecipeAndImage()
     {
         // Given
         var unit = new Unit() {Id = Guid.NewGuid(), Name = "Kilogramme", Symbol = "kg"};
@@ -62,9 +67,8 @@ public class RecipeTest : AuthenticatedTests
             }
         };
 
-
         // When
-        var response = await client.PostAsJsonAsync("/api/recipes", recipeRequest);
+        var response = await client.PostAsync("/api/recipes", CreateRecipeRequestContent(recipeRequest));
 
         // Then
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -101,8 +105,156 @@ public class RecipeTest : AuthenticatedTests
         ingredient2Response.Name.Should().Be("Product 2");
         ingredient2Response.Unit.Name.Should().Be("Kilogramme");
         ingredient2Response.Unit.Symbol.Should().Be("kg");
+        
+        await AssertThatFileIsEquivalentToImageFromApi("TestAssets/test-file.gif", result.ImageId);
+        
+        await using var specialContext = new ApplicationDbContext(this.GetOptionsForOtherDbContext());
+        RecipeEntity recipeEntityUpdated = await specialContext.Recipes.FirstAsync(record => record.Id == result.Id);
+        recipeEntityUpdated.Name.Should().Be(recipeRequest.Name);
     }
 
+    
+    [Fact]
+    public async Task UpdateRecipe_WithExistingProductAndNewImage_UpdatesRecipeInDbAndReplaceImage()
+    {
+        // Given
+        var (recipeEntity1, _) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
+        await this.context.Files.AddAsync(new DbFile() {Id = recipeEntity1.ImageId, Name = "test"});
+        await this.context.SaveChangesAsync();
+
+        var updatePayload = new UpdateRecipeRequest()
+        {
+            Id = recipeEntity1.Id,
+            Name = "Test Recipe 1 Updated",
+            Difficulty = 2,
+            Ingredients = new List<CreateOrUpdateIngredientRequest>()
+            {
+                new CreateOrUpdateIngredientRequest()
+                {
+                    ProductId = recipeEntity1.Ingredients[0].Product.Id,
+                    UnitId = recipeEntity1.Ingredients[0].Unit.Id, Quantity = 3
+                },
+            },
+            Steps = new List<CreateOrUpdateStepRequest>()
+            {
+                new CreateOrUpdateStepRequest()
+                {
+                    EstimatedTime = 150, Instructions = "Test Step 1 Instructions Updated",
+                    Name = "Test Step 1 updated"
+                },
+                new CreateOrUpdateStepRequest()
+                {
+                    EstimatedTime = 210, Instructions = "Test Step 2 Instructions Updated",
+                    Name = "Test Step 2 updated"
+                },
+                new CreateOrUpdateStepRequest()
+                {
+                    EstimatedTime = 270, Instructions = "Test Step 3 Instructions Updated",
+                    Name = "Test Step 3 updated"
+                },
+                new CreateOrUpdateStepRequest()
+                {
+                    EstimatedTime = 3600, Instructions = "Test Step 4 Instructions",
+                    Name = "Test Step 4"
+                },
+            }
+        };
+
+        // When
+        var response = await this.client.PutAsync($"/api/recipes/{recipeEntity1.Id}", CreateRecipeRequestContent(updatePayload));
+
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadAsAsync<GetRecipeWithStepsAndIngredientsResponse>();
+        result.Id.Should().Be(recipeEntity1.Id);
+        result.Name.Should().Be("Test Recipe 1 Updated");
+        result.Difficulty.Should().Be(2);
+        result.TotalEstimatedTime.Should().Be(4230);
+        result.Ingredients.Should().HaveCount(1);
+        result.Steps.Should().HaveCount(4);
+        result.Ingredients[0].Quantity.Should().Be(3);
+        
+        await using var specialContext = new ApplicationDbContext(this.GetOptionsForOtherDbContext());
+        RecipeEntity recipeEntityUpdated = await specialContext.Recipes.FirstAsync(record => record.Id == recipeEntity1.Id);
+        recipeEntityUpdated.Name.Should().Be($"Test Recipe 1 Updated");
+        recipeEntityUpdated.ImageId.Should().NotBe(recipeEntity1.ImageId);
+        
+        int filesCount = await specialContext.Files.CountAsync();
+        filesCount.Should().Be(1);
+    }
+    
+        
+    [Fact]
+    public async Task UpdateRecipe_WithExistingProductAndNoImage_UpdatesRecipeInDbAndReplaceImage()
+    {
+        // Given
+        var (recipeEntity1, _) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
+        await this.context.Files.AddAsync(new DbFile() {Id = recipeEntity1.ImageId, Name = "test"});
+        await this.context.SaveChangesAsync();
+
+        var updatePayload = new UpdateRecipeRequest()
+        {
+            Id = recipeEntity1.Id,
+            Name = "Test Recipe 1 Updated",
+            Difficulty = 2,
+            Ingredients = new List<CreateOrUpdateIngredientRequest>()
+            {
+                new CreateOrUpdateIngredientRequest()
+                {
+                    ProductId = recipeEntity1.Ingredients[0].Product.Id,
+                    UnitId = recipeEntity1.Ingredients[0].Unit.Id, Quantity = 3
+                },
+            },
+            Steps = new List<CreateOrUpdateStepRequest>()
+            {
+                new CreateOrUpdateStepRequest()
+                {
+                    EstimatedTime = 150, Instructions = "Test Step 1 Instructions Updated",
+                    Name = "Test Step 1 updated"
+                },
+                new CreateOrUpdateStepRequest()
+                {
+                    EstimatedTime = 210, Instructions = "Test Step 2 Instructions Updated",
+                    Name = "Test Step 2 updated"
+                },
+                new CreateOrUpdateStepRequest()
+                {
+                    EstimatedTime = 270, Instructions = "Test Step 3 Instructions Updated",
+                    Name = "Test Step 3 updated"
+                },
+                new CreateOrUpdateStepRequest()
+                {
+                    EstimatedTime = 3600, Instructions = "Test Step 4 Instructions",
+                    Name = "Test Step 4"
+                },
+            }
+        };
+
+        // When
+        var response = await this.client.PutAsync($"/api/recipes/{recipeEntity1.Id}", CreateRecipeRequestContentNoImage(updatePayload));
+
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var result = await response.Content.ReadAsAsync<GetRecipeWithStepsAndIngredientsResponse>();
+        result.Id.Should().Be(recipeEntity1.Id);
+        result.Name.Should().Be("Test Recipe 1 Updated");
+        result.Difficulty.Should().Be(2);
+        result.TotalEstimatedTime.Should().Be(4230);
+        result.Ingredients.Should().HaveCount(1);
+        result.Steps.Should().HaveCount(4);
+        result.Ingredients[0].Quantity.Should().Be(3);
+        
+        await using var specialContext = new ApplicationDbContext(this.GetOptionsForOtherDbContext());
+        RecipeEntity recipeEntityUpdated = await specialContext.Recipes.FirstAsync(record => record.Id == recipeEntity1.Id);
+        recipeEntityUpdated.Name.Should().Be($"Test Recipe 1 Updated");
+        recipeEntityUpdated.ImageId.Should().NotBe(recipeEntity1.ImageId);
+        
+        int filesCount = await specialContext.Files.CountAsync();
+        filesCount.Should().Be(1);
+    }
+    
     [Fact]
     public async Task CreateRecipe_InvalidArgEmptyName_Returns400()
     {
@@ -258,78 +410,22 @@ public class RecipeTest : AuthenticatedTests
     }
 
     [Fact]
-    public async Task DeleteRecipe_DeletesRecipeFromDatabase()
+    public async Task DeleteRecipe_DeletesRecipeFromDatabaseAndDeleteImage()
     {
         // Given
         var (recipeEntity1, _) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
-
+        await this.context.Files.AddAsync(new DbFile() {Id = recipeEntity1.ImageId, Name = "test"});
+        await this.context.SaveChangesAsync();
+        
         // When
         var response = await this.client.DeleteAsync($"/api/recipes/{recipeEntity1.Id}");
 
         // Then
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        this.context.Recipes.Should().ContainSingle();
-    }
 
-    [Fact]
-    public async Task UpdateRecipe_UpdatesRecipeInDb()
-    {
-        // Given
-        var (recipeEntity1, _) = await this.dataFactory.CreateAndInsertRecipesWithIngredientsAndSteps();
-
-
-        var updatePayload = new UpdateRecipeRequest()
-        {
-            Id = recipeEntity1.Id,
-            Name = "Test Recipe 1 Updated",
-            Difficulty = 2,
-            Ingredients = new List<CreateOrUpdateIngredientRequest>()
-            {
-                new CreateOrUpdateIngredientRequest()
-                {
-                    ProductId = recipeEntity1.Ingredients[0].Product.Id,
-                    UnitId = recipeEntity1.Ingredients[0].Unit.Id, Quantity = 3
-                },
-            },
-            Steps = new List<CreateOrUpdateStepRequest>()
-            {
-                new CreateOrUpdateStepRequest()
-                {
-                    EstimatedTime = 150, Instructions = "Test Step 1 Instructions Updated",
-                    Name = "Test Step 1 updated"
-                },
-                new CreateOrUpdateStepRequest()
-                {
-                    EstimatedTime = 210, Instructions = "Test Step 2 Instructions Updated",
-                    Name = "Test Step 2 updated"
-                },
-                new CreateOrUpdateStepRequest()
-                {
-                    EstimatedTime = 270, Instructions = "Test Step 3 Instructions Updated",
-                    Name = "Test Step 3 updated"
-                },
-                new CreateOrUpdateStepRequest()
-                {
-                    EstimatedTime = 3600, Instructions = "Test Step 4 Instructions",
-                    Name = "Test Step 4"
-                },
-            }
-        };
-
-        // When
-        var response = await this.client.PutAsJsonAsync($"/api/recipes/{recipeEntity1.Id}", updatePayload);
-
-        // Then
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var result = await response.Content.ReadAsAsync<GetRecipeWithStepsAndIngredientsResponse>();
-        result.Id.Should().Be(recipeEntity1.Id);
-        result.Name.Should().Be("Test Recipe 1 Updated");
-        result.Difficulty.Should().Be(2);
-        result.TotalEstimatedTime.Should().Be(4230);
-        result.Ingredients.Should().HaveCount(1);
-        result.Steps.Should().HaveCount(4);
-        result.Ingredients[0].Quantity.Should().Be(3);
+        await using var specialContext = new ApplicationDbContext(this.GetOptionsForOtherDbContext());
+        (await specialContext.Recipes.CountAsync()).Should().Be(1);
+        (await specialContext.Files.CountAsync()).Should().Be(0);
     }
 
     [Fact]
@@ -432,4 +528,27 @@ public class RecipeTest : AuthenticatedTests
         eggStockFromDb.First().Quantity.Should().Be(3);
     }
 
+    private static MultipartFormDataContent CreateRecipeRequestContent(CreateRecipeRequest recipeRequest)
+    {
+        var formDataContent = new MultipartFormDataContent(Guid.NewGuid().ToString());
+
+        var stringContent = new StringContent(JsonConvert.SerializeObject(recipeRequest));
+        formDataContent.Add(stringContent, "payload");
+
+        var streamContent = new StreamContent(File.OpenRead("TestAssets/test-file.gif"));
+        streamContent.Headers.Add("Content-Type", "application/octet-stream");
+
+        formDataContent.Add(streamContent, "image", Path.GetFileName("TestAssets/test-file.gif"));
+        return formDataContent;
+    }
+        
+    private static MultipartFormDataContent CreateRecipeRequestContentNoImage(CreateRecipeRequest recipeRequest)
+    {
+        var formDataContent = new MultipartFormDataContent(Guid.NewGuid().ToString());
+
+        var stringContent = new StringContent(JsonConvert.SerializeObject(recipeRequest));
+        formDataContent.Add(stringContent, "payload");
+        
+        return formDataContent;
+    }
 }
