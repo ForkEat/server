@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Threading.Tasks;
+using FluentAssertions;
 using ForkEat.Core.Contracts;
 using ForkEat.Web.Adapters.Json;
 using ForkEat.Web.Database;
@@ -60,5 +62,13 @@ public abstract class IntegrationTest : DatabaseTest, IClassFixture<WebApplicati
         var loginResult = await loginResponse.Content.ReadAsAsync<LoginUserResponse>();
 
         return loginResult.Token;
+    }
+
+    protected async Task AssertThatFileIsEquivalentToImageFromApi(string filePath, Guid imageId)
+    {
+        var file = await File.ReadAllBytesAsync(filePath);
+        var fileData = await client.GetAsync($"api/files/{imageId}");
+        var resultData = await fileData.Content.ReadAsByteArrayAsync();
+        resultData.Should().BeEquivalentTo(file);
     }
 }

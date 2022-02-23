@@ -37,16 +37,22 @@ namespace ForkEat.Web.Controllers
             IFormFile image
         )
         {
-            DbFileResponse dbImage = await dbFileService.InsertFileInDb(image);
-            payload.ImageId = dbImage.Id;
+            if (image is not null)
+            {
+                DbFileResponse dbImage = await dbFileService.InsertFileInDb(image);
+                payload.ImageId = dbImage.Id;
+            }
+
             return Created("", await productService.CreateProduct(payload));
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Product>> DeleteProduct(Guid id)
+        public async Task<IActionResult> DeleteProduct(Guid id)
         {
             try
             {
+                GetProductResponse product = await productService.GetProductById(id);
+                await dbFileService.DeleteFile(product.ImageId);
                 await productService.DeleteProduct(id);
             }
             catch (ProductNotFoundException)
@@ -54,7 +60,7 @@ namespace ForkEat.Web.Controllers
                 return NotFound("Product with id: " + id + " was not found");
             }
 
-            return Ok();
+            return NoContent();
         }
 
         [HttpPut("{id}")]
