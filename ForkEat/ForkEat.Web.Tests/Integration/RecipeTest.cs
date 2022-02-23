@@ -268,7 +268,7 @@ public class RecipeTest : AuthenticatedTests
         };
 
         // When
-        var response = await client.PostAsJsonAsync("/api/recipes", recipeRequest);
+        var response = await client.PostAsync("/api/recipes", CreateRecipeRequestContent(recipeRequest));
 
         // Then
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);

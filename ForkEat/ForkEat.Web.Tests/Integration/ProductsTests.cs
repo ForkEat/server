@@ -105,7 +105,7 @@ namespace ForkEat.Web.Tests.Integration
             var response = await client.DeleteAsync("/api/products/" + productId);
 
             // Then
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
             var getResponse = await client.GetAsync("/api/products/" + productId);
             getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
             
