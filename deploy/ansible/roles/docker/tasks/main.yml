@@ -1,0 +1,44 @@
+---
+- name: Include OS-specific variables
+  include_vars: "all.yml"
+
+- name: Install required system packages
+  package: 
+    update_cache: yes 
+    state: latest
+    name: "{{ docker_deps }}"
+
+- name: Install Docker (Ubuntu)
+  block:
+  - name: Add Docker GPG apt Key
+    apt_key:
+      url: https://download.docker.com/linux/debian/gpg
+      state: present
+
+  - name: Add Docker Repository
+    apt_repository:
+      repo: deb https://download.docker.com/linux/debian buster stable
+      state: present
+
+- name: Update apt and install docker-ce
+  apt: 
+    update_cache: yes 
+    name: "{{ docker_packages }}"
+    state: latest
+
+- name: Ensure group docker exists
+  group:
+    name: docker
+    state: present
+
+- name: Launch forkeat container
+  docker:
+    name: forkeatserver
+    image: thomaslacaze/forkeat-server:linux-amd64
+    state: reloaded
+    pull: always
+    environment:
+      - DATABASE_URL={{ DATABASE_URL }}
+      - JWT_SECRET="testdgkdshmgjk"
+    ports:
+    - "80:80"
