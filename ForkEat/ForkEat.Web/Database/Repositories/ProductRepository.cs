@@ -60,9 +60,10 @@ public class ProductRepository : IProductRepository
 
         public async Task<Product> UpdateProduct(Product newProduct)
         {
-            ProductEntity entity = await dbContext.Products.FirstAsync(entity => entity.Id == newProduct.Id);
+            var entity = await dbContext.Products.FirstAsync(entity => entity.Id == newProduct.Id);
             entity.Name = newProduct.Name;
             entity.ImageId = newProduct.ImageId;
+            entity.ProductTypeId = newProduct.ProductType?.Id;
 
             dbContext.Products.Update(entity);
             await dbContext.SaveChangesAsync();
