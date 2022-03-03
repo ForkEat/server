@@ -22,17 +22,21 @@ public class ProductService : IProductService
 
     public async Task<GetProductResponse> CreateProduct(CreateUpdateProductRequest createUpdateProductRequest)
     {
+        var productType = createUpdateProductRequest.ProductTypeId.HasValue
+            ? await productTypeRepository.FindProductTypeById(createUpdateProductRequest.ProductTypeId.Value)
+            : null;
+
         var product = new Product
         (
             Guid.NewGuid(),
             createUpdateProductRequest.Name,
             createUpdateProductRequest.ImageId,
-            null
+            productType
         );
 
         product = await productRepository.InsertProduct(product);
             
-        return new GetProductResponse{ Id = product.Id, Name = product.Name, ImageId = product.ImageId};
+        return new GetProductResponse{ Id = product.Id, Name = product.Name, ImageId = product.ImageId, ProductType = product.ProductType};
     }
 
     private async Task<Product> FindProductById(Guid id)
@@ -68,7 +72,7 @@ public class ProductService : IProductService
         productFromDb.ImageId = updatedProduct.ImageId != Guid.Empty
             ? updatedProduct.ImageId
             : productFromDb.ImageId;
-        productFromDb.ProductType = updatedProduct.ProductTypeId != null
+        productFromDb.ProductType = updatedProduct.ProductTypeId.HasValue
             ? await productTypeRepository.FindProductTypeById(updatedProduct.ProductTypeId.Value)
             : productFromDb.ProductType;
         productFromDb =  await productRepository.UpdateProduct(productFromDb);
