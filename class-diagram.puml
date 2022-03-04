@@ -1,0 +1,57 @@
+﻿@startuml
+
+class Recipe {
+    + Id: Guid
+    + Name: string
+    + IsLiked: bool
+    + Difficulty: uint
+    + TotalEstimatedTime: TimeSpan
+}
+
+class Step {
+    + Id: Guid
+    + Name: string
+    + Instruction: string
+    + EstimatedTime: TimeSpan
+}
+
+class Ingredient {
+    + Id: Guid
+    + Quantity: uint
+}
+
+class Product {
+    + Id: Guid
+    + Name: string
+}
+
+class ProductType {
+    + Id: Guid
+    + Name: string
+}
+
+
+class Unit {
+    + Id: Guid
+    + Name: string
+    + Symbol: string
+}
+
+class Stock {
+    + Id: Guid
+    + Quantity: uint
+    + BestBeforeDate: Date
+    + PurchaseDate: Date
+}
+
+Recipe "*" *--> "1" Step : + Steps
+Recipe "*" *--> "1" Ingredient : + Ingredients
+Ingredient "1" o--> "*" Product : + Product
+Ingredient "1" o--> "*" Unit : + Unit
+Product "1" o--> "*" ProductType : + ProductType
+
+
+Stock "1" o--> "*" Product : + Product
+Stock "1" o--> "*" Unit : + Unit
+
+@enduml
