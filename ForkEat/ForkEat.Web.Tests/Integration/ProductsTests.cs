@@ -36,17 +36,12 @@ namespace ForkEat.Web.Tests.Integration
             // Then
             response.StatusCode.Should().Be(HttpStatusCode.Created);
             var result = await response.Content.ReadAsAsync<GetProductResponse>();
+            
             result.Id.Should().NotBe(Guid.Empty);
             result.Name.Should().Be("carrot");
 
-            var file = await File.ReadAllBytesAsync("TestAssets/test-file.gif");
-            var fileData = await client.GetAsync($"api/files/{result.ImageId}");
-            var resultData = await fileData.Content.ReadAsByteArrayAsync();
-            resultData.Should().BeEquivalentTo(file);
+            await AssertThatFileIsEquivalentToImageFromApi("TestAssets/test-file.gif", result.ImageId);
         }
-        
-        
-
         
         [Fact]
         public async Task GetProductById_WithExistingProduct_Returns200()
@@ -110,9 +105,12 @@ namespace ForkEat.Web.Tests.Integration
             var response = await client.DeleteAsync("/api/products/" + productId);
 
             // Then
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
             var getResponse = await client.GetAsync("/api/products/" + productId);
             getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            
+            await using var specialContext = new ApplicationDbContext(this.GetOptionsForOtherDbContext());
+            (await specialContext.Files.CountAsync()).Should().Be(0);
         }
 
         [Fact]
@@ -139,7 +137,7 @@ namespace ForkEat.Web.Tests.Integration
             Guid imageId = productEntity.ImageId;
 
             // When
-            var createUpdateProductRequestUpdated = UpdateProductRequestContent($"{productName} updated");
+            var createUpdateProductRequestUpdated = CreateProductRequestContent($"{productName} updated");
             var response = await client.PutAsync("/api/products/" + productId, createUpdateProductRequestUpdated);
 
             // Then
@@ -451,26 +449,7 @@ namespace ForkEat.Web.Tests.Integration
             stockProduct2.BestBeforeDate.Should().Be(DateOnly.FromDateTime(DateTime.Today.AddDays(1)));
             stockProduct2.PurchaseDate.Should().Be(DateOnly.FromDateTime(DateTime.Today));
         }
-
-        private static MultipartFormDataContent UpdateProductRequestContent(string productName)
-        {
-            var createProductRequest = new CreateUpdateProductRequest()
-            {
-                Name = productName
-            };
-
-
-            var formDataContent = new MultipartFormDataContent(Guid.NewGuid().ToString());
-
-            var stringContent = new StringContent(JsonConvert.SerializeObject(createProductRequest));
-            formDataContent.Add(stringContent, "payload");
-
-            var streamContent = new StreamContent(File.OpenRead("TestAssets/test-file.gif"));
-            streamContent.Headers.Add("Content-Type", "application/octet-stream");
-
-            formDataContent.Add(streamContent, "image", Path.GetFileName("TestAssets/test-file.gif"));
-            return formDataContent;
-        }
+        
         
         private static MultipartFormDataContent CreateProductRequestContent(string productName)
         {
