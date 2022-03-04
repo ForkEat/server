@@ -29,6 +29,7 @@ public class ProductRepository : IProductRepository
     {
         var entity = await dbContext
             .Products
+            .Include(product => product.ProductType)
             .FirstOrDefaultAsync(product => product.Id == id);
 
         return entity is null ? null : new Product(entity.Id, entity.Name, entity.ImageId, entity.ProductType);

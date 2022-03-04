@@ -61,6 +61,33 @@ namespace ForkEat.Web.Tests.Integration
             result.Name.Should().Be("carrot");
             result.ImageId.Should().NotBe(Guid.Empty);
         }
+        
+        [Fact]
+        public async Task GetProductById_WithExistingProduct_Returns200AndProductType()
+        {
+            // Given
+            var productType = new ProductType() {Id = Guid.NewGuid(), Name = "Test Product Type"};
+            await this.context.ProductTypes.AddAsync(productType);
+            await this.context.SaveChangesAsync();
+            using var carrotCreateProductContent = CreateProductRequestContent("carrot", productType.Id);
+            
+            var createdProductResponse = await client.PostAsync("/api/products", carrotCreateProductContent);
+            var createdProductResult = await createdProductResponse.Content.ReadAsAsync<GetProductResponse>();
+            var productId = createdProductResult.Id;
+
+            // When
+            var response = await client.GetAsync("/api/products/" + productId);
+
+            // Then
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var result = await response.Content.ReadAsAsync<GetProductResponse>();
+            result.Id.Should().Be(productId);
+            result.Name.Should().Be("carrot");
+            result.ImageId.Should().NotBe(Guid.Empty);
+            result.ProductType.Should().NotBeNull();
+            result.ProductType.Id.Should().NotBeEmpty();
+            result.ProductType.Name.Should().Be("Test Product Type");
+        }
 
         [Fact]
         public async Task GetProductById_WithNonExistingProduct_Returns404()
@@ -451,11 +478,12 @@ namespace ForkEat.Web.Tests.Integration
         }
         
         
-        private static MultipartFormDataContent CreateProductRequestContent(string productName)
+        private static MultipartFormDataContent CreateProductRequestContent(string productName, Guid? productTypeId = null)
         {
             var createProductRequest = new CreateUpdateProductRequest()
             {
-                Name = productName
+                Name = productName,
+                ProductTypeId = productTypeId
             };
 
 
