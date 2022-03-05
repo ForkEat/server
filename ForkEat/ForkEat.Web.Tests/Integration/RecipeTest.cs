@@ -22,7 +22,7 @@ namespace ForkEat.Web.Tests.Integration;
 public class RecipeTest : AuthenticatedTests
 {
     public RecipeTest(WebApplicationFactory<Startup> factory) : base(factory,
-        new string[] {"Likes", "Stocks", "Recipes", "Steps", "Ingredients", "Products", "Units","Files"})
+        new string[] {"Likes", "Stocks", "Recipes", "Steps", "Ingredients", "Products", "Units","Files","ProductTypes"})
     {
     }
 

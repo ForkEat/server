@@ -20,7 +20,7 @@ namespace ForkEat.Web.Tests.Integration
     public class ProductsTests : AuthenticatedTests
     {
         public ProductsTests(WebApplicationFactory<Startup> factory) : base(factory,
-            new string[] {"Stocks", "Products", "Units","Files"})
+            new string[] {"Stocks", "Products", "Units","Files","ProductTypes"})
         {
         }
 
@@ -474,7 +474,8 @@ namespace ForkEat.Web.Tests.Integration
             stockProduct1.Unit.Symbol.Should().Be(unit.Symbol);
             stockProduct1.BestBeforeDate.Should().Be(DateOnly.FromDateTime(DateTime.Today.AddDays(4)));
             stockProduct1.PurchaseDate.Should().Be(DateOnly.FromDateTime(DateTime.Today));
-
+            stockProduct1.Product.ProductType.Name.Should().Be("Vegetable");
+            
             stockProduct2.Product.Name.Should().Be(product2.Name);
             stockProduct2.Product.ImageId.Should().Be(product2.ImageId);
             stockProduct2.Quantity.Should().Be(4);
@@ -483,6 +484,7 @@ namespace ForkEat.Web.Tests.Integration
             stockProduct2.Unit.Symbol.Should().Be(unit.Symbol);
             stockProduct2.BestBeforeDate.Should().Be(DateOnly.FromDateTime(DateTime.Today.AddDays(1)));
             stockProduct2.PurchaseDate.Should().Be(DateOnly.FromDateTime(DateTime.Today));
+            stockProduct2.Product.ProductType.Name.Should().Be("Vegetable");
         }
         
         

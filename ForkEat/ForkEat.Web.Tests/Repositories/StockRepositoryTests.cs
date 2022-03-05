@@ -14,7 +14,7 @@ namespace ForkEat.Web.Tests.Repositories;
 
 public class StockRepositoryTests : RepositoryTest
 {
-    public StockRepositoryTests() : base(new string[] {"Stocks", "Units", "Products"})
+    public StockRepositoryTests() : base(new string[] {"Stocks", "Units", "Products","ProductTypes"})
     {
     }
 

@@ -104,6 +104,7 @@ public class StockRepository : IStockRepository
         return this.dbContext
             .Stocks
             .Include(stock => stock.Product)
+            .ThenInclude(product => product.ProductType)
             .Include(stock => stock.Unit)
             .Select(entity => CreateStockFromStockEntity(entity))
             .ToListAsync();

@@ -35,8 +35,12 @@ public class DataFactory
         
     public async Task<(ProductEntity, ProductEntity)> CreateAndInsertProducts()
     {
-        var product1 = new ProductEntity(){ Id = Guid.NewGuid(),Name =  "Product 1", ImageId = Guid.NewGuid()};
-        var product2 = new ProductEntity(){ Id = Guid.NewGuid(),Name =  "Product 2", ImageId = Guid.NewGuid()};
+        var productType = new ProductType() {Id = Guid.NewGuid(), Name = "Vegetable"};
+        await this.context.ProductTypes.AddAsync(productType);
+        await this.context.SaveChangesAsync();
+        
+        var product1 = new ProductEntity(){ Id = Guid.NewGuid(),Name =  "Product 1", ImageId = Guid.NewGuid(), ProductType = productType};
+        var product2 = new ProductEntity(){ Id = Guid.NewGuid(),Name =  "Product 2", ImageId = Guid.NewGuid(), ProductType = productType};
 
         await context.AddRangeAsync(product1, product2);
         await context.SaveChangesAsync();
