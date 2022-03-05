@@ -100,11 +100,14 @@ namespace ForkEat.Web.Tests.Integration
         }
 
         [Fact]
-        public async Task GetAllProducts_Returns200()
+        public async Task GetAllProducts_Returns200AndProductType()
         {
             // Given
-            using var carrotCreateProductContent = CreateProductRequestContent("carrot");
-            using var tomatoCreateProductContent = CreateProductRequestContent("tomato");
+            var productType = new ProductType() {Id = Guid.NewGuid(), Name = "Vegetable"};
+            await this.context.ProductTypes.AddAsync(productType);
+            await this.context.SaveChangesAsync();
+            using var carrotCreateProductContent = CreateProductRequestContent("carrot", productType.Id);
+            using var tomatoCreateProductContent = CreateProductRequestContent("tomato", productType.Id);
             
             await client.PostAsync("/api/products", carrotCreateProductContent);
             await client.PostAsync("/api/products", tomatoCreateProductContent);
@@ -116,6 +119,11 @@ namespace ForkEat.Web.Tests.Integration
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var result = await response.Content.ReadAsAsync<IList<GetProductResponse>>();
             result.Should().HaveCount(2);
+            result.First(product => product.Name == "carrot").ProductType.Should().NotBeNull();
+            result.First(product => product.Name == "carrot").ProductType.Name.Should().Be("Vegetable");
+            
+            result.First(product => product.Name == "tomato").ProductType.Should().NotBeNull();
+            result.First(product => product.Name == "tomato").ProductType.Name.Should().Be("Vegetable");
         }
 
         [Fact]

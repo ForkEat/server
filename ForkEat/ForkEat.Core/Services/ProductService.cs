@@ -55,7 +55,7 @@ public class ProductService : IProductService
     {
         var products = await productRepository.FindAllProducts();
         return products
-            .Select(product => new GetProductResponse() {Id = product.Id, Name = product.Name, ImageId = product.ImageId})
+            .Select(product => new GetProductResponse() {Id = product.Id, Name = product.Name, ImageId = product.ImageId, ProductType = product.ProductType})
             .ToList();
     }
 

@@ -46,7 +46,10 @@ public class ProductRepository : IProductRepository
 
         public async Task<List<Product>> FindAllProducts()
         {
-            var products = await dbContext.Products.ToListAsync();
+            var products = await dbContext
+                .Products
+                .Include(product => product.ProductType)
+                .ToListAsync();
             return products
                 .Select(entity => new Product(entity.Id, entity.Name, entity.ImageId, entity.ProductType))
                 .ToList();
